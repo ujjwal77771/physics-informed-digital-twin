@@ -203,7 +203,7 @@ physics-informed-digital-twin/
 ---
 
 ## Author
-
+UJJWAL DEEP
 2nd year Mechanical Engineering student  
 Motivated by observations during industrial internship with rotating machinery systems.
 
