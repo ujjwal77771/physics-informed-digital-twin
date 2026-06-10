@@ -9,9 +9,12 @@ import os
 import sys
 import asyncio
 import numpy as np
+from pathlib import Path
 from typing import List
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, validator, Field
 
 # Load ONNX Runtime
@@ -62,6 +65,21 @@ def init_onnx_session():
 @app.on_event("startup")
 async def startup_event():
     init_onnx_session()
+    # Mount built React frontend if it exists (production / HF Spaces)
+    static_dir = Path(__file__).parent.parent.parent / "static"
+    if static_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+        print(f"[INFO] Serving React frontend from {static_dir}")
+
+@app.get("/", include_in_schema=False)
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str = ""):
+    """Serve the React SPA for all non-API routes."""
+    static_dir = Path(__file__).parent.parent.parent / "static"
+    index = static_dir / "index.html"
+    if index.exists() and not full_path.startswith(("health", "predict", "ws", "docs", "openapi", "assets")):
+        return FileResponse(str(index))
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 # ------------------------------------------------------------------

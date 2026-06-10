@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import './index.css'
 
-const WS_URL = 'ws://localhost:8000/ws/telemetry'
+const WS_URL = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/telemetry`
 const MAX_HISTORY = 60
 const SENSOR_NAMES = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12','S13','S14']
 
