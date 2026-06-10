@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digital_twin_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres_pinn@timescaledb:5432/digital_twin
+      - MODEL_PATH=/app/model/vibformer.onnx
+    volumes:
+      - ./model:/app/model  # Mount model dir to allow updating ONNX files without rebuilding the container
+    depends_on:
+      - timescaledb
+    restart: always
+
+  # Time-Series Database Service
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: digital_twin_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_pinn
+      - POSTGRES_DB=digital_twin
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:
+    driver: local

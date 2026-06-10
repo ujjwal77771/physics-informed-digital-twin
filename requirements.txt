@@ -1,0 +1,18 @@
+# ML and Physics
+torch>=2.0.0
+numpy>=1.20.0
+pandas>=1.3.0
+scipy>=1.7.0
+
+# API and Deployment
+fastapi>=0.95.0
+uvicorn>=0.20.0
+pydantic>=2.0.0
+websockets>=11.0
+
+# Model Export & Inference
+onnx>=1.14.0
+onnxruntime>=1.15.0
+
+# Testing
+pytest>=7.0.0
