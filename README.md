@@ -6,87 +6,85 @@ colorTo: blue
 sdk: docker
 pinned: true
 license: mit
-short_description: Real-time bearing health monitoring & RUL prediction dashboard
+short_description: Real-time bearing health monitoring and RUL prediction dashboard
 ---
 
-# ⚙️ Physics-Informed Digital Twin — Bearing Health Monitor
-
-**Real-time industrial bearing fault diagnosis and Remaining Useful Life (RUL) prediction powered by physics-informed machine learning.**
-
-> Built by **Ujjwal Deep** · BIT Mesra, Ranchi  
-> Final Year B.Tech Project · 2025–2026
-
----
-
-## 🎯 What This Does
-
-This platform simulates a real-world **industrial digital twin** for rotating machinery:
-
-| Feature | Description |
-|:---|:---|
-| **Live Dashboard** | Real-time bearing health monitoring with animated charts |
-| **RUL Prediction** | Predicts remaining useful life in operating cycles |
-| **Fault Detection** | NORMAL → WARNING → CRITICAL status transitions |
-| **Physics-Informed ML** | VibFormer model trained with Paris Law physics constraints |
-| **14-Channel Sensors** | All sensor channels visualized live |
+<table align="center">
+  <tr>
+    <td align="center" width="100%">
+      <h1>⚙️ Physics-Informed Digital Twin</h1>
+      <h3>Real-Time Bearing Health Monitoring & Remaining Useful Life Prediction</h3>
+      <p><b>Physics-guided machine learning for industrial rotating machinery diagnostics</b></p>
+      <p>
+        <b>Author:</b> Ujjwal Deep &nbsp;•&nbsp;
+        <b>Institute:</b> BIT Mesra, Ranchi &nbsp;•&nbsp;
+        <b>Project Type:</b> Final Year B.Tech Research Project
+      </p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🧠 Technical Architecture
+## Abstract
 
-```
-IMS Bearing Dataset (20,000+ vibration samples)
-        ↓
-Preprocessing → Sliding Window (30 × 14)
-        ↓
-VibFormer (Transformer + Physics Loss)
-  - Paris Law constraint: da/dN = C·ΔK^m
-  - Monotonicity penalty
-  - MSE prediction loss
-        ↓
-ONNX Export → FastAPI Backend (port 7860)
-        ↓
-WebSocket Stream → React Dashboard
-```
+This project presents a **physics-informed digital twin framework** for industrial bearing health monitoring.  
+It combines **vibration-based condition assessment**, **Remaining Useful Life (RUL) prediction**, and **physics-constrained deep learning** to support predictive maintenance in rotating machinery systems.
+
+The proposed system ingests multi-channel vibration data, processes it through a sliding-window pipeline, and performs real-time inference using a **VibFormer** architecture augmented with physics-based regularization.
 
 ---
 
-## 🚀 How to Use
+## Research Objective
 
-1. **Open the app** — the dashboard loads automatically
-2. **Watch the live stream** — the telemetry WebSocket updates every second
-3. **Monitor status** — NORMAL (green) → WARNING (yellow) → CRITICAL (red)
-4. **Use the REST API** — visit `/docs` for the Swagger UI
+The main goal of this project is to build a practical digital twin for bearings that can:
 
-### REST API Endpoints
-
-| Method | Endpoint | Description |
-|:---|:---|:---|
-| `GET` | `/health` | System health check |
-| `POST` | `/predict` | RUL prediction from sensor window |
-| `WS` | `/ws/telemetry` | Real-time telemetry stream |
+- estimate degradation trends in real time
+- predict Remaining Useful Life
+- detect health-state transitions
+- incorporate physics constraints into ML predictions
+- provide a deployable monitoring dashboard
 
 ---
 
-## 📦 Tech Stack
+## System Overview
 
-- **ML:** PyTorch, Physics-Informed Neural Networks (PINN)
-- **Inference:** ONNX Runtime
-- **Backend:** FastAPI + WebSockets
-- **Frontend:** React + Vite + Recharts
-- **Deploy:** Docker on Hugging Face Spaces
-
----
-
-## 📊 Dataset
-
-**IMS Bearing Dataset** (University of Cincinnati)
-- 20,000+ vibration samples across 4 bearing channels
-- Run-to-failure experiments at 2000 RPM under 6000 lbs load
-- Sampled at 20 kHz
+| Stage | Description |
+|---|---|
+| **Data Source** | IMS Bearing Dataset from the University of Cincinnati |
+| **Preprocessing** | Signal cleaning, normalization, and sliding-window segmentation |
+| **Feature Learning** | Transformer-based temporal representation learning |
+| **Physics Integration** | Degradation constraints inspired by fatigue-growth behavior |
+| **Inference** | ONNX-based model execution through FastAPI |
+| **Visualization** | React dashboard with live telemetry and health state indicators |
 
 ---
 
-## 📄 License
+## Architecture
 
-MIT License — open source for educational and research use.
+```text
+IMS Bearing Dataset
+        │
+        ▼
+Signal Preprocessing
+        │
+        ▼
+Sliding Window Formation (30 × 14)
+        │
+        ▼
+VibFormer Model
+   ├── Temporal Feature Encoder
+   ├── RUL Regression Head
+   └── Physics-Informed Loss
+        │
+        ▼
+ONNX Export
+        │
+        ▼
+FastAPI Inference Layer
+        │
+        ▼
+WebSocket Telemetry Stream
+        │
+        ▼
+React Health Monitoring Dashboard
