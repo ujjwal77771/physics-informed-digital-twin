@@ -89,13 +89,27 @@ s = Σ exp(-y/13) - 1   if ŷ < y   (early prediction)
 s = Σ exp(y/10) - 1    if ŷ ≥ y   (late prediction — penalised more)
 ```
 
-### Related work
+### Research References & Data Sources
 
-This project builds on and extends:
-- Vaswani et al., "Attention Is All You Need" (NeurIPS 2017)
-- Raissi et al., "Physics-Informed Neural Networks" (JCP 2019)
-- Li et al., "Remaining Useful Life Estimation Using Transformer" (IEEE TII 2021)
-- Paris & Erdogan, "A Critical Analysis of Crack Propagation Laws" (J. Basic Eng. 1963)
+This project leverages datasets and methodology built on established academic research and official data repositories.
+
+### 📊 Datasets & Repositories
+*   **NASA Turbofan Engine Degradation Simulation Dataset (C-MAPSS):** Available on the [NASA Open Data Portal](https://data.nasa.gov/dataset/C-MAPSS-Turbofan-Engine-Degradation-Simulation-Data-Set) and the [NASA Prognostics Center of Excellence Repository](https://www.nasa.gov/content/prognostics-center-of-excellence-data-set-repository).
+*   **IMS Bearing Dataset (University of Cincinnati):** Available on the [NASA Open Data Portal: IMS Bearings](https://data.nasa.gov/dataset/ims-bearings) and via the [Prognostics Data Repository](https://www.nasa.gov/content/prognostics-center-of-excellence-data-set-repository) for bearing run-to-failure testing.
+
+### 📄 Academic & Theoretical Foundations
+*   **Physics-Informed Neural Networks (PINNs):**  
+    Raissi, M., Perdikaris, P., & Karniadakis, G. E. (2019). *Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving partial differential equations.* Journal of Computational Physics, 378, 686-707.  
+    [DOI: 10.1016/j.jcp.2018.10.045](https://doi.org/10.1016/j.jcp.2018.10.045) | [Preprint on arXiv](https://arxiv.org/abs/1711.10561)
+*   **Transformer Networks & Self-Attention:**  
+    Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., & Polosukhin, I. (2017). *Attention is all you need.* Advances in Neural Information Processing Systems (NeurIPS 2017).  
+    [Paper on arXiv](https://arxiv.org/abs/1706.03762)
+*   **Remaining Useful Life Estimation Using Transformers:**  
+    Li, X., Zhang, W., & Ding, Q. (2022). *Deep learning-based remaining useful life estimation of machinery using transformer.* IEEE Transactions on Industrial Informatics, 18(11), 7476-7485.  
+    [DOI: 10.1109/TII.2021.3117464](https://doi.org/10.1109/TII.2021.3117464)
+*   **Paris' Law (Crack Propagation Physics):**  
+    Paris, P., & Erdogan, F. (1963). *A critical analysis of crack propagation laws.* Journal of Basic Engineering, 85(4), 528-533.  
+    [DOI: 10.1115/1.3656900](https://doi.org/10.1115/1.3656900)
 
 ---
 
