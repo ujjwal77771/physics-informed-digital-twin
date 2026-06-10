@@ -6,85 +6,94 @@ colorTo: blue
 sdk: docker
 pinned: true
 license: mit
-short_description: Real-time bearing health monitoring and RUL prediction dashboard
+short_description: Real-time bearing health monitoring and Remaining Useful Life prediction
 ---
 
-<table align="center">
-  <tr>
-    <td align="center" width="100%">
-      <h1>⚙️ Physics-Informed Digital Twin</h1>
-      <h3>Real-Time Bearing Health Monitoring & Remaining Useful Life Prediction</h3>
-      <p><b>Physics-guided machine learning for industrial rotating machinery diagnostics</b></p>
-      <p>
-        <b>Author:</b> Ujjwal Deep &nbsp;•&nbsp;
-        <b>Institute:</b> BIT Mesra, Ranchi &nbsp;•&nbsp;
-        <b>Project Type:</b> Final Year B.Tech Research Project
-      </p>
-    </td>
-  </tr>
-</table>
+<div align="center">
 
----
+# Physics-Informed Digital Twin for Bearing Prognostics
 
-## Abstract
+### Real-Time Bearing Health Monitoring & Remaining Useful Life Prediction
 
-This project presents a **physics-informed digital twin framework** for industrial bearing health monitoring.  
-It combines **vibration-based condition assessment**, **Remaining Useful Life (RUL) prediction**, and **physics-constrained deep learning** to support predictive maintenance in rotating machinery systems.
+[![Python](https://img.shields.io/badge/Python-3.11-blue)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red)]()
+[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green)]()
+[![React](https://img.shields.io/badge/React-18-blue)]()
+[![ONNX](https://img.shields.io/badge/ONNX-Runtime-orange)]()
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow)]()
 
-The proposed system ingests multi-channel vibration data, processes it through a sliding-window pipeline, and performs real-time inference using a **VibFormer** architecture augmented with physics-based regularization.
+Physics-guided machine learning framework for industrial bearing health monitoring,
+fault diagnosis, degradation tracking, and Remaining Useful Life (RUL) estimation.
+
+</div>
 
 ---
 
-## Research Objective
+## Overview
 
-The main goal of this project is to build a practical digital twin for bearings that can:
+Unexpected bearing failures are one of the primary causes of downtime in rotating machinery and industrial assets. This project implements a physics-informed digital twin capable of continuously monitoring bearing degradation and forecasting Remaining Useful Life (RUL) using vibration sensor measurements.
 
-- estimate degradation trends in real time
-- predict Remaining Useful Life
-- detect health-state transitions
-- incorporate physics constraints into ML predictions
-- provide a deployable monitoring dashboard
+Unlike purely data-driven approaches, the framework incorporates physics-inspired degradation constraints during training, enabling more realistic and stable predictions throughout the bearing lifecycle.
 
 ---
 
-## System Overview
+## Key Capabilities
 
-| Stage | Description |
-|---|---|
-| **Data Source** | IMS Bearing Dataset from the University of Cincinnati |
-| **Preprocessing** | Signal cleaning, normalization, and sliding-window segmentation |
-| **Feature Learning** | Transformer-based temporal representation learning |
-| **Physics Integration** | Degradation constraints inspired by fatigue-growth behavior |
-| **Inference** | ONNX-based model execution through FastAPI |
-| **Visualization** | React dashboard with live telemetry and health state indicators |
+| Capability | Description |
+|------------|-------------|
+| Health Monitoring | Continuous bearing condition assessment |
+| RUL Prediction | Remaining Useful Life estimation |
+| Fault Detection | Early warning and critical failure detection |
+| Physics-Informed Learning | Domain-constrained machine learning |
+| Live Telemetry | Real-time sensor streaming |
+| Multi-Channel Analysis | Simultaneous vibration channel monitoring |
+| Dashboard Visualization | Interactive health analytics |
+| API Access | Programmatic model inference |
 
 ---
 
-## Architecture
+## Motivation
+
+Modern predictive maintenance systems frequently struggle with:
+
+- Physically inconsistent degradation predictions
+- Poor extrapolation near failure regions
+- Limited interpretability of learned patterns
+- Difficulty deploying research models in production environments
+
+This project addresses these limitations through a hybrid digital twin architecture that combines transformer-based sequence modeling with degradation-aware learning objectives.
+
+---
+
+## System Architecture
 
 ```text
 IMS Bearing Dataset
         │
         ▼
-Signal Preprocessing
+Signal Conditioning
         │
         ▼
-Sliding Window Formation (30 × 14)
+Window Generation
+      (30 × 14)
         │
         ▼
-VibFormer Model
-   ├── Temporal Feature Encoder
-   ├── RUL Regression Head
-   └── Physics-Informed Loss
+VibFormer Network
+        │
+        ├── Temporal Attention Encoder
+        ├── Physics Regularization
+        ├── Monotonicity Constraint
+        └── RUL Regression Head
         │
         ▼
-ONNX Export
+ONNX Runtime
         │
         ▼
-FastAPI Inference Layer
+FastAPI Inference Server
         │
         ▼
-WebSocket Telemetry Stream
+WebSocket Telemetry Layer
         │
         ▼
-React Health Monitoring Dashboard
+React Monitoring Dashboard
