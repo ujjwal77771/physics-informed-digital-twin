@@ -14,7 +14,7 @@ short_description: Real-time bearing health monitoring & RUL prediction dashboar
 **Real-time industrial bearing fault diagnosis and Remaining Useful Life (RUL) prediction powered by physics-informed machine learning.**
 
 > Built by **Ujjwal Deep** · BIT Mesra, Ranchi  
-> Final Year B.Tech Project · 2025–2026
+
 
 ---
 
