@@ -7,6 +7,7 @@ import {
   Activity, Cpu, AlertTriangle, CheckCircle2, XCircle,
   Wifi, WifiOff, TrendingDown, Zap, Gauge, Clock, BarChart2
 } from 'lucide-react'
+import SplashScreen from './SplashScreen.jsx'
 import './index.css'
 
 const WS_URL = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws/telemetry`
@@ -81,11 +82,12 @@ function CustomTooltip({ active, payload, label }) {
 
 // ── Main App ────────────────────────────────────────────────────
 export default function App() {
-  const [wsState, setWsState]       = useState('disconnected')  // connecting | connected | disconnected
-  const [latest, setLatest]         = useState(null)
-  const [history, setHistory]       = useState([])
-  const [events, setEvents]         = useState([])
-  const [prevStatus, setPrevStatus] = useState(null)
+  const [showSplash, setShowSplash]   = useState(true)
+  const [wsState, setWsState]         = useState('disconnected')
+  const [latest, setLatest]           = useState(null)
+  const [history, setHistory]         = useState([])
+  const [events, setEvents]           = useState([])
+  const [prevStatus, setPrevStatus]   = useState(null)
   const wsRef = useRef(null)
 
   const connect = useCallback(() => {
@@ -140,7 +142,9 @@ export default function App() {
   const gradId = `grad-${status}`
 
   return (
-    <div className="app">
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      <div className="app" style={{ opacity: showSplash ? 0 : 1, transition: 'opacity 0.5s ease' }}>
       {/* ── Header ── */}
       <header className="header">
         <div className="header-brand">
@@ -327,6 +331,7 @@ export default function App() {
       <footer className="footer">
         Physics-Informed Digital Twin · BIT Mesra · Ujjwal Deep · {new Date().getFullYear()}
       </footer>
-    </div>
+      </div>
+    </>
   )
 }

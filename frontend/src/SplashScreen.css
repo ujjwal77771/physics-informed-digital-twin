@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════════════════════
+   SPLASH SCREEN — Professional 2.5s startup animation
+   ═══════════════════════════════════════════════════════════ */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #030810;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* Enter fade */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.splash.run  { opacity: 1; }
+.splash.exit {
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* ── Ambient orbs ─────────────────────────────────────────── */
+.splash-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%);
+  top: -100px; left: -150px;
+  animation: orb-drift 8s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%);
+  bottom: -80px; right: -100px;
+  animation: orb-drift 10s ease-in-out infinite alternate-reverse;
+}
+
+.orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(34,211,165,0.06) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: orb-pulse 3s ease-in-out infinite;
+}
+
+@keyframes orb-drift {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(40px, 30px); }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* ── Grid ─────────────────────────────────────────────────── */
+.splash-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* ── Centre layout ────────────────────────────────────────── */
+.splash-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+}
+
+/* ── Icon wrapper ─────────────────────────────────────────── */
+.icon-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SVG rings */
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ring-outer {
+  animation: spin-cw 4s linear infinite;
+}
+
+.ring-mid {
+  animation: spin-ccw 3s linear infinite;
+}
+
+@keyframes spin-cw  { to { transform: rotate(360deg); } }
+@keyframes spin-ccw { to { transform: rotate(-360deg); } }
+
+/* Bearing (static geometry) */
+.bearing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: bearing-slow 12s linear infinite;
+}
+
+@keyframes bearing-slow { to { transform: rotate(360deg); } }
+
+/* Pulse rings */
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(56,189,248,0.5);
+  animation: pulse-out 2s ease-out infinite;
+}
+
+.pulse-1 { width: 110px; height: 110px; animation-delay: 0s; }
+.pulse-2 { width: 110px; height: 110px; animation-delay: 0.6s; }
+.pulse-3 { width: 110px; height: 110px; animation-delay: 1.2s; }
+
+@keyframes pulse-out {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ECG / heartbeat line */
+.ecg-line {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: 40px;
+  overflow: visible;
+}
+
+.ecg-line polyline {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: draw-ecg 1.2s ease forwards 0.3s;
+  filter: drop-shadow(0 0 4px #22d3a5);
+}
+
+@keyframes draw-ecg {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Orbiting particles */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  top: 50%;
+  left: 50%;
+  animation: orbit var(--dur, 3s) linear infinite;
+  animation-delay: var(--delay);
+  transform-origin: 0 0;
+}
+
+.particle:nth-child(odd)  { background: #22d3a5; box-shadow: 0 0 6px #22d3a5; }
+.particle:nth-child(3n)   { background: #818cf8; box-shadow: 0 0 6px #818cf8; }
+
+@keyframes orbit {
+  0%   { transform: rotate(calc(var(--i) * 30deg)) translateX(var(--r)) scale(1);   opacity: 1; }
+  50%  { opacity: 0.4; transform: rotate(calc(var(--i) * 30deg + 180deg)) translateX(var(--r)) scale(0.6); }
+  100% { transform: rotate(calc(var(--i) * 30deg + 360deg)) translateX(var(--r)) scale(1); opacity: 1; }
+}
+
+/* ── Text block ───────────────────────────────────────────── */
+.splash-text {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.splash-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: rgba(56,189,248,0.7);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  animation: fade-up 0.6s ease 0.2s both;
+}
+
+.splash-title {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  background: linear-gradient(135deg, #f0f6ff 30%, #38bdf8 70%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fade-up 0.6s ease 0.3s both;
+}
+
+.cursor {
+  display: inline-block;
+  -webkit-text-fill-color: #38bdf8;
+  animation: blink 0.7s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.splash-sub {
+  font-size: 12px;
+  color: rgba(139,156,181,0.8);
+  font-weight: 400;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+  animation: fade-up 0.6s ease 0.5s both;
+}
+
+/* ── Progress bar ─────────────────────────────────────────── */
+.splash-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: fade-up 0.6s ease 0.7s both;
+}
+
+.splash-progress-track {
+  width: min(320px, 70vw);
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.splash-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  border-radius: 99px;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 12px rgba(56,189,248,0.6);
+}
+
+.splash-progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(56,189,248,0.7);
+  min-width: 34px;
+}
+
+/* ── Tech tags ────────────────────────────────────────────── */
+.splash-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fade-up 0.6s ease 0.9s both;
+}
+
+.splash-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(56,189,248,0.2);
+  color: rgba(56,189,248,0.6);
+  background: rgba(56,189,248,0.04);
+}
+
+/* ── Shared fade-up ───────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
