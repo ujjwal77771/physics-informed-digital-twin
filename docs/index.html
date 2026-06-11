@@ -371,6 +371,45 @@ a{text-decoration:none}
 .perf-fill{height:100%;border-radius:99px;width:0%;transition:width 1.6s cubic-bezier(.23,1,.32,1)}
 
 /* ══════════════════════════════════════════════════════
+   API SECTION
+══════════════════════════════════════════════════════ */
+.api-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.api-card{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:var(--r16);overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .2s,transform .2s;
+}
+.api-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.api-card-head{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  background:var(--off);
+}
+.method{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:3px 9px;border-radius:var(--r4);letter-spacing:.04em;
+}
+.m-get{color:#10b981;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25)}
+.m-post{color:#6366f1;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25)}
+.m-ws{color:#0ea5e9;background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.25)}
+.endpoint{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink)}
+.api-card-body{padding:16px 20px}
+.api-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:12px}
+.api-params{display:flex;flex-direction:column;gap:6px}
+.param-row{display:flex;align-items:baseline;gap:10px}
+.param-name{font-family:var(--mono);font-size:11px;color:var(--cyan);min-width:100px;font-weight:600}
+.param-type{font-family:var(--mono);font-size:10px;color:var(--muted2);background:var(--off2);border:1px solid var(--border);padding:1px 6px;border-radius:var(--r4)}
+.param-desc{font-size:12px;color:var(--muted)}
+.api-response{
+  margin-top:12px;background:var(--ink);border-radius:var(--r8);
+  padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.8;
+  color:#e2e8f0;overflow-x:auto;
+}
+.api-full{grid-column:1/-1}
+
+/* ══════════════════════════════════════════════════════
    FOOTER
 ══════════════════════════════════════════════════════ */
 .footer{
@@ -700,6 +739,99 @@ a{text-decoration:none}
       <div class="perf-val">12.1 <span class="perf-unit">cycles</span></div>
       <div class="perf-bar"><div class="perf-fill" style="background:var(--indigo)" data-w="65"></div></div>
     </div>
+  </div>
+</div>
+
+<!-- ══ API ══ -->
+<div class="divider">
+  <div class="divider-line"></div>
+  <span class="divider-label">REST API Reference</span>
+  <div class="divider-line"></div>
+</div>
+
+<div class="api-section reveal" id="api">
+  <div style="margin-bottom:32px">
+    <div class="section-label">OpenAPI · FastAPI · Uvicorn</div>
+    <div class="section-title" style="margin-bottom:8px">Inference API Reference</div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.7;max-width:600px">Full Swagger UI available at <code style="font-family:var(--mono);background:var(--off2);padding:2px 6px;border-radius:4px;font-size:13px">/docs</code> when the server is running. Base URL: <code style="font-family:var(--mono);background:var(--off2);padding:2px 6px;border-radius:4px;font-size:13px">http://localhost:8000</code></p>
+  </div>
+  <div class="api-grid">
+
+    <!-- GET /health -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method m-get">GET</span>
+        <span class="endpoint">/health</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">System health check. Returns server status and whether the ONNX model is loaded and ready for inference.</div>
+        <div class="api-response"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"healthy"</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"model_loaded"</span>: <span style="color:#f59e0b">true</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"onnx_available"</span>: <span style="color:#f59e0b">true</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"api_version"</span>: <span style="color:#86efac">"1.0.0"</span><br>
+<span style="color:#86efac">}</span></div>
+      </div>
+    </div>
+
+    <!-- POST /predict -->
+    <div class="api-card">
+      <div class="api-card-head">
+        <span class="method m-post">POST</span>
+        <span class="endpoint">/predict</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Run RUL prediction on a 30-timestep sliding window of 14 sensor channels. Returns predicted RUL, health index, status, and recommendation.</div>
+        <div class="api-params">
+          <div class="param-row">
+            <span class="param-name">sequence</span>
+            <span class="param-type">float[30][14]</span>
+            <span class="param-desc">30 time steps × 14 sensor readings</span>
+          </div>
+        </div>
+        <div class="api-response"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">83.4</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.667</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"WARNING"</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"recommendation"</span>: <span style="color:#86efac">"Schedule inspection..."</span><br>
+<span style="color:#86efac">}</span></div>
+      </div>
+    </div>
+
+    <!-- WS /ws/telemetry -->
+    <div class="api-card api-full">
+      <div class="api-card-head">
+        <span class="method m-ws">WS</span>
+        <span class="endpoint">/ws/telemetry</span>
+      </div>
+      <div class="api-card-body">
+        <div class="api-desc">Real-time WebSocket stream that pushes bearing telemetry every second. Simulates a run-to-failure sequence with live RUL, health index, sensor readings, and status transitions. Connect from any WebSocket client.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Stream Payload (JSON)</div>
+            <div class="api-response" style="margin-top:0"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"step"</span>: <span style="color:#f59e0b">42</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"sensors"</span>: <span style="color:#f59e0b">[0.12, ...]</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"true_rul"</span>: <span style="color:#f59e0b">83.0</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">80.7</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.646</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"NORMAL"</span><br>
+<span style="color:#86efac">}</span></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Connect Example (Python)</div>
+            <div class="api-response" style="margin-top:0"><span style="color:#c792ea">import</span> <span style="color:#7dd3fc">asyncio</span>, <span style="color:#7dd3fc">websockets</span>, <span style="color:#7dd3fc">json</span><br><br>
+<span style="color:#c792ea">async def</span> <span style="color:#7dd3fc">monitor</span>():<br>
+&nbsp;&nbsp;<span style="color:#c792ea">async with</span> websockets.<span style="color:#7dd3fc">connect</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"ws://localhost:8000/ws/telemetry"</span><br>
+&nbsp;&nbsp;) <span style="color:#c792ea">as</span> ws:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea">async for</span> msg <span style="color:#c792ea">in</span> ws:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc">print</span>(json.<span style="color:#7dd3fc">loads</span>(msg))</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
