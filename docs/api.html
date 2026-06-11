@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>API Reference · VibFormer</title>
+<meta name="description" content="FastAPI REST and WebSocket API reference for VibFormer. GET /health, POST /predict, WS /ws/telemetry with Python and JavaScript examples."/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="_shared.css"/>
+<style>
+/* API layout */
+.api-layout{display:grid;grid-template-columns:220px 1fr;gap:40px;align-items:start}
+.api-sidebar{position:sticky;top:80px}
+.sidebar-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;padding:0 4px}
+.sidebar-group{margin-bottom:24px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r6);font-size:13px;color:var(--muted);transition:all .15s;cursor:pointer;font-weight:500}
+.sidebar-link:hover{background:var(--off2);color:var(--ink)}
+.sidebar-link.active{background:var(--off2);color:var(--ink);font-weight:600}
+.method-tag{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r4);letter-spacing:.03em}
+.t-get{color:var(--green);background:var(--green-s);border:1px solid rgba(16,185,129,.2)}
+.t-post{color:var(--indigo);background:var(--indigo-s);border:1px solid rgba(99,102,241,.2)}
+.t-ws{color:var(--cyan);background:var(--cyan-s);border:1px solid rgba(14,165,233,.2)}
+/* endpoint card */
+.endpoint-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);overflow:hidden;box-shadow:var(--sh-sm);margin-bottom:24px}
+.ep-head{padding:20px 24px;border-bottom:1px solid var(--border);background:var(--off);display:flex;align-items:center;gap:14px}
+.ep-method{font-family:var(--mono);font-size:13px;font-weight:700;padding:5px 12px;border-radius:var(--r6)}
+.m-get{color:var(--green);background:rgba(16,185,129,.1);border:1.5px solid rgba(16,185,129,.25)}
+.m-post{color:var(--indigo);background:rgba(99,102,241,.1);border:1.5px solid rgba(99,102,241,.25)}
+.m-ws{color:var(--cyan);background:rgba(14,165,233,.1);border:1.5px solid rgba(14,165,233,.25)}
+.ep-path{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink)}
+.ep-body{padding:24px}
+.ep-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+/* params */
+.params-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.params-table th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);padding:8px 14px;background:var(--off);border-bottom:1px solid var(--border);text-align:left;font-weight:600}
+.params-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.params-table tr:last-child td{border-bottom:none}
+.p-name{font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:600}
+.p-type{font-family:var(--mono);font-size:11px;color:var(--muted2);background:var(--off2);border:1px solid var(--border);padding:2px 6px;border-radius:var(--r4)}
+.p-desc{font-size:12px;color:var(--muted)}
+/* response box */
+.resp-label{font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+/* code tabs */
+.tab-row{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab-btn{font-family:var(--mono);font-size:12px;padding:8px 16px;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:var(--r4) var(--r4) 0 0}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);background:var(--cyan-s)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><div class="logo-mark">⚙</div>VibFormer / bearing-dt</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="model.html">Model</a>
+    <a href="performance.html">Performance</a>
+    <a href="api.html" class="active">API</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-ver">v1.0 · MIT</span>
+    <a class="btn-nav" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span>API Reference</div>
+    <div class="page-eyebrow">OpenAPI · FastAPI · Uvicorn</div>
+    <h1 class="page-h1">Inference <span class="hl">API Reference</span></h1>
+    <p class="page-sub">Full Swagger UI at <code style="font-family:var(--mono);background:var(--off2);padding:2px 8px;border-radius:4px;font-size:14px">/docs</code> when the server is running. Base URL: <code style="font-family:var(--mono);background:var(--off2);padding:2px 8px;border-radius:4px;font-size:14px">http://localhost:8000</code></p>
+  </div>
+</div>
+
+<div class="content">
+  <div class="api-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="api-sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-label">Endpoints</div>
+        <a class="sidebar-link" href="#health"><span class="method-tag t-get">GET</span>/health</a>
+        <a class="sidebar-link" href="#predict"><span class="method-tag t-post">POST</span>/predict</a>
+        <a class="sidebar-link" href="#telemetry"><span class="method-tag t-ws">WS</span>/ws/telemetry</a>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-label">Resources</div>
+        <a class="sidebar-link" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub →</a>
+        <a class="sidebar-link" href="architecture.html">Architecture</a>
+        <a class="sidebar-link" href="model.html">Model Docs</a>
+      </div>
+    </aside>
+
+    <!-- ENDPOINTS -->
+    <div>
+
+      <!-- GET /health -->
+      <div class="endpoint-card reveal" id="health">
+        <div class="ep-head">
+          <span class="ep-method m-get">GET</span>
+          <span class="ep-path">/health</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">System health check. Returns server status and whether the ONNX model is loaded and ready for inference. Use this before sending prediction requests to verify the server is live.</div>
+          <div class="resp-label">Response 200</div>
+          <div class="code-block" style="margin-bottom:20px">
+            <div class="code-body"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"healthy"</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"model_loaded"</span>: <span style="color:#f59e0b">true</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"onnx_available"</span>: <span style="color:#f59e0b">true</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"api_version"</span>: <span style="color:#86efac">"1.0.0"</span><br>
+<span style="color:#86efac">}</span></div>
+          </div>
+          <div class="tab-row">
+            <button class="tab-btn active" onclick="switchTab(this,'curl-health')">cURL</button>
+            <button class="tab-btn" onclick="switchTab(this,'py-health')">Python</button>
+          </div>
+          <div id="curl-health" class="tab-panel active">
+            <div class="code-block"><div class="code-body"><span style="color:#c792ea">curl</span> http://localhost:8000/health</div></div>
+          </div>
+          <div id="py-health" class="tab-panel">
+            <div class="code-block"><div class="code-body"><span class="kw">import</span> <span class="fn">requests</span><br>r = requests.<span class="fn">get</span>(<span class="str">"http://localhost:8000/health"</span>)<br><span class="fn">print</span>(r.json())</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST /predict -->
+      <div class="endpoint-card reveal" id="predict">
+        <div class="ep-head">
+          <span class="ep-method m-post">POST</span>
+          <span class="ep-path">/predict</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">Run RUL prediction on a 30-timestep sliding window of 14 sensor feature channels. Returns predicted remaining useful life, health index, status classification, and maintenance recommendation string.</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">sequence</td><td><span class="p-type">float[30][14]</span></td><td class="p-desc">30 consecutive timesteps × 14 engineered features. Each row is one measurement window.</td></tr>
+            </tbody>
+          </table>
+          <div class="resp-label">Response 200</div>
+          <div class="code-block" style="margin-bottom:20px">
+            <div class="code-body"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">83.4</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.667</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"WARNING"</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"recommendation"</span>: <span style="color:#86efac">"Schedule inspection within 48h"</span><br>
+<span style="color:#86efac">}</span></div>
+          </div>
+          <div class="tab-row">
+            <button class="tab-btn active" onclick="switchTab(this,'py-predict')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this,'js-predict')">JavaScript</button>
+            <button class="tab-btn" onclick="switchTab(this,'curl-predict')">cURL</button>
+          </div>
+          <div id="py-predict" class="tab-panel active">
+            <div class="code-block"><div class="code-body"><span class="kw">import</span> requests, numpy <span class="kw">as</span> np<br><br>
+sequence = np.<span class="fn">random</span>.<span class="fn">randn</span>(<span class="str">30</span>, <span class="str">14</span>).<span class="fn">tolist</span>()<br><br>
+r = requests.<span class="fn">post</span>(<br>
+&nbsp;&nbsp;<span class="str">"http://localhost:8000/predict"</span>,<br>
+&nbsp;&nbsp;json={<span class="str">"sequence"</span>: sequence}<br>
+)<br>
+<span class="fn">print</span>(r.json())</div></div>
+          </div>
+          <div id="js-predict" class="tab-panel">
+            <div class="code-block"><div class="code-body"><span class="kw">const</span> sequence = <span class="fn">Array</span>.<span class="fn">from</span>({length: <span class="str">30</span>}, () =><br>
+&nbsp;&nbsp;<span class="fn">Array</span>.<span class="fn">from</span>({length: <span class="str">14</span>}, () => <span class="fn">Math</span>.<span class="fn">random</span>())<br>
+);<br><br>
+<span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"http://localhost:8000/predict"</span>, {<br>
+&nbsp;&nbsp;method: <span class="str">"POST"</span>,<br>
+&nbsp;&nbsp;headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },<br>
+&nbsp;&nbsp;body: <span class="fn">JSON</span>.<span class="fn">stringify</span>({ sequence })<br>
+});<br>
+console.<span class="fn">log</span>(<span class="kw">await</span> res.<span class="fn">json</span>());</div></div>
+          </div>
+          <div id="curl-predict" class="tab-panel">
+            <div class="code-block"><div class="code-body"><span style="color:#c792ea">curl</span> -X POST http://localhost:8000/predict \<br>
+&nbsp;&nbsp;-H <span class="str">"Content-Type: application/json"</span> \<br>
+&nbsp;&nbsp;-d <span class="str">'{"sequence": [[...30x14 array...]]}'</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WS /ws/telemetry -->
+      <div class="endpoint-card reveal" id="telemetry">
+        <div class="ep-head">
+          <span class="ep-method m-ws">WS</span>
+          <span class="ep-path">/ws/telemetry</span>
+        </div>
+        <div class="ep-body">
+          <div class="ep-desc">Real-time WebSocket stream. Pushes one JSON message per second simulating a bearing run-to-failure sequence. Includes raw sensor readings, model predictions, health index, and status. The React dashboard connects to this endpoint live.</div>
+          <div class="resp-label">Stream Message (JSON)</div>
+          <div class="code-block" style="margin-bottom:20px">
+            <div class="code-body"><span style="color:#86efac">{</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"step"</span>: <span style="color:#f59e0b">42</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"sensors"</span>: [<span style="color:#f59e0b">0.12, -0.08, 0.34, ...</span>],&nbsp;&nbsp;<span style="color:#475569">// 14 values</span><br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"true_rul"</span>: <span style="color:#f59e0b">83.0</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">80.7</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.646</span>,<br>
+&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"NORMAL"</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#475569">// NORMAL | WARNING | CRITICAL</span><br>
+<span style="color:#86efac">}</span></div>
+          </div>
+          <div class="tab-row">
+            <button class="tab-btn active" onclick="switchTab(this,'py-ws')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this,'js-ws')">JavaScript</button>
+          </div>
+          <div id="py-ws" class="tab-panel active">
+            <div class="code-block"><div class="code-body"><span class="kw">import</span> asyncio, websockets, json<br><br>
+<span class="kw">async def</span> <span class="fn">monitor</span>():<br>
+&nbsp;&nbsp;<span class="kw">async with</span> websockets.<span class="fn">connect</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"ws://localhost:8000/ws/telemetry"</span><br>
+&nbsp;&nbsp;) <span class="kw">as</span> ws:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">async for</span> msg <span class="kw">in</span> ws:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data = json.<span class="fn">loads</span>(msg)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(f<span class="str">"RUL: {data['predicted_rul']:.1f} | H(t): {data['health_index']:.3f}"</span>)<br><br>
+asyncio.<span class="fn">run</span>(<span class="fn">monitor</span>())</div></div>
+          </div>
+          <div id="js-ws" class="tab-panel">
+            <div class="code-block"><div class="code-body"><span class="kw">const</span> ws = <span class="kw">new</span> <span class="fn">WebSocket</span>(<span class="str">"ws://localhost:8000/ws/telemetry"</span>);<br><br>
+ws.<span class="fn">onmessage</span> = (event) => {<br>
+&nbsp;&nbsp;<span class="kw">const</span> data = <span class="fn">JSON</span>.<span class="fn">parse</span>(event.data);<br>
+&nbsp;&nbsp;console.<span class="fn">log</span>(<span class="str">`RUL: ${data.predicted_rul.toFixed(1)}`</span>);<br>
+&nbsp;&nbsp;<span class="cm">// update your UI here</span><br>
+};<br><br>
+ws.<span class="fn">onerror</span> = (err) => console.<span class="fn">error</span>(<span class="str">"WS error:"</span>, err);</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-left">ujjwal77771 / physics-informed-digital-twin · BIT Mesra · 2026</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a><a href="architecture.html">Architecture</a><a href="model.html">Model</a><a href="performance.html">Performance</a>
+    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub</a>
+  </div>
+  <div class="footer-mit">MIT License</div>
+</footer>
+<script>
+function switchTab(btn, panelId){
+  const card=btn.closest('.endpoint-card')||btn.closest('.content');
+  btn.closest('.tab-row').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    if(p.id===panelId)p.classList.add('active');
+    else if(btn.closest('.endpoint-card').contains(p))p.classList.remove('active');
+  });
+}
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

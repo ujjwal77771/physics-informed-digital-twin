@@ -1,1239 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VibFormer · Physics-Informed Digital Twin</title>
-<meta name="description" content="Physics-informed bearing digital twin — real-time RUL prediction, fault diagnosis, monotonic degradation modelling."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VibFormer — Physics-Informed Digital Twin</title>
+<meta name="description" content="Physics-guided transformer for bearing RUL prediction. Sub-ms inference, monotonic constraints, fault diagnosis."/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="_shared.css"/>
 <style>
-/* ══════════════════════════════════════════════════════
-   TOKENS
-══════════════════════════════════════════════════════ */
-:root{
-  --white:#ffffff;
-  --off:#f8f9fb;
-  --off2:#f2f4f7;
-  --border:#e4e7ec;
-  --border2:#d0d5dd;
-  --navy:#0a1628;
-  --ink:#101828;
-  --ink2:#344054;
-  --muted:#667085;
-  --muted2:#98a2b3;
-  --cyan:#0ea5e9;
-  --cyan-soft:rgba(14,165,233,.08);
-  --cyan-soft2:rgba(14,165,233,.14);
-  --green:#10b981;
-  --green-soft:rgba(16,185,129,.08);
-  --amber:#f59e0b;
-  --amber-soft:rgba(245,158,11,.1);
-  --red:#ef4444;
-  --red-soft:rgba(239,68,68,.08);
-  --indigo:#6366f1;
-  --indigo-soft:rgba(99,102,241,.08);
-  --sans:'Inter',system-ui,sans-serif;
-  --display:'Space Grotesk',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --r4:4px;--r6:6px;--r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;
-  --shadow-sm:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
-  --shadow-md:0 4px 16px rgba(16,24,40,.08),0 2px 6px rgba(16,24,40,.04);
-  --shadow-lg:0 12px 40px rgba(16,24,40,.1),0 4px 12px rgba(16,24,40,.06);
-  --shadow-xl:0 24px 64px rgba(16,24,40,.12),0 8px 24px rgba(16,24,40,.08);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-canvas{display:block}
-a{text-decoration:none}
-
-/* ══════════════════════════════════════════════════════
-   NAV
-══════════════════════════════════════════════════════ */
-.nav{
-  position:sticky;top:0;z-index:200;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 48px;height:60px;
-  background:rgba(255,255,255,.88);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  box-shadow:0 1px 0 var(--border);
-}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink)}
-.logo-mark{
-  width:28px;height:28px;border-radius:var(--r6);
-  background:linear-gradient(135deg,#0ea5e9,#6366f1);
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.4);
-}
-.nav-links{display:flex;gap:32px}
-.nav-links a{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.01em;transition:color .15s}
-.nav-links a:hover{color:var(--ink)}
-.nav-right{display:flex;align-items:center;gap:12px}
-.nav-badge{
-  font-family:var(--mono);font-size:11px;font-weight:500;
-  color:var(--cyan);border:1px solid rgba(14,165,233,.3);
-  background:var(--cyan-soft);padding:5px 12px;border-radius:var(--r4);
-  letter-spacing:.04em;
-}
-.btn-nav{
-  font-family:var(--display);font-weight:600;font-size:13px;
-  background:var(--ink);color:#fff;
-  padding:8px 18px;border-radius:var(--r6);border:none;cursor:pointer;
-  transition:background .15s,transform .1s;
-}
-.btn-nav:hover{background:#1d2939;transform:translateY(-1px)}
-
-/* ══════════════════════════════════════════════════════
-   HERO
-══════════════════════════════════════════════════════ */
+/* ── LANDING-ONLY STYLES ── */
 .hero{
-  padding:88px 48px 0;
-  position:relative;overflow:hidden;
-  background:radial-gradient(ellipse 80% 60% at 70% -10%,rgba(14,165,233,.06) 0%,transparent 60%),
-             radial-gradient(ellipse 50% 50% at 20% 110%,rgba(99,102,241,.05) 0%,transparent 60%),
-             var(--white);
+  padding:96px 56px 0;min-height:calc(100vh - 60px);
+  display:flex;align-items:center;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% -10%,rgba(14,165,233,.06),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 110%,rgba(99,102,241,.05),transparent 60%);
 }
-.hero-inner{
-  max-width:1120px;margin:0 auto;
-  display:grid;grid-template-columns:1fr 480px;gap:80px;align-items:start;
-}
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  font-family:var(--mono);font-size:11px;font-weight:500;
-  color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;
-  background:var(--cyan-soft);border:1px solid rgba(14,165,233,.2);
-  padding:5px 12px;border-radius:var(--r4);margin-bottom:24px;
-}
-.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.hero-h1{
-  font-family:var(--display);font-weight:800;
-  font-size:clamp(40px,5vw,64px);
-  line-height:1.04;letter-spacing:-.03em;
-  color:var(--ink);margin-bottom:24px;
-}
-.hero-h1 .hl{
-  background:linear-gradient(135deg,#0ea5e9 0%,#6366f1 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
+.hero-inner{max-width:1120px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 440px;gap:80px;align-items:center;padding-bottom:80px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;background:var(--cyan-s);border:1px solid rgba(14,165,233,.2);padding:5px 12px;border-radius:var(--r4);margin-bottom:28px}
+.blink-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:bd 2s ease-in-out infinite}
+@keyframes bd{0%,100%{opacity:1}50%{opacity:.25}}
+.hero-h1{font-family:var(--display);font-weight:800;font-size:clamp(44px,5.5vw,72px);line-height:1.03;letter-spacing:-.03em;color:var(--ink);margin-bottom:24px}
+.hero-h1 .hl{background:linear-gradient(135deg,#0ea5e9,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-h1 .dim{color:var(--muted2);font-weight:600}
-.hero-sub{
-  font-size:16px;line-height:1.75;color:var(--muted);
-  max-width:500px;margin-bottom:40px;
-}
+.hero-sub{font-size:16.5px;line-height:1.75;color:var(--muted);max-width:500px;margin-bottom:36px}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
-.btn-primary{
-  font-family:var(--display);font-weight:600;font-size:14px;
-  background:linear-gradient(135deg,#0ea5e9,#6366f1);
-  color:#fff;padding:12px 24px;border-radius:var(--r8);border:none;
-  cursor:pointer;letter-spacing:.01em;
-  box-shadow:0 4px 14px rgba(14,165,233,.35);
-  transition:all .2s;
-}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.4)}
-.btn-ghost{
-  font-family:var(--display);font-weight:600;font-size:14px;
-  background:var(--white);color:var(--ink2);
-  padding:11px 22px;border-radius:var(--r8);
-  border:1.5px solid var(--border2);cursor:pointer;
-  transition:all .2s;
-}
-.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-soft)}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap}
 
-/* Phase pills */
-.phase-row{display:flex;gap:8px;flex-wrap:wrap}
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  font-family:var(--mono);font-size:11px;font-weight:500;
-  padding:5px 12px;border-radius:99px;border:1px solid;letter-spacing:.03em;
-}
-.pill-ok{color:var(--green);border-color:rgba(16,185,129,.3);background:var(--green-soft)}
-.pill-warn{color:var(--amber);border-color:rgba(245,158,11,.3);background:var(--amber-soft)}
-.pill-crit{color:var(--red);border-color:rgba(239,68,68,.3);background:var(--red-soft)}
+/* Bearing card */
+.b-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r20);padding:24px;box-shadow:var(--sh-xl);position:relative;overflow:hidden}
+.b-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 100% 50% at 50% 0%,rgba(14,165,233,.04),transparent);pointer-events:none}
+.b-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.b-card-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.b-live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600}
+.live-d{width:7px;height:7px;border-radius:50%;background:var(--green)}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+.live-d{animation:lp 1.4s ease-in-out infinite}
+.b-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.bm{background:var(--off);border:1px solid var(--border);border-radius:var(--r8);padding:10px 8px;text-align:center}
+.bm-v{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);display:block;line-height:1}
+.bm-v.warn{color:var(--amber)}.bm-v.crit{color:var(--red)}.bm-v.ok{color:var(--green)}
+.bm-k{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;display:block;font-family:var(--mono)}
 
-/* ── Hero bearing card ── */
-.bearing-card{
-  background:var(--white);
-  border:1.5px solid var(--border);
-  border-radius:var(--r20);
-  padding:24px;
-  box-shadow:var(--shadow-xl);
-  position:relative;overflow:hidden;
-}
-.bearing-card::before{
-  content:'';position:absolute;inset:0;border-radius:var(--r20);
-  background:radial-gradient(ellipse 120% 60% at 50% 0%,rgba(14,165,233,.04),transparent 60%);
-  pointer-events:none;
-}
-.bc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.bc-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:500}
-.bc-live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:livepulse 1.4s ease-in-out infinite}
-@keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
-.bearing-3d-wrap{display:flex;justify-content:center;margin-bottom:20px}
-.bc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.bcm{
-  background:var(--off);border:1px solid var(--border);
-  border-radius:var(--r8);padding:10px 8px;text-align:center;
-}
-.bcm-val{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);display:block;line-height:1}
-.bcm-val.warn{color:var(--amber)}
-.bcm-val.crit{color:var(--red)}
-.bcm-val.ok{color:var(--green)}
-.bcm-key{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;display:block;font-family:var(--mono)}
+/* Stats strip */
+.stats{background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0 56px}
+.stats-inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);divide-x:1px solid var(--border)}
+.stat{padding:28px 20px;border-right:1px solid var(--border);position:relative}
+.stat:last-child{border-right:none}
+.stat-num{font-family:var(--display);font-weight:800;font-size:36px;letter-spacing:-.025em;color:var(--ink);line-height:1;margin-bottom:4px}
+.stat-num span{font-size:16px;color:var(--muted);font-weight:400}
+.stat-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.stat-delta{font-family:var(--mono);font-size:11px;margin-top:6px;color:var(--green)}
 
-/* ══════════════════════════════════════════════════════
-   BADGES
-══════════════════════════════════════════════════════ */
-.badges-section{padding:40px 48px;border-top:1px solid var(--border);background:var(--off)}
-.badges-inner{max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.badge{
-  font-family:var(--mono);font-size:11px;font-weight:500;
-  padding:5px 12px;border-radius:var(--r4);border:1px solid;letter-spacing:.04em;
-}
-.b-blue{color:#3b82f6;border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.06)}
-.b-red{color:#ef4444;border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)}
-.b-green{color:var(--green);border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.06)}
-.b-amber{color:var(--amber);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
-.b-cyan{color:var(--cyan);border-color:rgba(14,165,233,.25);background:rgba(14,165,233,.06)}
-.b-indigo{color:var(--indigo);border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.06)}
-
-/* ══════════════════════════════════════════════════════
-   WAVEFORM STRIP
-══════════════════════════════════════════════════════ */
-.wave-section{padding:0 48px;background:var(--off)}
+/* Waveform */
+.wave-wrap{padding:0 56px 0;background:var(--off)}
 .wave-inner{max-width:1120px;margin:0 auto}
-.wave-card{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r12);overflow:hidden;
-  box-shadow:var(--shadow-sm);
-}
-.wave-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:12px 20px;border-bottom:1px solid var(--border);
-  background:var(--off);
-}
-.wave-title{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-.wave-freq{font-family:var(--mono);font-size:11px;color:var(--cyan);background:var(--cyan-soft);padding:3px 8px;border-radius:var(--r4)}
-#waveformCanvas{width:100%;height:72px}
+.wave-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r12);overflow:hidden}
+.wave-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--off)}
+.wave-lbl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.wave-fs{font-family:var(--mono);font-size:11px;color:var(--cyan);background:var(--cyan-s);padding:3px 8px;border-radius:var(--r4)}
+#wc{width:100%;height:64px}
 
-/* ══════════════════════════════════════════════════════
-   SECTION DIVIDER
-══════════════════════════════════════════════════════ */
-.divider{
-  display:flex;align-items:center;gap:16px;
-  padding:48px 48px 32px;max-width:calc(1120px + 96px);
-  margin:0 auto;
-}
-.divider-line{flex:1;height:1px;background:var(--border)}
-.divider-label{
-  font-family:var(--mono);font-size:10px;font-weight:600;
-  color:var(--muted2);letter-spacing:.14em;text-transform:uppercase;
-  white-space:nowrap;padding:0 4px;
-}
+/* Nav cards */
+.nav-cards{padding:64px 56px;background:var(--white)}
+.nav-cards-inner{max-width:1120px;margin:0 auto}
+.nav-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
+.nc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);padding:28px;transition:all .2s;cursor:pointer;display:block}
+.nc:hover{border-color:rgba(14,165,233,.4);box-shadow:0 0 0 4px rgba(14,165,233,.06),var(--sh-md);transform:translateY(-3px)}
+.nc-icon{width:44px;height:44px;border-radius:var(--r10,10px);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:20px}
+.nc-title{font-family:var(--display);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:8px}
+.nc-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.nc-link{font-family:var(--mono);font-size:12px;color:var(--cyan);display:flex;align-items:center;gap:4px}
 
-/* ══════════════════════════════════════════════════════
-   METRICS STRIP
-══════════════════════════════════════════════════════ */
-.metrics-strip{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  max-width:1120px;margin:0 auto 48px;padding:0 48px;
-  gap:16px;
-}
-.metric-cell{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r16);padding:28px 24px;
-  box-shadow:var(--shadow-sm);
-  transition:box-shadow .2s,transform .2s;
-}
-.metric-cell:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
-.metric-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.metric-icon{
-  width:40px;height:40px;border-radius:var(--r10,10px);
-  display:flex;align-items:center;justify-content:center;font-size:18px;
-}
-.mi-cyan{background:var(--cyan-soft);border:1px solid rgba(14,165,233,.2)}
-.mi-green{background:var(--green-soft);border:1px solid rgba(16,185,129,.2)}
-.mi-amber{background:var(--amber-soft);border:1px solid rgba(245,158,11,.2)}
-.mi-indigo{background:var(--indigo-soft);border:1px solid rgba(99,102,241,.2)}
-.metric-badge{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:99px}
-.mb-up{color:var(--green);background:var(--green-soft);border:1px solid rgba(16,185,129,.2)}
-.mb-warn{color:var(--amber);background:var(--amber-soft);border:1px solid rgba(245,158,11,.2)}
-.metric-num{
-  font-family:var(--display);font-weight:800;
-  font-size:36px;line-height:1;
-  color:var(--ink);letter-spacing:-.02em;margin-bottom:6px;
-}
-.metric-num sub{font-size:16px;font-weight:500;color:var(--muted);vertical-align:baseline;margin-left:2px}
-.metric-desc{font-size:12px;color:var(--muted);line-height:1.5}
-.metric-trend{font-family:var(--mono);font-size:11px;margin-top:8px}
-.trend-up{color:var(--green)}.trend-warn{color:var(--amber)}
-
-/* ══════════════════════════════════════════════════════
-   CHART SECTION
-══════════════════════════════════════════════════════ */
-.chart-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
-.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px}
-.section-label{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
-.section-title{font-family:var(--display);font-weight:700;font-size:26px;color:var(--ink)}
-.legend-row{display:flex;gap:16px}
-.leg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
-.leg-line{width:20px;height:2.5px;border-radius:2px}
-.chart-wrap{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r16);padding:28px;
-  box-shadow:var(--shadow-sm);
-}
-
-/* ══════════════════════════════════════════════════════
-   ARCHITECTURE
-══════════════════════════════════════════════════════ */
-.arch-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
-.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.arch-card{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r16);padding:24px;
-  transition:border-color .2s,box-shadow .2s,transform .2s;cursor:default;
-}
-.arch-card:hover{
-  border-color:rgba(14,165,233,.3);
-  box-shadow:0 0 0 4px rgba(14,165,233,.06),var(--shadow-md);
-  transform:translateY(-3px);
-}
-.arch-icon{
-  width:40px;height:40px;border-radius:var(--r8);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;margin-bottom:16px;
-}
-.ai-cyan{background:var(--cyan-soft);border:1px solid rgba(14,165,233,.2)}
-.ai-green{background:var(--green-soft);border:1px solid rgba(16,185,129,.2)}
-.ai-amber{background:var(--amber-soft);border:1px solid rgba(245,158,11,.2)}
-.ai-indigo{background:var(--indigo-soft);border:1px solid rgba(99,102,241,.2)}
-.arch-title{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);margin-bottom:8px}
-.arch-desc{font-size:13px;color:var(--muted);line-height:1.65}
-.arch-tag{
-  display:inline-block;font-family:var(--mono);font-size:10px;
-  margin-top:12px;color:var(--muted);
-  background:var(--off2);border:1px solid var(--border);
-  padding:3px 8px;border-radius:var(--r4);letter-spacing:.06em;
-}
-
-/* ══════════════════════════════════════════════════════
-   PHYSICS / CODE
-══════════════════════════════════════════════════════ */
-.physics-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
-.physics-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.code-card{
-  background:var(--ink);border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--r12);overflow:hidden;
-  box-shadow:var(--shadow-md);
-}
-.code-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07);
-  background:rgba(255,255,255,.03);
-}
-.code-filename{font-family:var(--mono);font-size:12px;color:#7dd3fc;letter-spacing:.04em}
-.code-dots{display:flex;gap:5px}
-.cd{width:9px;height:9px;border-radius:50%}
-.cd1{background:#ff5f57}.cd2{background:#ffbd2e}.cd3{background:#28ca40}
-.code-body{
-  padding:20px 20px;font-family:var(--mono);
-  font-size:12.5px;line-height:2;overflow-x:auto;
-  color:#e2e8f0;
-}
-.kw{color:#c792ea}.fn{color:#7dd3fc}.arg{color:#fbbf24}.str{color:#86efac}
-.cm{color:#475569}.op{color:#94a3b8}
-.combined-loss{
-  background:var(--ink);border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--r12);padding:20px;
-  font-family:var(--mono);font-size:13px;line-height:1.9;color:#e2e8f0;
-  box-shadow:var(--shadow-md);
-}
-
-/* ══════════════════════════════════════════════════════
-   PERFORMANCE
-══════════════════════════════════════════════════════ */
-.perf-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
-.perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.perf-card{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r16);padding:24px;
-  box-shadow:var(--shadow-sm);
-  transition:box-shadow .2s,transform .2s;
-}
-.perf-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
-.perf-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
-.perf-val{font-family:var(--display);font-weight:800;font-size:32px;color:var(--ink);line-height:1;letter-spacing:-.02em}
-.perf-unit{font-family:var(--mono);font-size:14px;color:var(--muted2);font-weight:400}
-.perf-bar{height:4px;background:var(--off2);border-radius:99px;margin-top:16px;overflow:hidden}
-.perf-fill{height:100%;border-radius:99px;width:0%;transition:width 1.6s cubic-bezier(.23,1,.32,1)}
-
-/* ══════════════════════════════════════════════════════
-   API SECTION
-══════════════════════════════════════════════════════ */
-.api-section{max-width:1120px;margin:0 auto 48px;padding:0 48px}
-.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.api-card{
-  background:var(--white);border:1.5px solid var(--border);
-  border-radius:var(--r16);overflow:hidden;
-  box-shadow:var(--shadow-sm);
-  transition:box-shadow .2s,transform .2s;
-}
-.api-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
-.api-card-head{
-  display:flex;align-items:center;gap:12px;
-  padding:16px 20px;border-bottom:1px solid var(--border);
-  background:var(--off);
-}
-.method{
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  padding:3px 9px;border-radius:var(--r4);letter-spacing:.04em;
-}
-.m-get{color:#10b981;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25)}
-.m-post{color:#6366f1;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25)}
-.m-ws{color:#0ea5e9;background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.25)}
-.endpoint{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink)}
-.api-card-body{padding:16px 20px}
-.api-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:12px}
-.api-params{display:flex;flex-direction:column;gap:6px}
-.param-row{display:flex;align-items:baseline;gap:10px}
-.param-name{font-family:var(--mono);font-size:11px;color:var(--cyan);min-width:100px;font-weight:600}
-.param-type{font-family:var(--mono);font-size:10px;color:var(--muted2);background:var(--off2);border:1px solid var(--border);padding:1px 6px;border-radius:var(--r4)}
-.param-desc{font-size:12px;color:var(--muted)}
-.api-response{
-  margin-top:12px;background:var(--ink);border-radius:var(--r8);
-  padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.8;
-  color:#e2e8f0;overflow-x:auto;
-}
-.api-full{grid-column:1/-1}
-
-/* ══════════════════════════════════════════════════════
-   FOOTER
-══════════════════════════════════════════════════════ */
-.footer{
-  border-top:1px solid var(--border);background:var(--off);
-  padding:32px 48px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.footer-left{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{font-size:13px;color:var(--muted);transition:color .15s;font-weight:500}
-.footer-links a:hover{color:var(--ink)}
-.mit{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 10px;border-radius:var(--r4);background:var(--white)}
-
-/* ══════════════════════════════════════════════════════
-   SCROLL REVEAL
-══════════════════════════════════════════════════════ */
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
-.reveal.visible{opacity:1;transform:none}
-
-/* ══════════════════════════════════════════════════════
-   TOOLTIP
-══════════════════════════════════════════════════════ */
-.tooltip{
-  position:absolute;background:var(--ink);color:#fff;
-  font-family:var(--mono);font-size:11px;
-  padding:6px 10px;border-radius:var(--r6);
-  pointer-events:none;opacity:0;transition:opacity .15s;
-  white-space:nowrap;z-index:50;
-}
+/* CTA */
+.cta{padding:80px 56px;background:var(--ink)}
+.cta-inner{max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:40px}
+.cta-h{font-family:var(--display);font-weight:800;font-size:clamp(28px,3.5vw,42px);color:#fff;letter-spacing:-.02em;line-height:1.1}
+.cta-h .hl{background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta-sub{font-size:15px;color:rgba(255,255,255,.6);line-height:1.7;margin-top:12px;max-width:400px}
+.cta-actions{display:flex;gap:12px;flex-shrink:0}
+.btn-cta-white{font-family:var(--display);font-weight:600;font-size:14px;background:#fff;color:var(--ink);padding:12px 24px;border-radius:var(--r8);transition:all .2s;display:inline-block}
+.btn-cta-white:hover{background:var(--off);transform:translateY(-1px)}
+.btn-cta-ghost{font-family:var(--display);font-weight:600;font-size:14px;color:#fff;padding:11px 22px;border-radius:var(--r8);border:1.5px solid rgba(255,255,255,.2);transition:all .2s;display:inline-block}
+.btn-cta-ghost:hover{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.08)}
 </style>
 </head>
 <body>
-
-<!-- ══ NAV ══ -->
 <nav class="nav">
-  <div class="nav-logo">
-    <div class="logo-mark">⚙</div>
-    VibFormer / bearing-dt
-  </div>
+  <a class="nav-logo" href="index.html"><div class="logo-mark">⚙</div>VibFormer / bearing-dt</a>
   <div class="nav-links">
-    <a href="#architecture">Architecture</a>
-    <a href="#model">Model</a>
-    <a href="#performance">Performance</a>
-    <a href="#api">API</a>
+    <a href="index.html" class="active">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="model.html">Model</a>
+    <a href="performance.html">Performance</a>
+    <a href="api.html">API</a>
   </div>
   <div class="nav-right">
-    <div class="nav-badge">v1.0 · MIT</div>
+    <span class="nav-ver">v1.0 · MIT</span>
     <a class="btn-nav" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub ↗</a>
   </div>
 </nav>
 
-<!-- ══ HERO ══ -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
     <div>
-      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Physics-Informed ML · Industrial Prognostics</div>
-      <h1 class="hero-h1">
-        Bearing<br>
-        <span class="hl">Digital Twin</span><br>
-        <span class="dim">for RUL Prediction</span>
-      </h1>
-      <p class="hero-sub">A physics-guided transformer framework enforcing monotonic degradation constraints — predicting Remaining Useful Life with calibrated uncertainty at sub-millisecond inference latency.</p>
+      <div class="hero-eyebrow"><span class="blink-dot"></span>Physics-Informed ML · Industrial Prognostics</div>
+      <h1 class="hero-h1">Bearing<br><span class="hl">Digital Twin</span><br><span class="dim">for RUL Prediction</span></h1>
+      <p class="hero-sub">A physics-guided transformer enforcing monotonic degradation constraints — predicting Remaining Useful Life with calibrated uncertainty at sub-millisecond inference latency.</p>
       <div class="hero-actions">
-        <a class="btn-primary" href="https://github.com/ujjwal77771/physics-informed-digital-twin">Get Started</a>
-        <a class="btn-ghost" href="https://github.com/ujjwal77771/physics-informed-digital-twin">View on GitHub</a>
-        <a class="btn-ghost" href="#">Read Docs</a>
+        <a class="btn-primary" href="architecture.html">Explore Architecture</a>
+        <a class="btn-ghost" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">View on GitHub</a>
+        <a class="btn-ghost" href="api.html">API Reference</a>
       </div>
-      <div class="phase-row">
-        <span class="pill pill-ok">● Nominal Phase</span>
-        <span class="pill pill-warn">● Degradation Phase</span>
-        <span class="pill pill-crit">● Pre-Failure Zone</span>
+      <div class="hero-tags">
+        <span class="badge b-blue">Python 3.11</span>
+        <span class="badge b-red">PyTorch 2.x</span>
+        <span class="badge b-green">FastAPI</span>
+        <span class="badge b-amber">ONNX Runtime</span>
+        <span class="badge b-cyan">Docker</span>
+        <span class="badge b-indigo">HF Spaces</span>
       </div>
     </div>
     <div>
-      <div class="bearing-card">
-        <div class="bc-header">
-          <span class="bc-label">Bearing B1 — 3D Live Monitor</span>
-          <span class="bc-live"><span class="live-dot"></span>LIVE</span>
+      <div class="b-card">
+        <div class="b-card-head">
+          <span class="b-card-label">Bearing B1 · 3D Live Monitor</span>
+          <span class="b-live"><span class="live-d"></span>LIVE</span>
         </div>
-        <div class="bearing-3d-wrap">
-          <canvas id="bearing3d" width="300" height="300"></canvas>
+        <div style="display:flex;justify-content:center">
+          <canvas id="bearing3d" width="290" height="290"></canvas>
         </div>
-        <div class="bc-metrics">
-          <div class="bcm"><span class="bcm-val warn" id="hi-val">0.412</span><span class="bcm-key">Health Idx</span></div>
-          <div class="bcm"><span class="bcm-val" id="rul-val">183</span><span class="bcm-key">RUL Cycles</span></div>
-          <div class="bcm"><span class="bcm-val crit">OUTER RACE</span><span class="bcm-key">Fault Mode</span></div>
+        <div class="b-metrics">
+          <div class="bm"><span class="bm-v warn" id="hi-val">0.412</span><span class="bm-k">Health Idx</span></div>
+          <div class="bm"><span class="bm-v" id="rul-val">183</span><span class="bm-k">RUL Cycles</span></div>
+          <div class="bm"><span class="bm-v crit">OUTER RACE</span><span class="bm-k">Fault Mode</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ BADGES ══ -->
-<div class="badges-section">
-  <div class="badges-inner">
-    <span class="badge b-blue">Python 3.11</span>
-    <span class="badge b-red">PyTorch 2.x</span>
-    <span class="badge b-green">FastAPI</span>
-    <span class="badge b-blue">React 18</span>
-    <span class="badge b-amber">ONNX Runtime</span>
-    <span class="badge b-cyan">Docker</span>
-    <span class="badge b-indigo">WebSocket</span>
-    <span class="badge b-green">MIT License</span>
-    <span class="badge b-amber">IMS Dataset</span>
-    <span class="badge b-cyan">HF Spaces</span>
-  </div>
-</div>
-
-<!-- ══ WAVEFORM ══ -->
-<div class="wave-section" style="padding-bottom:0">
+<!-- WAVEFORM -->
+<div class="wave-wrap" style="padding-top:0;padding-bottom:0">
   <div class="wave-inner">
     <div class="wave-card">
-      <div class="wave-header">
-        <span class="wave-title">Vibration Signal · 20kHz · Channel 1</span>
-        <span class="wave-freq">fs = 20,000 Hz</span>
+      <div class="wave-head">
+        <span class="wave-lbl">Vibration Signal · 20kHz · Channel 1</span>
+        <span class="wave-fs">fs = 20,000 Hz</span>
       </div>
-      <canvas id="waveformCanvas"></canvas>
+      <canvas id="wc"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ══ METRICS ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">Performance Benchmarks</span>
-  <div class="divider-line"></div>
-</div>
-
-<div class="metrics-strip reveal">
-  <div class="metric-cell">
-    <div class="metric-top">
-      <div class="metric-icon mi-cyan">📉</div>
-      <span class="metric-badge mb-up">↓ 31% vs LSTM</span>
-    </div>
-    <div class="metric-num" id="m1">0<sub>cycles</sub></div>
-    <div class="metric-desc">RUL Root Mean Squared Error on held-out IMS Test Run 3</div>
-  </div>
-  <div class="metric-cell">
-    <div class="metric-top">
-      <div class="metric-icon mi-green">🎯</div>
-      <span class="metric-badge mb-up">↑ 6.2pp vs TCN</span>
-    </div>
-    <div class="metric-num" id="m2">0<sub>%</sub></div>
-    <div class="metric-desc">Fault detection rate at 24h prediction horizon</div>
-  </div>
-  <div class="metric-cell">
-    <div class="metric-top">
-      <div class="metric-icon mi-amber">⚡</div>
-      <span class="metric-badge mb-warn">INT8 quantized</span>
-    </div>
-    <div class="metric-num" id="m3">0<sub>ms</sub></div>
-    <div class="metric-desc">Inference latency — ONNX Runtime, CPU inference</div>
-  </div>
-  <div class="metric-cell">
-    <div class="metric-top">
-      <div class="metric-icon mi-indigo">📐</div>
-      <span class="metric-badge mb-up">+0.16 vs Baseline</span>
-    </div>
-    <div class="metric-num" id="m4">0</div>
-    <div class="metric-desc">Monotonicity score — fraction of non-increasing H(t) transitions</div>
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">18.4<span> cycles</span></div><div class="stat-desc">RUL RMSE on IMS Test Run 3</div><div class="stat-delta">↓ 31% vs LSTM baseline</div></div>
+    <div class="stat"><div class="stat-num">94.2<span>%</span></div><div class="stat-desc">Fault detection at 24h horizon</div><div class="stat-delta">↑ 6.2pp vs TCN</div></div>
+    <div class="stat"><div class="stat-num">0.9<span> ms</span></div><div class="stat-desc">Inference latency — INT8 CPU</div><div class="stat-delta" style="color:var(--amber)">3.2ms FP32 · 0.9ms INT8</div></div>
+    <div class="stat"><div class="stat-num">0.97<span></span></div><div class="stat-desc">Monotonicity score (0→1)</div><div class="stat-delta">+0.16 over vanilla Transformer</div></div>
   </div>
 </div>
 
-<!-- ══ DEGRADATION CHART ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">Degradation Trajectory</span>
-  <div class="divider-line"></div>
+<!-- SECTION CARDS -->
+<div class="nav-cards">
+  <div class="nav-cards-inner">
+    <div class="s-label">Explore the Project</div>
+    <div class="s-title">Everything, organised by section</div>
+    <div class="nav-cards-grid">
+      <a class="nc" href="architecture.html">
+        <div class="nc-icon ib-cyan">⚙️</div>
+        <div class="nc-title">Architecture</div>
+        <div class="nc-desc">Full-stack ML pipeline from raw 20kHz vibration to sub-ms REST inference. Signal conditioning, VibFormer encoder, ONNX export, FastAPI server.</div>
+        <div class="nc-link">View pipeline →</div>
+      </a>
+      <a class="nc" href="model.html">
+        <div class="nc-icon ib-indigo">🧠</div>
+        <div class="nc-title">Model</div>
+        <div class="nc-desc">VibFormer architecture details. Degradation trajectory, physics constraints, monotonicity loss, and real-time health index visualization.</div>
+        <div class="nc-link">Explore model →</div>
+      </a>
+      <a class="nc" href="performance.html">
+        <div class="nc-icon ib-green">📊</div>
+        <div class="nc-title">Performance</div>
+        <div class="nc-desc">Benchmark results on IMS dataset Test Run 3. RMSE, MAE, fault detection rate, false alarm rate, and latency across FP32 and INT8.</div>
+        <div class="nc-link">View benchmarks →</div>
+      </a>
+      <a class="nc" href="api.html">
+        <div class="nc-icon ib-amber">🔌</div>
+        <div class="nc-title">API Reference</div>
+        <div class="nc-desc">REST + WebSocket API docs. GET /health, POST /predict, and real-time WS /ws/telemetry stream. With Python and JavaScript examples.</div>
+        <div class="nc-link">API docs →</div>
+      </a>
+    </div>
+  </div>
 </div>
 
-<div class="chart-section reveal" id="model">
-  <div class="section-head">
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-inner">
     <div>
-      <div class="section-label">Health Index · H(t)</div>
-      <div class="section-title">Bearing Degradation Trajectory</div>
+      <div class="cta-h">Deploy in <span class="hl">minutes</span></div>
+      <div class="cta-sub">Clone the repo, run Docker, and get a live WebSocket dashboard. Works locally and on Hugging Face Spaces.</div>
     </div>
-    <div class="legend-row">
-      <div class="leg"><div class="leg-line" style="background:var(--cyan)"></div>VibFormer (ours)</div>
-      <div class="leg"><div class="leg-line" style="background:var(--muted2);border-top:2px dashed var(--muted2);height:0"></div>LSTM Baseline</div>
-      <div class="leg"><div class="leg-line" style="background:var(--red)"></div>Failure Threshold</div>
-    </div>
-  </div>
-  <div class="chart-wrap">
-    <canvas id="degradationChart" height="220"></canvas>
-  </div>
-</div>
-
-<!-- ══ ARCHITECTURE ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">System Architecture</span>
-  <div class="divider-line"></div>
-</div>
-
-<div class="arch-section reveal" id="architecture">
-  <div style="margin-bottom:32px">
-    <div class="section-label">Full-Stack ML Pipeline</div>
-    <div class="section-title" style="margin-bottom:8px">From raw signal to sub-millisecond inference</div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.7;max-width:600px">Every stage is containerized, benchmarked, and independently replaceable. Physics constraints are first-class citizens — not post-hoc heuristics.</p>
-  </div>
-  <div class="arch-grid">
-    <div class="arch-card">
-      <div class="arch-icon ai-cyan">⚙️</div>
-      <div class="arch-title">Signal Conditioning</div>
-      <div class="arch-desc">Bandpass filter (1–10kHz), z-score normalisation, artifact rejection. 14 hand-engineered features: RMS, kurtosis, BPFO/BPFI harmonics, spectral entropy.</div>
-      <span class="arch-tag">signal_processing.py</span>
-    </div>
-    <div class="arch-card">
-      <div class="arch-icon ai-cyan">🔢</div>
-      <div class="arch-title">VibFormer Encoder</div>
-      <div class="arch-desc">4-head multi-scale temporal attention, d_model=128, 3 FF blocks with residuals. CLS token aggregation. Learnable positional encoding over 30-step windows.</div>
-      <span class="arch-tag">vibformer.py</span>
-    </div>
-    <div class="arch-card">
-      <div class="arch-icon ai-green">⚡</div>
-      <div class="arch-title">Physics Regulariser</div>
-      <div class="arch-desc">Monotonicity penalty enforces dH/dt ≤ 0. Boundary condition loss anchors H(0)≈1 and H(t_fail)≈0. Soft constraints, not hard priors.</div>
-      <span class="arch-tag">physics_loss.py</span>
-    </div>
-    <div class="arch-card">
-      <div class="arch-icon ai-amber">📦</div>
-      <div class="arch-title">ONNX Export + INT8</div>
-      <div class="arch-desc">Post-training INT8 quantisation via ONNX Runtime. ~4× inference speedup on CPU with &lt;0.3% RMSE degradation vs FP32 checkpoint.</div>
-      <span class="arch-tag">export.py</span>
-    </div>
-    <div class="arch-card">
-      <div class="arch-icon ai-green">🚀</div>
-      <div class="arch-title">FastAPI Inference Server</div>
-      <div class="arch-desc">REST + WebSocket endpoints. /predict, /health, /ws/telemetry. Async Uvicorn workers. Pydantic schema validation. Sub-1ms P95 latency.</div>
-      <span class="arch-tag">src/backend/app.py</span>
-    </div>
-    <div class="arch-card">
-      <div class="arch-icon ai-cyan">📊</div>
-      <div class="arch-title">React Dashboard</div>
-      <div class="arch-desc">Live telemetry WebSocket consumer. RUL countdown, health arc gauge, 14-channel sensor grid, fault event log. Built on Vite + Recharts + Lucide.</div>
-      <span class="arch-tag">frontend/src/</span>
+    <div class="cta-actions">
+      <a class="btn-cta-white" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">Clone on GitHub</a>
+      <a class="btn-cta-ghost" href="api.html">Read API Docs</a>
     </div>
   </div>
 </div>
 
-<!-- ══ PHYSICS CODE ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">Physics Constraints</span>
-  <div class="divider-line"></div>
-</div>
-
-<div class="physics-section reveal">
-  <div style="margin-bottom:28px">
-    <div class="section-label">Constraints as Loss Terms</div>
-    <div class="section-title" style="margin-bottom:8px">The Physics of Bearing Failure</div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.7;max-width:600px">Bearing degradation is a <em>constrained</em> sequence problem. Standard MSE ignores the physics. VibFormer enforces it via differentiable penalty terms derived from Paris' Law and boundary conditions.</p>
-  </div>
-  <div class="physics-grid">
-    <div class="code-card">
-      <div class="code-header">
-        <span class="code-filename">monotonicity_loss.py</span>
-        <div class="code-dots"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div></div>
-      </div>
-      <div class="code-body">
-<span class="kw">def</span> <span class="fn">monotonicity_loss</span>(<span class="arg">h</span>: <span class="fn">Tensor</span>) <span class="op">-></span> <span class="fn">Tensor</span>:<br>
-&nbsp;&nbsp;<span class="cm"># penalise any increase in health index</span><br>
-&nbsp;&nbsp;<span class="arg">deltas</span> <span class="op">=</span> <span class="arg">h</span>[:, <span class="str">1</span>:] <span class="op">-</span> <span class="arg">h</span>[:, :<span class="op">-</span><span class="str">1</span>]<br>
-&nbsp;&nbsp;<span class="arg">violations</span> <span class="op">=</span> F.<span class="fn">relu</span>(<span class="arg">deltas</span>)<br>
-&nbsp;&nbsp;<span class="kw">return</span> <span class="arg">violations</span>.<span class="fn">mean</span>()
-      </div>
-    </div>
-    <div class="code-card">
-      <div class="code-header">
-        <span class="code-filename">boundary_loss.py</span>
-        <div class="code-dots"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div></div>
-      </div>
-      <div class="code-body">
-<span class="kw">def</span> <span class="fn">boundary_loss</span>(<span class="arg">h_pred</span>, <span class="arg">pos</span>):<br>
-&nbsp;&nbsp;<span class="cm"># H(0)≈1, H(t_fail)≈0</span><br>
-&nbsp;&nbsp;<span class="arg">early</span> <span class="op">=</span> <span class="arg">pos</span> <span class="op">&lt;</span> <span class="str">0.1</span><br>
-&nbsp;&nbsp;<span class="arg">late</span>&nbsp; <span class="op">=</span> <span class="arg">pos</span> <span class="op">&gt;</span> <span class="str">0.9</span><br>
-&nbsp;&nbsp;<span class="kw">return</span> (<br>
-&nbsp;&nbsp;&nbsp;&nbsp;F.<span class="fn">mse_loss</span>(<span class="arg">h_pred</span>[<span class="arg">early</span>], <span class="fn">ones</span>) <span class="op">+</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;F.<span class="fn">mse_loss</span>(<span class="arg">h_pred</span>[<span class="arg">late</span>], <span class="fn">zeros</span>)<br>
-&nbsp;&nbsp;)
-      </div>
-    </div>
-  </div>
-  <div class="combined-loss">
-    <span class="cm"># Combined training objective — λ values via grid search</span><br>
-    L_total <span class="op">=</span> L_MSE <span class="op">+</span> <span class="str">0.1</span> <span class="op">·</span> L_mono <span class="op">+</span> <span class="str">0.05</span> <span class="op">·</span> L_boundary
-  </div>
-</div>
-
-<!-- ══ PERFORMANCE ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">Benchmark Results · IMS Test Run 3</span>
-  <div class="divider-line"></div>
-</div>
-
-<div class="perf-section reveal" id="performance">
-  <div class="perf-grid">
-    <div class="perf-card">
-      <div class="perf-label">RUL RMSE</div>
-      <div class="perf-val">18.4 <span class="perf-unit">cycles</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--cyan)" data-w="72"></div></div>
-    </div>
-    <div class="perf-card">
-      <div class="perf-label">Monotonicity Score</div>
-      <div class="perf-val">0.97 <span class="perf-unit">/ 1.0</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--green)" data-w="97"></div></div>
-    </div>
-    <div class="perf-card">
-      <div class="perf-label">Fault Detection Rate</div>
-      <div class="perf-val">94.2 <span class="perf-unit">%</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--amber)" data-w="94"></div></div>
-    </div>
-    <div class="perf-card">
-      <div class="perf-label">False Alarm Rate</div>
-      <div class="perf-val">2.1 <span class="perf-unit">%</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--red)" data-w="2"></div></div>
-    </div>
-    <div class="perf-card">
-      <div class="perf-label">INT8 Latency (CPU)</div>
-      <div class="perf-val">0.9 <span class="perf-unit">ms/win</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--cyan)" data-w="88"></div></div>
-    </div>
-    <div class="perf-card">
-      <div class="perf-label">RUL MAE</div>
-      <div class="perf-val">12.1 <span class="perf-unit">cycles</span></div>
-      <div class="perf-bar"><div class="perf-fill" style="background:var(--indigo)" data-w="65"></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ API ══ -->
-<div class="divider">
-  <div class="divider-line"></div>
-  <span class="divider-label">REST API Reference</span>
-  <div class="divider-line"></div>
-</div>
-
-<div class="api-section reveal" id="api">
-  <div style="margin-bottom:32px">
-    <div class="section-label">OpenAPI · FastAPI · Uvicorn</div>
-    <div class="section-title" style="margin-bottom:8px">Inference API Reference</div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.7;max-width:600px">Full Swagger UI available at <code style="font-family:var(--mono);background:var(--off2);padding:2px 6px;border-radius:4px;font-size:13px">/docs</code> when the server is running. Base URL: <code style="font-family:var(--mono);background:var(--off2);padding:2px 6px;border-radius:4px;font-size:13px">http://localhost:8000</code></p>
-  </div>
-  <div class="api-grid">
-
-    <!-- GET /health -->
-    <div class="api-card">
-      <div class="api-card-head">
-        <span class="method m-get">GET</span>
-        <span class="endpoint">/health</span>
-      </div>
-      <div class="api-card-body">
-        <div class="api-desc">System health check. Returns server status and whether the ONNX model is loaded and ready for inference.</div>
-        <div class="api-response"><span style="color:#86efac">{</span><br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"healthy"</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"model_loaded"</span>: <span style="color:#f59e0b">true</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"onnx_available"</span>: <span style="color:#f59e0b">true</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"api_version"</span>: <span style="color:#86efac">"1.0.0"</span><br>
-<span style="color:#86efac">}</span></div>
-      </div>
-    </div>
-
-    <!-- POST /predict -->
-    <div class="api-card">
-      <div class="api-card-head">
-        <span class="method m-post">POST</span>
-        <span class="endpoint">/predict</span>
-      </div>
-      <div class="api-card-body">
-        <div class="api-desc">Run RUL prediction on a 30-timestep sliding window of 14 sensor channels. Returns predicted RUL, health index, status, and recommendation.</div>
-        <div class="api-params">
-          <div class="param-row">
-            <span class="param-name">sequence</span>
-            <span class="param-type">float[30][14]</span>
-            <span class="param-desc">30 time steps × 14 sensor readings</span>
-          </div>
-        </div>
-        <div class="api-response"><span style="color:#86efac">{</span><br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">83.4</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.667</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"WARNING"</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"recommendation"</span>: <span style="color:#86efac">"Schedule inspection..."</span><br>
-<span style="color:#86efac">}</span></div>
-      </div>
-    </div>
-
-    <!-- WS /ws/telemetry -->
-    <div class="api-card api-full">
-      <div class="api-card-head">
-        <span class="method m-ws">WS</span>
-        <span class="endpoint">/ws/telemetry</span>
-      </div>
-      <div class="api-card-body">
-        <div class="api-desc">Real-time WebSocket stream that pushes bearing telemetry every second. Simulates a run-to-failure sequence with live RUL, health index, sensor readings, and status transitions. Connect from any WebSocket client.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Stream Payload (JSON)</div>
-            <div class="api-response" style="margin-top:0"><span style="color:#86efac">{</span><br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"step"</span>: <span style="color:#f59e0b">42</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"sensors"</span>: <span style="color:#f59e0b">[0.12, ...]</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"true_rul"</span>: <span style="color:#f59e0b">83.0</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"predicted_rul"</span>: <span style="color:#f59e0b">80.7</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"health_index"</span>: <span style="color:#f59e0b">0.646</span>,<br>
-&nbsp;&nbsp;<span style="color:#7dd3fc">"status"</span>: <span style="color:#86efac">"NORMAL"</span><br>
-<span style="color:#86efac">}</span></div>
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Connect Example (Python)</div>
-            <div class="api-response" style="margin-top:0"><span style="color:#c792ea">import</span> <span style="color:#7dd3fc">asyncio</span>, <span style="color:#7dd3fc">websockets</span>, <span style="color:#7dd3fc">json</span><br><br>
-<span style="color:#c792ea">async def</span> <span style="color:#7dd3fc">monitor</span>():<br>
-&nbsp;&nbsp;<span style="color:#c792ea">async with</span> websockets.<span style="color:#7dd3fc">connect</span>(<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#86efac">"ws://localhost:8000/ws/telemetry"</span><br>
-&nbsp;&nbsp;) <span style="color:#c792ea">as</span> ws:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#c792ea">async for</span> msg <span style="color:#c792ea">in</span> ws:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#7dd3fc">print</span>(json.<span style="color:#7dd3fc">loads</span>(msg))</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ══ FOOTER ══ -->
 <footer class="footer">
   <div class="footer-left">ujjwal77771 / physics-informed-digital-twin · BIT Mesra · 2026</div>
   <div class="footer-links">
-    <a href="#">Docs</a>
-    <a href="#">IMS Dataset</a>
-    <a href="#">Cite</a>
-    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin">GitHub</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="model.html">Model</a>
+    <a href="performance.html">Performance</a>
+    <a href="api.html">API</a>
+    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub</a>
   </div>
-  <div class="mit">MIT License</div>
+  <div class="footer-mit">MIT License</div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-/* ════════════════════════════════════════════════════
-   3D BEARING — Canvas 2D with perspective projection
-════════════════════════════════════════════════════ */
-const bc   = document.getElementById('bearing3d');
-const bctx = bc.getContext('2d');
-const W = 300, H = 300, CX = 150, CY = 150;
-
-let angle = 0, tik = 0;
-let healthIndex = 0.412;
-const ROLLERS = 9;
-const INNER_R = 42, OUTER_R = 90, ROLLER_ORBIT = 66, ROLLER_R = 10;
-
-/* Fake a live health index that slowly degrades */
-let hiDir = -1, hiStep = 0.0008;
-function updateHealth(){
-  healthIndex += hiStep * hiDir;
-  if(healthIndex <= 0.1){ hiDir = 1; }
-  if(healthIndex >= 0.95){ hiDir = -1; }
-  document.getElementById('hi-val').textContent = healthIndex.toFixed(3);
-  const rul = Math.max(0, Math.round(healthIndex * 200));
-  document.getElementById('rul-val').textContent = rul;
-  const el = document.getElementById('hi-val');
-  el.className = 'bcm-val ' + (healthIndex < 0.3 ? 'crit' : healthIndex < 0.6 ? 'warn' : 'ok');
+/* 3D BEARING */
+const bc=document.getElementById('bearing3d'),bctx=bc.getContext('2d');
+const W=290,H=290,CX=145,CY=145,ROLLERS=9,INNER_R=40,OUTER_R=86,ORBIT=63,RR=10;
+let angle=0,tik=0,hi=0.412,hiDir=-1;
+function project(x,y,z,tx,tz){
+  const y2=y*Math.cos(tx)-z*Math.sin(tx),z2=y*Math.sin(tx)+z*Math.cos(tx);
+  const x3=x*Math.cos(tz)-z2*Math.sin(tz);
+  return{px:CX+x3,py:CY+y2,d:z2};
 }
-
-function project3D(x, y, z, tiltX, tiltZ){
-  /* simple isometric-like tilt */
-  const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
-  const cosZ = Math.cos(tiltZ), sinZ = Math.sin(tiltZ);
-  const y2 = y * cosX - z * sinX;
-  const z2 = y * sinX + z * cosX;
-  const x3 = x * cosZ - z2 * sinZ;
-  /* orthographic projection */
-  return { px: CX + x3, py: CY + y2, depth: z2 };
-}
-
-function drawBearing3D(){
-  bctx.clearRect(0, 0, W, H);
-
-  const tiltX = 0.52;  /* 30° tilt to show depth */
-  const tiltZ = angle * 0.3;
-
-  const hi = healthIndex;
-  const ringColor   = hi < 0.3 ? '#ef4444' : hi < 0.6 ? '#f59e0b' : '#10b981';
-  const ringGlow    = hi < 0.3 ? 'rgba(239,68,68,.25)' : hi < 0.6 ? 'rgba(245,158,11,.25)' : 'rgba(16,185,129,.25)';
-
-  /* ── Draw outer race ring (ellipse for 3D effect) ── */
-  const depth = 22;
-  const steps = 72;
-
-  /* Back face of outer ring */
+function drawBearing(){
+  bctx.clearRect(0,0,W,H);
+  const tx=0.52,tz=angle*0.3,depth=22,steps=72;
+  const rc=hi<0.3?'#ef4444':hi<0.6?'#f59e0b':'#10b981';
+  /* back ring */
   bctx.beginPath();
-  for(let i = 0; i <= steps; i++){
-    const a = (i/steps)*Math.PI*2;
-    const {px,py} = project3D(Math.cos(a)*OUTER_R, Math.sin(a)*OUTER_R, -depth/2, tiltX, tiltZ);
-    i===0 ? bctx.moveTo(px,py) : bctx.lineTo(px,py);
-  }
-  bctx.strokeStyle = 'rgba(14,165,233,.15)';
-  bctx.lineWidth = 14;
-  bctx.stroke();
-
-  /* Front face of outer ring */
+  for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,-depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}
+  bctx.strokeStyle='rgba(14,165,233,.15)';bctx.lineWidth=14;bctx.stroke();
+  /* front ring */
   bctx.beginPath();
-  for(let i = 0; i <= steps; i++){
-    const a = (i/steps)*Math.PI*2;
-    const {px,py} = project3D(Math.cos(a)*OUTER_R, Math.sin(a)*OUTER_R, depth/2, tiltX, tiltZ);
-    i===0 ? bctx.moveTo(px,py) : bctx.lineTo(px,py);
-  }
-  bctx.strokeStyle = 'rgba(228,231,236,.8)';
-  bctx.lineWidth = 14;
-  bctx.stroke();
-
-  /* Health arc on front face */
-  const sweep = hi * Math.PI * 2;
+  for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}
+  bctx.strokeStyle='rgba(228,231,236,.8)';bctx.lineWidth=14;bctx.stroke();
+  /* health arc */
+  const pts=Math.round(hi*steps);
   bctx.beginPath();
-  for(let i = 0; i <= Math.round(sweep/Math.PI*2*steps); i++){
-    const a = -Math.PI/2 + (i/(steps)) * Math.PI*2 * hi;
-    const {px,py} = project3D(Math.cos(a)*OUTER_R, Math.sin(a)*OUTER_R, depth/2+0.5, tiltX, tiltZ);
-    i===0 ? bctx.moveTo(px,py) : bctx.lineTo(px,py);
-  }
-  bctx.strokeStyle = ringColor;
-  bctx.lineWidth = 14;
-  bctx.lineCap = 'round';
-  bctx.shadowColor = ringGlow;
-  bctx.shadowBlur = 16;
-  bctx.stroke();
-  bctx.shadowBlur = 0;
-
-  /* ── Inner race ── */
+  for(let i=0;i<=pts;i++){const a=-Math.PI/2+(i/steps)*Math.PI*2*hi,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,depth/2+.5,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}
+  bctx.strokeStyle=rc;bctx.lineWidth=14;bctx.lineCap='round';
+  bctx.shadowColor=hi<0.3?'rgba(239,68,68,.3)':'rgba(16,185,129,.3)';bctx.shadowBlur=14;bctx.stroke();bctx.shadowBlur=0;
+  /* inner race */
   bctx.beginPath();
-  for(let i = 0; i <= steps; i++){
-    const a = (i/steps)*Math.PI*2;
-    const {px,py} = project3D(Math.cos(a)*INNER_R, Math.sin(a)*INNER_R, depth/2, tiltX, tiltZ);
-    i===0 ? bctx.moveTo(px,py) : bctx.lineTo(px,py);
-  }
-  bctx.strokeStyle = 'rgba(228,231,236,.9)';
-  bctx.lineWidth = 10;
-  bctx.stroke();
-
-  /* ── Rolling elements ── */
-  const rollerAngleOffset = angle * 0.8;
-  const rollerData = [];
-  for(let i = 0; i < ROLLERS; i++){
-    const a = (i/ROLLERS)*Math.PI*2 + rollerAngleOffset;
-    const x = Math.cos(a)*ROLLER_ORBIT;
-    const y = Math.sin(a)*ROLLER_ORBIT;
-    const {px, py, depth: d} = project3D(x, y, depth*0.3, tiltX, tiltZ);
-    rollerData.push({px, py, depth: d, idx: i});
-  }
-  /* Sort back-to-front */
-  rollerData.sort((a,b) => a.depth - b.depth);
-
-  rollerData.forEach(({px, py, idx}) => {
-    const damaged = idx === 2;
-    const pulse = 0.5 + 0.5*Math.sin(tik * 4);
-    bctx.beginPath();
-    bctx.arc(px, py, ROLLER_R, 0, Math.PI*2);
-    if(damaged){
-      bctx.fillStyle = `rgba(239,68,68,${0.15 + 0.1*pulse})`;
-      bctx.shadowColor = `rgba(239,68,68,${0.6*pulse})`;
-      bctx.shadowBlur = 12;
-    } else {
-      bctx.fillStyle = 'rgba(248,250,252,.9)';
-      bctx.shadowBlur = 0;
-    }
-    bctx.fill();
-    bctx.strokeStyle = damaged ? `rgba(239,68,68,${0.7+0.3*pulse})` : 'rgba(209,213,219,.8)';
-    bctx.lineWidth = damaged ? 2 : 1.5;
-    bctx.stroke();
-    bctx.shadowBlur = 0;
-
-    /* Fault ring on damaged element */
-    if(damaged){
-      bctx.beginPath();
-      bctx.arc(px, py, ROLLER_R + 5 + 3*pulse, 0, Math.PI*2);
-      bctx.strokeStyle = `rgba(239,68,68,${0.35*pulse})`;
-      bctx.lineWidth = 1;
-      bctx.stroke();
-    }
+  for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*INNER_R,Math.sin(a)*INNER_R,depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}
+  bctx.strokeStyle='rgba(228,231,236,.9)';bctx.lineWidth=10;bctx.stroke();
+  /* rollers */
+  const roff=angle*.8,rdata=[];
+  for(let i=0;i<ROLLERS;i++){const a=(i/ROLLERS)*Math.PI*2+roff,x=Math.cos(a)*ORBIT,y=Math.sin(a)*ORBIT,{px,py,d}=project(x,y,depth*.3,tx,tz);rdata.push({px,py,d,i});}
+  rdata.sort((a,b)=>a.d-b.d);
+  rdata.forEach(({px,py,i:idx})=>{
+    const dmg=idx===2,p=.5+.5*Math.sin(tik*4);
+    bctx.beginPath();bctx.arc(px,py,RR,0,Math.PI*2);
+    bctx.fillStyle=dmg?`rgba(239,68,68,${.15+.1*p})`:'rgba(248,250,252,.95)';
+    bctx.shadowColor=dmg?`rgba(239,68,68,${.6*p})`:'transparent';bctx.shadowBlur=dmg?12:0;
+    bctx.fill();bctx.strokeStyle=dmg?`rgba(239,68,68,${.7+.3*p})`:'rgba(209,213,219,.8)';bctx.lineWidth=dmg?2:1.5;bctx.stroke();bctx.shadowBlur=0;
   });
-
-  /* ── Shaft (filled circle) ── */
-  const {px: sx, py: sy} = project3D(0, 0, depth/2+1, tiltX, tiltZ);
-  bctx.beginPath();
-  bctx.arc(sx, sy, 20, 0, Math.PI*2);
-  bctx.fillStyle = '#f8f9fb';
-  bctx.fill();
-  bctx.strokeStyle = 'rgba(209,213,219,.7)';
-  bctx.lineWidth = 2;
-  bctx.stroke();
-
-  /* Shaft key */
-  bctx.save();
-  bctx.translate(sx, sy);
-  bctx.rotate(angle);
-  const grad = bctx.createLinearGradient(-3,-20,3,0);
-  grad.addColorStop(0,'#0ea5e9');
-  grad.addColorStop(1,'#6366f1');
-  bctx.fillStyle = grad;
-  bctx.fillRect(-3, -20, 6, 12);
-  bctx.restore();
-
-  /* ── Center text ── */
-  bctx.fillStyle = '#101828';
-  bctx.font = '700 20px Space Grotesk, sans-serif';
-  bctx.textAlign = 'center';
-  bctx.textBaseline = 'middle';
-  bctx.fillText((hi*100).toFixed(0)+'%', sx, sy - 3);
-  bctx.fillStyle = '#98a2b3';
-  bctx.font = '500 9px JetBrains Mono, monospace';
-  bctx.fillText('HEALTH', sx, sy + 11);
-
-  tik += 0.018;
-  angle += 0.012;
-  updateHealth();
-  requestAnimationFrame(drawBearing3D);
+  /* shaft */
+  const {px:sx,py:sy}=project(0,0,depth/2+1,tx,tz);
+  bctx.beginPath();bctx.arc(sx,sy,19,0,Math.PI*2);bctx.fillStyle='#f8f9fb';bctx.fill();bctx.strokeStyle='rgba(209,213,219,.7)';bctx.lineWidth=2;bctx.stroke();
+  bctx.save();bctx.translate(sx,sy);bctx.rotate(angle);
+  const g=bctx.createLinearGradient(-3,-19,3,0);g.addColorStop(0,'#0ea5e9');g.addColorStop(1,'#6366f1');
+  bctx.fillStyle=g;bctx.fillRect(-3,-19,6,11);bctx.restore();
+  /* text */
+  bctx.fillStyle='#101828';bctx.font='700 19px Space Grotesk,sans-serif';bctx.textAlign='center';bctx.textBaseline='middle';
+  bctx.fillText((hi*100).toFixed(0)+'%',sx,sy-3);bctx.fillStyle='#98a2b3';bctx.font='500 9px JetBrains Mono,monospace';bctx.fillText('HEALTH',sx,sy+11);
+  /* update */
+  hi+=.0008*hiDir;if(hi<=.1)hiDir=1;if(hi>=.95)hiDir=-1;
+  document.getElementById('hi-val').textContent=hi.toFixed(3);
+  document.getElementById('rul-val').textContent=Math.max(0,Math.round(hi*200));
+  const el=document.getElementById('hi-val');el.className='bm-v '+(hi<.3?'crit':hi<.6?'warn':'ok');
+  tik+=.018;angle+=.012;
+  requestAnimationFrame(drawBearing);
 }
-drawBearing3D();
+drawBearing();
 
-/* ════════════════════════════════════════════════════
-   WAVEFORM
-════════════════════════════════════════════════════ */
-const wc = document.getElementById('waveformCanvas');
-const wctx = wc.getContext('2d');
-let wt = 0;
+/* WAVEFORM */
+const wc=document.getElementById('wc'),wctx=wc.getContext('2d');
+let wt=0;
 function drawWave(){
-  const W = wc.offsetWidth, H = 72;
-  if(wc.width !== W || wc.height !== H){ wc.width = W; wc.height = H; }
+  const W=wc.offsetWidth,H=64;
+  if(wc.width!==W||wc.height!==H){wc.width=W;wc.height=H;}
   wctx.clearRect(0,0,W,H);
-
-  /* Background */
-  wctx.fillStyle = '#ffffff';
-  wctx.fillRect(0,0,W,H);
-
-  /* Grid lines */
-  wctx.strokeStyle = 'rgba(228,231,236,.6)';
-  wctx.lineWidth = 0.5;
-  for(let i=1;i<4;i++){
-    wctx.beginPath();
-    wctx.moveTo(0,H*i/4);
-    wctx.lineTo(W,H*i/4);
-    wctx.stroke();
-  }
-
-  /* Signal */
-  const grad = wctx.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0,'#0ea5e9');
-  grad.addColorStop(0.6,'#6366f1');
-  grad.addColorStop(1,'#10b981');
-  wctx.strokeStyle = grad;
-  wctx.lineWidth = 1.5;
-  wctx.beginPath();
-  for(let x=0;x<W;x++){
-    const freq = 1 + 0.4*(x/W);
-    const amp  = 0.28 + 0.15*Math.sin(x*0.009);
-    const y = H/2 + H*0.38*amp*(
-      Math.sin(x*0.08*freq + wt) +
-      0.3*Math.sin(x*0.24 + wt*1.5) +
-      0.07*Math.sin(x*0.65 + wt*2.5)
-    );
-    x===0 ? wctx.moveTo(x,y) : wctx.lineTo(x,y);
-  }
+  wctx.fillStyle='#fff';wctx.fillRect(0,0,W,H);
+  wctx.strokeStyle='rgba(228,231,236,.5)';wctx.lineWidth=.5;
+  for(let i=1;i<4;i++){wctx.beginPath();wctx.moveTo(0,H*i/4);wctx.lineTo(W,H*i/4);wctx.stroke();}
+  const g=wctx.createLinearGradient(0,0,W,0);g.addColorStop(0,'#0ea5e9');g.addColorStop(.6,'#6366f1');g.addColorStop(1,'#10b981');
+  wctx.strokeStyle=g;wctx.lineWidth=1.5;wctx.beginPath();
+  for(let x=0;x<W;x++){const fr=1+.4*(x/W),amp=.28+.15*Math.sin(x*.009),y=H/2+H*.38*amp*(Math.sin(x*.08*fr+wt)+.3*Math.sin(x*.24+wt*1.5)+.07*Math.sin(x*.65+wt*2.5));x?wctx.lineTo(x,y):wctx.moveTo(x,y);}
   wctx.stroke();
-
-  /* Fill under */
-  wctx.lineTo(W, H); wctx.lineTo(0, H); wctx.closePath();
-  const fillGrad = wctx.createLinearGradient(0,0,0,H);
-  fillGrad.addColorStop(0,'rgba(14,165,233,.08)');
-  fillGrad.addColorStop(1,'rgba(14,165,233,0)');
-  wctx.fillStyle = fillGrad;
-  wctx.fill();
-
-  wt += 0.035;
-  requestAnimationFrame(drawWave);
+  wctx.lineTo(W,H);wctx.lineTo(0,H);wctx.closePath();
+  const fg=wctx.createLinearGradient(0,0,0,H);fg.addColorStop(0,'rgba(14,165,233,.07)');fg.addColorStop(1,'rgba(14,165,233,0)');
+  wctx.fillStyle=fg;wctx.fill();
+  wt+=.035;requestAnimationFrame(drawWave);
 }
 drawWave();
 
-/* ════════════════════════════════════════════════════
-   DEGRADATION CHART
-════════════════════════════════════════════════════ */
-const labels = Array.from({length:50},(_,i)=>i*20);
-let lastV = 1.0;
-const vibData = [];
-for(let i=0;i<50;i++){
-  const target = 1 - Math.pow(i/49,1.4);
-  lastV = Math.min(lastV, target + 0.02 + Math.random()*0.015);
-  vibData.push(+lastV.toFixed(3));
-}
-const lstmData = Array.from({length:50},(_,i)=>{
-  const base = 1 - Math.pow(i/49,1.4);
-  return +(base + (Math.random()-0.5)*0.12).toFixed(3);
-});
-
-new Chart(document.getElementById('degradationChart'),{
-  type:'line',
-  data:{
-    labels,
-    datasets:[
-      {
-        label:'VibFormer (ours)',
-        data:vibData,
-        borderColor:'#0ea5e9',
-        borderWidth:2.5,
-        pointRadius:0,
-        tension:0.45,
-        fill:{target:'origin',above:'rgba(14,165,233,0.04)'}
-      },
-      {
-        label:'LSTM Baseline',
-        data:lstmData,
-        borderColor:'#98a2b3',
-        borderWidth:1.5,
-        borderDash:[5,4],
-        pointRadius:0,
-        tension:0.3
-      },
-      {
-        label:'Failure Threshold',
-        data:Array(50).fill(0.1),
-        borderColor:'#ef4444',
-        borderWidth:1.5,
-        borderDash:[6,4],
-        pointRadius:0,
-        fill:{target:'origin',above:'rgba(239,68,68,0.03)'}
-      }
-    ]
-  },
-  options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    interaction:{mode:'index',intersect:false},
-    plugins:{
-      legend:{display:false},
-      tooltip:{
-        backgroundColor:'#101828',
-        borderColor:'rgba(255,255,255,.1)',
-        borderWidth:1,
-        titleColor:'#98a2b3',
-        bodyColor:'#f2f4f7',
-        titleFont:{family:'JetBrains Mono',size:11},
-        bodyFont:{family:'JetBrains Mono',size:12},
-        cornerRadius:8,
-        padding:12,
-      }
-    },
-    scales:{
-      x:{
-        grid:{color:'rgba(228,231,236,.6)',lineWidth:0.5},
-        ticks:{color:'#98a2b3',font:{family:'JetBrains Mono',size:10}},
-        title:{display:true,text:'MEASUREMENT INDEX',color:'#98a2b3',font:{family:'JetBrains Mono',size:10},padding:{top:10}}
-      },
-      y:{
-        min:0,max:1.05,
-        grid:{color:'rgba(228,231,236,.6)',lineWidth:0.5},
-        ticks:{color:'#98a2b3',font:{family:'JetBrains Mono',size:10},callback:v=>v.toFixed(1)},
-        title:{display:true,text:'H(t) — HEALTH INDEX',color:'#98a2b3',font:{family:'JetBrains Mono',size:10},padding:{right:10}}
-      }
-    }
-  }
-});
-
-/* ════════════════════════════════════════════════════
-   COUNT-UP ANIMATION
-════════════════════════════════════════════════════ */
-function countUp(id, target, decimals, suffix){
-  const el = document.getElementById(id);
-  const dur = 2000;
-  const startTime = performance.now();
-  function step(now){
-    const p = Math.min((now-startTime)/dur,1);
-    const ease = 1 - Math.pow(1-p,4);
-    const val = target * ease;
-    el.innerHTML = (decimals>0 ? val.toFixed(decimals) : Math.round(val)) + suffix;
-    if(p<1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-/* ════════════════════════════════════════════════════
-   SCROLL REVEAL + PERF BARS
-════════════════════════════════════════════════════ */
-let countersTriggered = false;
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add('visible');
-      e.target.querySelectorAll('.perf-fill[data-w]').forEach(bar=>{
-        setTimeout(()=>{ bar.style.width = bar.dataset.w+'%'; },200);
-      });
-      if(!countersTriggered && e.target.classList.contains('metrics-strip') || e.target.querySelector('#m1')){
-        if(!countersTriggered){
-          countersTriggered = true;
-          setTimeout(()=>{
-            countUp('m1',18.4,1,'<sub>cycles</sub>');
-            countUp('m2',94.2,1,'<sub>%</sub>');
-            countUp('m3',0.9,1,'<sub>ms</sub>');
-            countUp('m4',0.97,2,'');
-          },300);
-        }
-      }
-    }
-  });
-},{threshold:0.15});
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
-
-/* Initial check */
-setTimeout(()=>{
-  document.querySelectorAll('.reveal').forEach(el=>{
-    if(el.getBoundingClientRect().top < window.innerHeight){
-      el.classList.add('visible');
-      if(!countersTriggered){
-        countersTriggered = true;
-        setTimeout(()=>{
-          countUp('m1',18.4,1,'<sub>cycles</sub>');
-          countUp('m2',94.2,1,'<sub>%</sub>');
-          countUp('m3',0.9,1,'<sub>ms</sub>');
-          countUp('m4',0.97,2,'');
-        },500);
-      }
-    }
-  });
-  document.querySelectorAll('.perf-fill[data-w]').forEach(bar=>{
-    setTimeout(()=>{ bar.style.width = bar.dataset.w+'%'; },1000);
-  });
-},200);
+/* REVEAL */
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>

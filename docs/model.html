@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Model · VibFormer</title>
+<meta name="description" content="VibFormer model details — 4-head multi-scale attention, physics constraints, monotonicity loss, bearing degradation trajectory and health index."/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="_shared.css"/>
+<style>
+.model-hero{display:grid;grid-template-columns:1fr 340px;gap:60px;align-items:start;margin-bottom:56px}
+.b-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r20);padding:24px;box-shadow:var(--sh-xl);position:relative;overflow:hidden}
+.b-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 100% 50% at 50% 0%,rgba(14,165,233,.04),transparent);pointer-events:none}
+.b-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.b-lbl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.b-live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600}
+.ld{width:7px;height:7px;border-radius:50%;background:var(--green);animation:lp 1.4s ease-in-out infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+.b-mets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.bm{background:var(--off);border:1px solid var(--border);border-radius:var(--r8);padding:10px 6px;text-align:center}
+.bm-v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink);display:block}
+.bm-v.warn{color:var(--amber)}.bm-v.crit{color:var(--red)}.bm-v.ok{color:var(--green)}
+.bm-k{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;display:block;font-family:var(--mono)}
+/* chart */
+.chart-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);padding:28px;box-shadow:var(--sh-sm)}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
+.legend{display:flex;gap:16px}
+.leg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.leg-l{width:20px;height:2.5px;border-radius:2px}
+/* model params */
+.param-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.param-card{background:var(--off);border:1.5px solid var(--border);border-radius:var(--r12);padding:20px}
+.param-val{font-family:var(--display);font-weight:800;font-size:28px;color:var(--ink);letter-spacing:-.02em}
+.param-key{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
+/* phase pills */
+.phase-strip{display:flex;gap:0;border:1.5px solid var(--border);border-radius:var(--r8);overflow:hidden;margin-top:12px}
+.phase{flex:1;padding:10px 12px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em}
+.ph-ok{background:var(--green-s);color:var(--green);border-right:1px solid var(--border)}
+.ph-warn{background:var(--amber-s);color:var(--amber);border-right:1px solid var(--border)}
+.ph-crit{background:var(--red-s);color:var(--red)}
+/* code grid */
+.code-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><div class="logo-mark">⚙</div>VibFormer / bearing-dt</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="model.html" class="active">Model</a>
+    <a href="performance.html">Performance</a>
+    <a href="api.html">API</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-ver">v1.0 · MIT</span>
+    <a class="btn-nav" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span>Model</div>
+    <div class="page-eyebrow">VibFormer · Physics-Informed Transformer</div>
+    <h1 class="page-h1">Monotonic <span class="hl">health degradation</span><br>with physics constraints</h1>
+    <p class="page-sub">4-head multi-scale temporal attention over 30-step windows. Physics loss terms enforce bearing degradation laws derived from Paris' Law and boundary conditions.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- HERO GRID -->
+  <div class="model-hero reveal">
+    <div>
+      <div class="s-label">Live Simulation</div>
+      <div class="s-title" style="margin-bottom:8px">3D Bearing State Monitor</div>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px">The coloured arc on the outer race represents the real-time health index H(t). Green → healthy, amber → degrading, red → critical. Rolling element #3 (highlighted) carries a simulated outer-race defect.</p>
+      <div class="phase-strip">
+        <div class="phase ph-ok">● NOMINAL<br><span style="font-size:9px;font-weight:400;opacity:.8">H(t) &gt; 0.6</span></div>
+        <div class="phase ph-warn">● DEGRADATION<br><span style="font-size:9px;font-weight:400;opacity:.8">0.3 &lt; H(t) ≤ 0.6</span></div>
+        <div class="phase ph-crit">● PRE-FAILURE<br><span style="font-size:9px;font-weight:400;opacity:.8">H(t) ≤ 0.3</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="b-card">
+        <div class="b-card-head"><span class="b-lbl">Bearing B1 · Real-time</span><span class="b-live"><span class="ld"></span>LIVE</span></div>
+        <div style="display:flex;justify-content:center"><canvas id="bearing3d" width="280" height="280"></canvas></div>
+        <div class="b-mets">
+          <div class="bm"><span class="bm-v warn" id="hi-val">0.412</span><span class="bm-k">Health Idx</span></div>
+          <div class="bm"><span class="bm-v" id="rul-val">183</span><span class="bm-k">RUL Cycles</span></div>
+          <div class="bm"><span class="bm-v crit">OR</span><span class="bm-k">Fault Mode</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- DEGRADATION CHART -->
+  <div class="s-label">Health Index · H(t)</div>
+  <div class="s-title" style="margin-bottom:24px">Bearing Degradation Trajectory</div>
+  <div class="chart-card reveal">
+    <div class="chart-head">
+      <div>
+        <div style="font-size:13px;color:var(--muted)">VibFormer vs LSTM Baseline · IMS Test Run 3</div>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-l" style="background:var(--cyan)"></div>VibFormer (ours)</div>
+        <div class="leg"><div class="leg-l" style="background:var(--muted2)"></div>LSTM Baseline</div>
+        <div class="leg"><div class="leg-l" style="background:var(--red)"></div>Failure Threshold</div>
+      </div>
+    </div>
+    <canvas id="degradationChart" height="240"></canvas>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- MODEL PARAMS -->
+  <div class="s-label">Model Specification</div>
+  <div class="s-title" style="margin-bottom:24px">VibFormer Hyperparameters</div>
+  <div class="param-grid reveal">
+    <div class="param-card"><div class="param-val">128</div><div class="param-key">d_model</div></div>
+    <div class="param-card"><div class="param-val">4</div><div class="param-key">Attention Heads</div></div>
+    <div class="param-card"><div class="param-val">3</div><div class="param-key">FF Blocks</div></div>
+    <div class="param-card"><div class="param-val">30</div><div class="param-key">Sequence Length</div></div>
+    <div class="param-card"><div class="param-val">14</div><div class="param-key">Input Features</div></div>
+    <div class="param-card"><div class="param-val">0.1</div><div class="param-key">Dropout Rate</div></div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- PHYSICS CODE -->
+  <div class="s-label">Physics Constraints</div>
+  <div class="s-title" style="margin-bottom:8px">Constraints as Differentiable Loss Terms</div>
+  <p class="s-sub">Standard MSE ignores the physics. VibFormer enforces monotonic health degradation via soft penalty terms — no hard constraints that would block gradient flow.</p>
+  <div class="code-grid reveal">
+    <div class="code-block">
+      <div class="code-block-head"><span class="code-file">monotonicity_loss.py</span><div class="code-dots"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div></div></div>
+      <div class="code-body">
+<span class="kw">def</span> <span class="fn">monotonicity_loss</span>(<span class="arg">h</span>: <span class="fn">Tensor</span>) <span class="op">-></span> <span class="fn">Tensor</span>:<br>
+&nbsp;&nbsp;<span class="cm"># penalise any increase in health index</span><br>
+&nbsp;&nbsp;<span class="arg">deltas</span> <span class="op">=</span> <span class="arg">h</span>[:, <span class="str">1</span>:] <span class="op">-</span> <span class="arg">h</span>[:, :<span class="op">-</span><span class="str">1</span>]<br>
+&nbsp;&nbsp;<span class="arg">violations</span> <span class="op">=</span> F.<span class="fn">relu</span>(<span class="arg">deltas</span>)<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="arg">violations</span>.<span class="fn">mean</span>()
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-block-head"><span class="code-file">boundary_loss.py</span><div class="code-dots"><div class="cd cd1"></div><div class="cd cd2"></div><div class="cd cd3"></div></div></div>
+      <div class="code-body">
+<span class="kw">def</span> <span class="fn">boundary_loss</span>(<span class="arg">h_pred</span>, <span class="arg">pos</span>):<br>
+&nbsp;&nbsp;<span class="cm"># H(0)≈1, H(t_fail)≈0</span><br>
+&nbsp;&nbsp;<span class="arg">early</span> <span class="op">=</span> <span class="arg">pos</span> <span class="op">&lt;</span> <span class="str">0.1</span><br>
+&nbsp;&nbsp;<span class="arg">late</span>&nbsp; <span class="op">=</span> <span class="arg">pos</span> <span class="op">&gt;</span> <span class="str">0.9</span><br>
+&nbsp;&nbsp;<span class="kw">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;F.<span class="fn">mse_loss</span>(<span class="arg">h_pred</span>[<span class="arg">early</span>], <span class="fn">ones</span>) <span class="op">+</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;F.<span class="fn">mse_loss</span>(<span class="arg">h_pred</span>[<span class="arg">late</span>], <span class="fn">zeros</span>)<br>
+&nbsp;&nbsp;)
+      </div>
+    </div>
+  </div>
+  <div class="code-block reveal">
+    <div class="code-body" style="font-size:13px">
+      <span class="cm"># Combined training objective — λ tuned via grid search on validation set</span><br>
+      L_total <span class="op">=</span> L_MSE <span class="op">+</span> <span class="str">0.1</span> <span class="op">·</span> L_mono <span class="op">+</span> <span class="str">0.05</span> <span class="op">·</span> L_boundary
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-left">ujjwal77771 / physics-informed-digital-twin · BIT Mesra · 2026</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a><a href="architecture.html">Architecture</a><a href="performance.html">Performance</a><a href="api.html">API</a>
+    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub</a>
+  </div>
+  <div class="footer-mit">MIT License</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* 3D BEARING */
+const bc=document.getElementById('bearing3d'),bctx=bc.getContext('2d');
+const W=280,H=280,CX=140,CY=140,ROLLERS=9,INNER_R=38,OUTER_R=82,ORBIT=60,RR=9;
+let angle=0,tik=0,hi=0.412,hiDir=-1;
+function project(x,y,z,tx,tz){const y2=y*Math.cos(tx)-z*Math.sin(tx),z2=y*Math.sin(tx)+z*Math.cos(tx),x3=x*Math.cos(tz)-z2*Math.sin(tz);return{px:CX+x3,py:CY+y2,d:z2};}
+function drawBearing(){
+  bctx.clearRect(0,0,W,H);
+  const tx=0.52,tz=angle*.3,depth=22,steps=72,rc=hi<.3?'#ef4444':hi<.6?'#f59e0b':'#10b981';
+  bctx.beginPath();for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,-depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}bctx.strokeStyle='rgba(14,165,233,.15)';bctx.lineWidth=13;bctx.stroke();
+  bctx.beginPath();for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}bctx.strokeStyle='rgba(228,231,236,.8)';bctx.lineWidth=13;bctx.stroke();
+  const pts=Math.round(hi*steps);bctx.beginPath();for(let i=0;i<=pts;i++){const a=-Math.PI/2+(i/steps)*Math.PI*2*hi,{px,py}=project(Math.cos(a)*OUTER_R,Math.sin(a)*OUTER_R,depth/2+.5,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}bctx.strokeStyle=rc;bctx.lineWidth=13;bctx.lineCap='round';bctx.shadowColor=hi<.3?'rgba(239,68,68,.3)':'rgba(16,185,129,.25)';bctx.shadowBlur=14;bctx.stroke();bctx.shadowBlur=0;
+  bctx.beginPath();for(let i=0;i<=steps;i++){const a=(i/steps)*Math.PI*2,{px,py}=project(Math.cos(a)*INNER_R,Math.sin(a)*INNER_R,depth/2,tx,tz);i?bctx.lineTo(px,py):bctx.moveTo(px,py);}bctx.strokeStyle='rgba(228,231,236,.9)';bctx.lineWidth=9;bctx.stroke();
+  const roff=angle*.8,rdata=[];for(let i=0;i<ROLLERS;i++){const a=(i/ROLLERS)*Math.PI*2+roff,x=Math.cos(a)*ORBIT,y=Math.sin(a)*ORBIT,{px,py,d}=project(x,y,depth*.3,tx,tz);rdata.push({px,py,d,i});}
+  rdata.sort((a,b)=>a.d-b.d);rdata.forEach(({px,py,i:idx})=>{const dmg=idx===2,p=.5+.5*Math.sin(tik*4);bctx.beginPath();bctx.arc(px,py,RR,0,Math.PI*2);bctx.fillStyle=dmg?`rgba(239,68,68,${.15+.1*p})`:'rgba(248,250,252,.95)';bctx.shadowColor=dmg?`rgba(239,68,68,${.6*p})`:'transparent';bctx.shadowBlur=dmg?12:0;bctx.fill();bctx.strokeStyle=dmg?`rgba(239,68,68,${.7+.3*p})`:'rgba(209,213,219,.8)';bctx.lineWidth=dmg?2:1.5;bctx.stroke();bctx.shadowBlur=0;});
+  const {px:sx,py:sy}=project(0,0,depth/2+1,tx,tz);bctx.beginPath();bctx.arc(sx,sy,18,0,Math.PI*2);bctx.fillStyle='#f8f9fb';bctx.fill();bctx.strokeStyle='rgba(209,213,219,.7)';bctx.lineWidth=2;bctx.stroke();
+  bctx.save();bctx.translate(sx,sy);bctx.rotate(angle);const g=bctx.createLinearGradient(-3,-18,3,0);g.addColorStop(0,'#0ea5e9');g.addColorStop(1,'#6366f1');bctx.fillStyle=g;bctx.fillRect(-3,-18,6,10);bctx.restore();
+  bctx.fillStyle='#101828';bctx.font='700 18px Space Grotesk,sans-serif';bctx.textAlign='center';bctx.textBaseline='middle';bctx.fillText((hi*100).toFixed(0)+'%',sx,sy-3);bctx.fillStyle='#98a2b3';bctx.font='500 9px JetBrains Mono,monospace';bctx.fillText('HEALTH',sx,sy+10);
+  hi+=.0008*hiDir;if(hi<=.1)hiDir=1;if(hi>=.95)hiDir=-1;
+  document.getElementById('hi-val').textContent=hi.toFixed(3);document.getElementById('rul-val').textContent=Math.max(0,Math.round(hi*200));
+  const el=document.getElementById('hi-val');el.className='bm-v '+(hi<.3?'crit':hi<.6?'warn':'ok');
+  tik+=.018;angle+=.012;requestAnimationFrame(drawBearing);
+}
+drawBearing();
+
+/* CHART */
+const labels=Array.from({length:50},(_,i)=>i*20);
+let lastV=1;const vd=[];
+for(let i=0;i<50;i++){const t=1-Math.pow(i/49,1.4);lastV=Math.min(lastV,t+.02+Math.random()*.015);vd.push(+lastV.toFixed(3));}
+const ld=Array.from({length:50},(_,i)=>{const b=1-Math.pow(i/49,1.4);return+(b+(Math.random()-.5)*.12).toFixed(3);});
+new Chart(document.getElementById('degradationChart'),{type:'line',data:{labels,datasets:[
+  {label:'VibFormer',data:vd,borderColor:'#0ea5e9',borderWidth:2.5,pointRadius:0,tension:.45,fill:{target:'origin',above:'rgba(14,165,233,.04)'}},
+  {label:'LSTM',data:ld,borderColor:'#98a2b3',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:.3},
+  {label:'Threshold',data:Array(50).fill(.1),borderColor:'#ef4444',borderWidth:1.5,borderDash:[6,4],pointRadius:0}
+]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#101828',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#98a2b3',bodyColor:'#f2f4f7',titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:12},cornerRadius:8,padding:12}},scales:{x:{grid:{color:'rgba(228,231,236,.6)',lineWidth:.5},ticks:{color:'#98a2b3',font:{family:'JetBrains Mono',size:10}},title:{display:true,text:'MEASUREMENT INDEX',color:'#98a2b3',font:{family:'JetBrains Mono',size:10},padding:{top:8}}},y:{min:0,max:1.05,grid:{color:'rgba(228,231,236,.6)',lineWidth:.5},ticks:{color:'#98a2b3',font:{family:'JetBrains Mono',size:10},callback:v=>v.toFixed(1)},title:{display:true,text:'H(t) — HEALTH INDEX',color:'#98a2b3',font:{family:'JetBrains Mono',size:10},padding:{right:8}}}}}});
+
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

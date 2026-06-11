@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Architecture · VibFormer</title>
+<meta name="description" content="Full-stack ML pipeline from raw vibration signal to sub-millisecond REST inference. Signal conditioning, VibFormer encoder, physics regulariser, ONNX export."/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="_shared.css"/>
+<style>
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.arch-tag{display:inline-block;font-family:var(--mono);font-size:10px;margin-top:12px;color:var(--muted);background:var(--off2);border:1px solid var(--border);padding:3px 8px;border-radius:var(--r4);letter-spacing:.06em}
+.arch-step{display:flex;align-items:flex-start;gap:20px;padding:28px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);box-shadow:var(--sh-sm);transition:all .2s}
+.arch-step:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.step-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cyan);background:var(--cyan-s);border:1px solid rgba(14,165,233,.2);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body{}
+.step-title{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.65}
+/* pipeline arrow connector */
+.pipeline{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+.pipe-arrow{text-align:center;color:var(--muted2);font-size:18px}
+/* feature table */
+.feat-table{width:100%;border-collapse:collapse;font-size:13px}
+.feat-table th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);padding:10px 16px;background:var(--off);border-bottom:1.5px solid var(--border);text-align:left;font-weight:600}
+.feat-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:top}
+.feat-table tr:last-child td{border-bottom:none}
+.feat-table tr:hover td{background:var(--off)}
+.feat-name{font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:600}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><div class="logo-mark">⚙</div>VibFormer / bearing-dt</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="architecture.html" class="active">Architecture</a>
+    <a href="model.html">Model</a>
+    <a href="performance.html">Performance</a>
+    <a href="api.html">API</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-ver">v1.0 · MIT</span>
+    <a class="btn-nav" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span>Architecture</div>
+    <div class="page-eyebrow">Full-Stack ML Pipeline</div>
+    <h1 class="page-h1">From raw signal to<br><span class="hl">sub-ms inference</span></h1>
+    <p class="page-sub">Every stage is containerised, benchmarked, and independently replaceable. Physics constraints are first-class citizens — not post-hoc heuristics.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- PIPELINE STAGES -->
+  <div class="s-label">System Stages</div>
+  <div class="s-title">6-Stage Processing Pipeline</div>
+  <p class="s-sub">From raw 20kHz vibration files to a live WebSocket inference stream — each stage has a clear interface and can be swapped independently.</p>
+
+  <div class="pipeline reveal">
+    <div class="arch-step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">⚙️ Signal Conditioning</div>
+        <div class="step-desc">Raw bearing vibration data ingested from CSV/binary. Bandpass filter (1–10kHz) removes DC offset and out-of-band noise. Z-score normalisation per channel. Automatic artifact rejection via IQR gating. Outputs clean 20kHz time-series windows.</div>
+        <span class="arch-tag">signal_processing.py</span>
+      </div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="arch-step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">📐 Feature Engineering</div>
+        <div class="step-desc">14 hand-engineered features extracted per 0.1s window: RMS, peak, kurtosis, skewness, crest factor, spectral entropy, BPFO/BPFI harmonics (×2 each), sideband energy, envelope power. Sliding window stride: 32 samples.</div>
+        <span class="arch-tag">features.py</span>
+      </div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="arch-step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">🔢 VibFormer Encoder</div>
+        <div class="step-desc">4-head multi-scale temporal attention over 30-step sequences. d_model=128. 3 feed-forward blocks with residuals and LayerNorm. CLS token aggregation for sequence-level representation. Learnable positional encoding.</div>
+        <span class="arch-tag">vibformer.py</span>
+      </div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="arch-step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">⚡ Physics Regulariser</div>
+        <div class="step-desc">Monotonicity penalty enforces dH/dt ≤ 0 — bearing health must be non-increasing. Boundary condition loss anchors H(0)≈1 at start and H(t_fail)≈0 at failure. Combined loss: L = L_MSE + 0.1·L_mono + 0.05·L_boundary.</div>
+        <span class="arch-tag">physics_loss.py</span>
+      </div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="arch-step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <div class="step-title">📦 ONNX Export + INT8 Quantisation</div>
+        <div class="step-desc">PyTorch model exported to ONNX opset 17. Post-training INT8 static quantisation via ONNX Runtime. ~4× speedup over FP32 on CPU with &lt;0.3% RMSE degradation. Model size reduced from 8.2MB → 2.1MB.</div>
+        <span class="arch-tag">export.py</span>
+      </div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="arch-step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <div class="step-title">🚀 FastAPI + React Dashboard</div>
+        <div class="step-desc">Async Uvicorn server exposes REST + WebSocket API. React dashboard consumes live telemetry via WS, renders RUL countdown, health arc gauge, fault event log, and 14-channel sensor grid using Recharts + Lucide.</div>
+        <span class="arch-tag">src/backend/app.py · frontend/</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- FEATURE TABLE -->
+  <div class="s-label">Feature Engineering</div>
+  <div class="s-title">14 Engineered Signal Features</div>
+  <p class="s-sub">Each feature targets a specific failure mode. Combinations of time-domain and frequency-domain statistics give the model multi-scale insight into bearing health.</p>
+
+  <div class="reveal" style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);overflow:hidden;box-shadow:var(--sh-sm)">
+    <table class="feat-table">
+      <thead><tr><th>Feature</th><th>Domain</th><th>Targets</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td class="feat-name">rms</td><td>Time</td><td>Overall degradation</td><td>Root mean square — primary energy indicator, increases monotonically near failure</td></tr>
+        <tr><td class="feat-name">kurtosis</td><td>Time</td><td>Impulse faults</td><td>4th statistical moment, highly sensitive to early-stage spalling and impact events</td></tr>
+        <tr><td class="feat-name">crest_factor</td><td>Time</td><td>Ball/race faults</td><td>Peak-to-RMS ratio, drops after initial spike as damage spreads uniformly</td></tr>
+        <tr><td class="feat-name">skewness</td><td>Time</td><td>Asymmetric wear</td><td>3rd moment, captures directional asymmetry in vibration distribution</td></tr>
+        <tr><td class="feat-name">bpfo_1, bpfo_2</td><td>Frequency</td><td>Outer race fault</td><td>Ball Pass Frequency Outer race at 1× and 2× harmonics</td></tr>
+        <tr><td class="feat-name">bpfi_1, bpfi_2</td><td>Frequency</td><td>Inner race fault</td><td>Ball Pass Frequency Inner race at 1× and 2× harmonics</td></tr>
+        <tr><td class="feat-name">spectral_entropy</td><td>Frequency</td><td>Distributed damage</td><td>Shannon entropy of PSD — decreases as energy concentrates at fault frequencies</td></tr>
+        <tr><td class="feat-name">sideband_energy</td><td>Frequency</td><td>Modulation faults</td><td>Energy in ±Δf sidebands around BPFO/BPFI, indicates bearing wobble</td></tr>
+        <tr><td class="feat-name">envelope_power</td><td>Envelope</td><td>Early faults</td><td>Power of Hilbert-transformed envelope signal, detects amplitude modulation</td></tr>
+        <tr><td class="feat-name">peak_2_peak</td><td>Time</td><td>Gross instability</td><td>Max − min in window; rises sharply during pre-failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- TECH STACK -->
+  <div class="s-label">Technology Stack</div>
+  <div class="s-title">Tools & Libraries</div>
+  <div class="arch-grid reveal" style="margin-top:24px">
+    <div class="card">
+      <div class="icon-box ib-red">🔥</div>
+      <div style="font-family:var(--display);font-weight:700;font-size:15px;margin-bottom:8px">PyTorch 2.x</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">Model training, custom loss functions, ONNX export via torch.onnx.export(). Mixed precision training with AMP.</div>
+    </div>
+    <div class="card">
+      <div class="icon-box ib-green">⚡</div>
+      <div style="font-family:var(--display);font-weight:700;font-size:15px;margin-bottom:8px">FastAPI + Uvicorn</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">Async REST and WebSocket endpoints. Pydantic v2 request/response validation. Sub-1ms P95 latency with ONNX Runtime backend.</div>
+    </div>
+    <div class="card">
+      <div class="icon-box ib-cyan">🐳</div>
+      <div style="font-family:var(--display);font-weight:700;font-size:15px;margin-bottom:8px">Docker · HF Spaces</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">Multi-stage Dockerfile. Node build stage compiles React, Python stage serves everything on port 7860 for Hugging Face Spaces.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-left">ujjwal77771 / physics-informed-digital-twin · BIT Mesra · 2026</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a><a href="model.html">Model</a><a href="performance.html">Performance</a><a href="api.html">API</a>
+    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub</a>
+  </div>
+  <div class="footer-mit">MIT License</div>
+</footer>
+<script>
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

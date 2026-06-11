@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Performance · VibFormer</title>
+<meta name="description" content="Benchmark results for VibFormer on the IMS bearing dataset. RMSE, MAE, monotonicity score, fault detection rate, false alarm rate, and inference latency."/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="_shared.css"/>
+<style>
+.perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.perf-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);padding:28px;box-shadow:var(--sh-sm);transition:all .2s}
+.perf-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.perf-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.perf-val{font-family:var(--display);font-weight:800;font-size:36px;color:var(--ink);line-height:1;letter-spacing:-.02em}
+.perf-unit{font-family:var(--mono);font-size:15px;color:var(--muted2);font-weight:400}
+.perf-bar-track{height:4px;background:var(--off2);border-radius:99px;margin-top:16px;overflow:hidden}
+.perf-bar-fill{height:100%;border-radius:99px;width:0;transition:width 1.6s cubic-bezier(.23,1,.32,1)}
+/* comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px}
+.cmp-table th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);padding:12px 20px;background:var(--off);border-bottom:1.5px solid var(--border);text-align:left;font-weight:600}
+.cmp-table td{padding:14px 20px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:var(--off)}
+.cmp-table tr.highlight td{background:rgba(14,165,233,.03)}
+.model-name{font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink)}
+.best{color:var(--green);font-family:var(--mono);font-size:13px;font-weight:600}
+.mid{color:var(--amber);font-family:var(--mono);font-size:13px}
+.worst{color:var(--red);font-family:var(--mono);font-size:13px}
+.winner-tag{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-s);border:1px solid rgba(14,165,233,.2);padding:2px 8px;border-radius:99px;letter-spacing:.04em;margin-left:8px}
+/* dataset info */
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ds-item{display:flex;gap:16px;padding:20px;background:var(--off);border:1.5px solid var(--border);border-radius:var(--r12)}
+.ds-icon{width:36px;height:36px;border-radius:var(--r8);background:var(--cyan-s);border:1px solid rgba(14,165,233,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ds-key{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.ds-val{font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><div class="logo-mark">⚙</div>VibFormer / bearing-dt</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="model.html">Model</a>
+    <a href="performance.html" class="active">Performance</a>
+    <a href="api.html">API</a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-ver">v1.0 · MIT</span>
+    <a class="btn-nav" href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span>Performance</div>
+    <div class="page-eyebrow">IMS Bearing Dataset · Test Run 3</div>
+    <h1 class="page-h1">Benchmark <span class="hl">results</span> that speak</h1>
+    <p class="page-sub">Evaluated on the NASA IMS bearing dataset — 4 bearings, 984 measurements, run to failure. All metrics computed on held-out Test Run 3 with no data leakage.</p>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- PERF CARDS -->
+  <div class="s-label">Key Metrics</div>
+  <div class="s-title" style="margin-bottom:24px">VibFormer Results</div>
+  <div class="perf-grid reveal">
+    <div class="perf-card">
+      <div class="perf-label">RUL RMSE</div>
+      <div class="perf-val">18.4 <span class="perf-unit">cycles</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--cyan)" data-w="72"></div></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-label">RUL MAE</div>
+      <div class="perf-val">12.1 <span class="perf-unit">cycles</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--indigo)" data-w="65"></div></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-label">Monotonicity Score</div>
+      <div class="perf-val">0.97 <span class="perf-unit">/ 1.0</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--green)" data-w="97"></div></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-label">Fault Detection Rate</div>
+      <div class="perf-val">94.2 <span class="perf-unit">%</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--amber)" data-w="94"></div></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-label">False Alarm Rate</div>
+      <div class="perf-val">2.1 <span class="perf-unit">%</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--red)" data-w="2"></div></div>
+    </div>
+    <div class="perf-card">
+      <div class="perf-label">INT8 Inference Latency</div>
+      <div class="perf-val">0.9 <span class="perf-unit">ms/win</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="background:var(--cyan)" data-w="88"></div></div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="s-label">Model Comparison</div>
+  <div class="s-title" style="margin-bottom:24px">VibFormer vs Baselines</div>
+  <div class="reveal" style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--r16);overflow:hidden;box-shadow:var(--sh-sm)">
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>RMSE ↓</th>
+          <th>MAE ↓</th>
+          <th>Monotonicity ↑</th>
+          <th>Fault Detection ↑</th>
+          <th>Latency (CPU) ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight">
+          <td><span class="model-name">VibFormer <span class="winner-tag">OURS</span></span></td>
+          <td><span class="best">18.4</span></td>
+          <td><span class="best">12.1</span></td>
+          <td><span class="best">0.97</span></td>
+          <td><span class="best">94.2%</span></td>
+          <td><span class="best">0.9ms</span></td>
+        </tr>
+        <tr>
+          <td><span class="model-name">LSTM Baseline</span></td>
+          <td><span class="worst">26.7</span></td>
+          <td><span class="worst">19.4</span></td>
+          <td><span class="mid">0.81</span></td>
+          <td><span class="mid">88.0%</span></td>
+          <td><span class="mid">1.8ms</span></td>
+        </tr>
+        <tr>
+          <td><span class="model-name">TCN</span></td>
+          <td><span class="mid">22.1</span></td>
+          <td><span class="mid">15.6</span></td>
+          <td><span class="mid">0.84</span></td>
+          <td><span class="worst">88.0%</span></td>
+          <td><span class="best">0.7ms</span></td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Vanilla Transformer</span></td>
+          <td><span class="mid">20.9</span></td>
+          <td><span class="mid">14.2</span></td>
+          <td><span class="worst">0.73</span></td>
+          <td><span class="mid">91.3%</span></td>
+          <td><span class="mid">2.1ms</span></td>
+        </tr>
+        <tr>
+          <td><span class="model-name">Random Forest</span></td>
+          <td><span class="worst">31.2</span></td>
+          <td><span class="worst">22.8</span></td>
+          <td><span class="mid">0.79</span></td>
+          <td><span class="worst">82.1%</span></td>
+          <td><span class="best">0.4ms</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- DATASET INFO -->
+  <div class="s-label">Dataset</div>
+  <div class="s-title" style="margin-bottom:24px">NASA IMS Bearing Dataset</div>
+  <div class="ds-grid reveal">
+    <div class="ds-item"><div class="ds-icon">🏭</div><div><div class="ds-key">Source</div><div class="ds-val">NASA Center for Intelligent Maintenance Systems</div></div></div>
+    <div class="ds-item"><div class="ds-icon">⚙️</div><div><div class="ds-key">Bearings</div><div class="ds-val">4 × Rexnord ZA-2115 (1,2,3,4)</div></div></div>
+    <div class="ds-item"><div class="ds-icon">📊</div><div><div class="ds-key">Sampling Rate</div><div class="ds-val">20,480 Hz · 1 second records</div></div></div>
+    <div class="ds-item"><div class="ds-icon">📅</div><div><div class="ds-key">Total Measurements</div><div class="ds-val">984 per run × 3 test runs</div></div></div>
+    <div class="ds-item"><div class="ds-icon">🎯</div><div><div class="ds-key">Fault Types</div><div class="ds-val">Inner race, Outer race, Roller element</div></div></div>
+    <div class="ds-item"><div class="ds-icon">🔬</div><div><div class="ds-key">Test Split</div><div class="ds-val">Test Run 3 — held-out, no data leakage</div></div></div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-left">ujjwal77771 / physics-informed-digital-twin · BIT Mesra · 2026</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a><a href="architecture.html">Architecture</a><a href="model.html">Model</a><a href="api.html">API</a>
+    <a href="https://github.com/ujjwal77771/physics-informed-digital-twin" target="_blank">GitHub</a>
+  </div>
+  <div class="footer-mit">MIT License</div>
+</footer>
+<script>
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');e.target.querySelectorAll('.perf-bar-fill[data-w]').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.w+'%';},200);});}}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+setTimeout(()=>{document.querySelectorAll('.perf-bar-fill[data-w]').forEach(b=>{b.style.width=b.dataset.w+'%';});},800);
+</script>
+</body>
+</html>
