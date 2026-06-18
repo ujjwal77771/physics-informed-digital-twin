@@ -9,6 +9,7 @@ import {
   BarChart2, ArrowLeft, Download, RefreshCw, Layers
 } from 'lucide-react'
 import SplashScreen from './SplashScreen.jsx'
+import BearingViewer3D from './BearingViewer3D.jsx'
 import './index.css'
 
 // ── Constants ──────────────────────────────────────────────────────
@@ -294,6 +295,16 @@ function DetailView({ bid, state, wsConnected, onBack }) {
           <strong>WARNING:</strong> Degradation detected. Schedule inspection — RUL: {typeof rul==='number'?rul.toFixed(1):rul} cycles.
         </div>
       )}
+
+      {/* 3D Bearing Viewer */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden', height: 380 }}>
+        <div style={{ position: 'absolute', top: 14, left: 20, zIndex: 10 }}>
+          <span className="card-title" style={{ background: 'rgba(8,13,20,0.6)', padding: '4px 8px', borderRadius: 6 }}>
+            ⚙️ 3D Digital Twin — Live Health State
+          </span>
+        </div>
+        <BearingViewer3D healthIndex={hi} status={st}/>
+      </div>
 
       {/* Metric cards */}
       <div className="grid-top">
