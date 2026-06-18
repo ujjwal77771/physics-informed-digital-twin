@@ -1,6 +1,6 @@
 ---
 title: Physics Informed Digital Twin
-emoji: ??
+emoji: 🚀
 colorFrom: blue
 colorTo: green
 sdk: docker
