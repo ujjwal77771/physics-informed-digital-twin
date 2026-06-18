@@ -1,3 +1,11 @@
+---
+title: Physics Informed Digital Twin
+emoji: ??
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
 <div align="center">
 
 # Physics-Informed Digital Twin for Bearing Prognostics
@@ -348,3 +356,4 @@ Evaluated on IMS Test Run 3 (held out during training):
 ## License
 
 MIT — see [LICENSE](LICENSE) for full terms.
+
