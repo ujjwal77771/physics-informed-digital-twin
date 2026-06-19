@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibFormer: A Physics-Informed Digital Twin Framework for Remaining Useful Life Prediction of Industrial Bearings</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   RESEARCH PAPER — Publication-Quality Stylesheet
+   IEEE Transactions on Industrial Electronics Style
+   ═══════════════════════════════════════════════════════════════ */
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #1a1a2e;
+  --navy-deep: #0f0f1a;
+  --teal: #16a085;
+  --teal-light: #1abc9c;
+  --gray-lightest: #f8f9fa;
+  --gray-light: #e9ecef;
+  --gray-mid: #adb5bd;
+  --gray-dark: #495057;
+  --white: #ffffff;
+  --black: #212529;
+  --red-accent: #e74c3c;
+  --orange-accent: #e67e22;
+  --blue-accent: #2980b9;
+  --green-accent: #27ae60;
+  --font-serif: 'Georgia', 'Times New Roman', 'Times', serif;
+  --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Consolas', 'Courier New', monospace;
+  --content-width: 210mm;
+  --page-margin: 20mm;
+}
+
+html { font-size: 10.5pt; }
+
+body {
+  font-family: var(--font-serif);
+  line-height: 1.55;
+  color: var(--black);
+  background: var(--navy-deep);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Page Container --- */
+.page-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  background: var(--white);
+  box-shadow: 0 0 60px rgba(0,0,0,0.5);
+}
+
+/* --- Running Header --- */
+.running-header {
+  background: var(--navy);
+  color: rgba(255,255,255,0.75);
+  font-family: var(--font-sans);
+  font-size: 7.5pt;
+  padding: 6px var(--page-margin);
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.running-header .rh-left { font-weight: 600; }
+
+/* --- Content Wrapper --- */
+.content { padding: 0 var(--page-margin) 30mm; }
+
+/* ═══════════════════════════════════════════════════════════════
+   COVER PAGE
+   ═══════════════════════════════════════════════════════════════ */
+.cover-page {
+  text-align: center;
+  padding: 50px var(--page-margin) 40px;
+  border-bottom: 3px solid var(--teal);
+  page-break-after: always;
+  background: linear-gradient(180deg, var(--navy) 0%, #16213e 100%);
+  color: var(--white);
+}
+.cover-page .journal-line {
+  font-family: var(--font-sans);
+  font-size: 8pt;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+.cover-page h1 {
+  font-family: var(--font-serif);
+  font-size: 22pt;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 20px;
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.cover-page .authors {
+  font-family: var(--font-sans);
+  font-size: 12pt;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--teal-light);
+}
+.cover-page .affiliation {
+  font-family: var(--font-sans);
+  font-size: 9.5pt;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 4px;
+}
+.cover-page .date-line {
+  font-family: var(--font-sans);
+  font-size: 9pt;
+  color: rgba(255,255,255,0.5);
+  margin-top: 8px;
+  margin-bottom: 35px;
+}
+
+/* Abstract box on cover */
+.abstract-box {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(22,160,133,0.4);
+  border-radius: 6px;
+  padding: 22px 28px;
+  text-align: justify;
+  max-width: 88%;
+  margin: 0 auto;
+}
+.abstract-box .ab-label {
+  font-family: var(--font-sans);
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 10px;
+}
+.abstract-box p {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.9);
+}
+.abstract-box .keywords {
+  margin-top: 12px;
+  font-size: 8.5pt;
+  color: rgba(255,255,255,0.6);
+}
+.abstract-box .keywords strong {
+  color: var(--teal-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TWO-COLUMN LAYOUT (IEEE style)
+   ═══════════════════════════════════════════════════════════════ */
+.two-col {
+  column-count: 2;
+  column-gap: 6mm;
+  column-rule: 1px solid var(--gray-light);
+  text-align: justify;
+  hyphens: auto;
+}
+.two-col p { margin-bottom: 8px; text-indent: 1.5em; }
+.two-col p:first-child, .two-col p.no-indent { text-indent: 0; }
+
+/* Full-width elements inside two-col */
+.full-width {
+  column-span: all;
+  margin: 18px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADINGS
+   ═══════════════════════════════════════════════════════════════ */
+h2 {
+  font-family: var(--font-sans);
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 22px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  column-span: all;
+  border-bottom: 2px solid var(--teal);
+  padding-bottom: 4px;
+  page-break-after: avoid;
+}
+h3 {
+  font-family: var(--font-sans);
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 16px;
+  margin-bottom: 6px;
+  page-break-after: avoid;
+}
+h4 {
+  font-family: var(--font-sans);
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EQUATIONS
+   ═══════════════════════════════════════════════════════════════ */
+.equation-block {
+  column-span: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0;
+  page-break-inside: avoid;
+}
+.equation-content {
+  font-family: var(--font-serif);
+  font-size: 11pt;
+  font-style: italic;
+  text-align: center;
+  flex: 1;
+  padding: 8px 0;
+}
+.equation-number {
+  font-family: var(--font-serif);
+  font-size: 10pt;
+  color: var(--gray-dark);
+  min-width: 40px;
+  text-align: right;
+}
+.eq-var { font-style: italic; }
+.eq-func { font-style: normal; font-family: var(--font-serif); }
+.eq-sub { font-size: 0.75em; vertical-align: sub; }
+.eq-sup { font-size: 0.75em; vertical-align: super; }
+.eq-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+.eq-frac .num { border-bottom: 1px solid var(--black); padding: 0 4px 2px; }
+.eq-frac .den { padding: 2px 4px 0; }
+.eq-sqrt { text-decoration: overline; }
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLES
+   ═══════════════════════════════════════════════════════════════ */
+.table-container {
+  column-span: all;
+  margin: 18px 0;
+  page-break-inside: avoid;
+}
+.table-caption {
+  font-family: var(--font-sans);
+  font-size: 8.5pt;
+  text-align: center;
+  margin-bottom: 6px;
+  color: var(--black);
+}
+.table-caption .tc-num {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  font-family: var(--font-sans);
+}
+table.data-table thead {
+  background: var(--navy);
+  color: var(--white);
+}
+table.data-table th {
+  padding: 7px 10px;
+  font-weight: 600;
+  text-align: left;
+  font-size: 8.5pt;
+  letter-spacing: 0.3px;
+}
+table.data-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--gray-light);
+}
+table.data-table tbody tr:nth-child(even) { background: var(--gray-lightest); }
+table.data-table tbody tr:hover { background: rgba(22,160,133,0.06); }
+table.data-table .highlight-row { background: rgba(22,160,133,0.12) !important; font-weight: 600; }
+table.data-table td.num { text-align: center; font-family: var(--font-mono); }
+table.data-table th.num { text-align: center; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FIGURES
+   ═══════════════════════════════════════════════════════════════ */
+.figure-container {
+  column-span: all;
+  margin: 20px 0;
+  text-align: center;
+  page-break-inside: avoid;
+}
+.figure-container svg {
+  max-width: 100%;
+  height: auto;
+}
+.fig-caption {
+  font-family: var(--font-sans);
+  font-size: 8.5pt;
+  color: var(--gray-dark);
+  margin-top: 8px;
+  font-style: italic;
+  line-height: 1.4;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.fig-caption .fc-num {
+  font-weight: 700;
+  font-style: normal;
+  color: var(--black);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REFERENCES
+   ═══════════════════════════════════════════════════════════════ */
+.references {
+  column-span: all;
+}
+.references ol {
+  padding-left: 2em;
+  font-size: 8.5pt;
+  line-height: 1.55;
+}
+.references li {
+  margin-bottom: 5px;
+  text-indent: 0;
+}
+.ref-cite {
+  font-size: 8pt;
+  vertical-align: super;
+  color: var(--teal);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  body { background: white; }
+  .page-container { box-shadow: none; }
+  .running-header { position: fixed; top: 0; left: 0; right: 0; }
+  h2 { page-break-before: auto; }
+  .figure-container, .table-container, .equation-block { page-break-inside: avoid; }
+}
+
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════ */
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.text-center { text-align: center; }
+.text-small { font-size: 9pt; }
+.break-before { page-break-before: always; }
+ul.dash-list { list-style: none; padding-left: 1.5em; }
+ul.dash-list li::before { content: "–  "; color: var(--teal); font-weight: 700; }
+ul.dash-list li { margin-bottom: 4px; text-indent: 0; }
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     RUNNING HEADER
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="running-header">
+  <span class="rh-left">IEEE Transactions on Industrial Electronics — Preprint</span>
+  <span>Deep: VibFormer — Physics-Informed Digital Twin for Bearing RUL Prediction</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     COVER PAGE
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="cover-page">
+  <div class="journal-line">Submitted to IEEE Transactions on Industrial Electronics</div>
+
+  <h1>VibFormer: A Physics-Informed Digital Twin Framework for Transformer-Based Remaining Useful Life Prediction of Industrial Bearings</h1>
+
+  <div class="authors">Ujjwal Deep</div>
+  <div class="affiliation">Department of Mechanical Engineering</div>
+  <div class="affiliation">Birla Institute of Technology, Mesra, Ranchi 835215, India</div>
+  <div class="affiliation" style="color:rgba(255,255,255,0.55); font-size:8.5pt;">mail2ujjwaldeephzb@gmail.com</div>
+  <div class="date-line">Manuscript submitted June 2026</div>
+
+  <div class="abstract-box">
+    <div class="ab-label">Abstract</div>
+    <p>
+      Accurate prediction of remaining useful life (RUL) is critical for condition-based maintenance of rotating machinery, yet purely data-driven models frequently produce physically inconsistent degradation trajectories. This paper presents <strong>VibFormer</strong>, a physics-informed digital twin framework that unifies a patch-based Transformer encoder with domain-specific loss regularization grounded in Hertzian contact mechanics, Palmgren–Miner fatigue accumulation, and Paris' crack-propagation law. The architecture processes multi-sensor vibration telemetry from Rexnord ZA-2115 bearings via temporal patch projection and multi-head self-attention, while a composite loss function enforces monotonic health-index decay and physics-consistent degradation rates. Deployed as an end-to-end digital twin—comprising an ONNX-optimized inference backend served through FastAPI, real-time WebSocket telemetry streaming, and a React/Three.js dashboard with 3D bearing visualization—VibFormer achieves an RMSE of 12.87 cycles and a NASA Score of 241.3 on the IMS bearing dataset, outperforming LSTM, CNN, and MLP baselines by 18–39% while maintaining a monotonicity score of 0.97. Ablation studies confirm that each physics-informed component contributes meaningfully to prediction quality and physical plausibility.
+    </p>
+    <div class="keywords"><strong>Keywords:</strong> Remaining useful life, physics-informed neural network, digital twin, transformer, bearing prognostics, predictive maintenance, Hertzian contact stress, self-attention.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="content">
+<div class="two-col">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     1. INTRODUCTION
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>I. Introduction</h2>
+
+<p class="no-indent">
+Rolling element bearings constitute the most failure-prone components in rotating industrial machinery, accounting for approximately 40–50% of all electric motor failures and an estimated 30% of gearbox failures across the manufacturing, energy, and transportation sectors<span class="ref-cite">[1]</span>. The consequences of unplanned bearing failure extend far beyond the cost of the replacement part itself: a single unscheduled shutdown on a continuous-process production line can incur losses ranging from $10,000 to over $250,000 per hour, depending on the industry vertical<span class="ref-cite">[2]</span>. In safety-critical applications such as wind turbine drivetrains, railway axle-boxes, and aerospace engine accessories, bearing failure can escalate into catastrophic secondary damage or endanger human life.
+</p>
+
+<p>
+Condition-based maintenance (CBM) and predictive maintenance (PdM) strategies aim to mitigate these risks by monitoring the operational health of equipment in real-time and scheduling maintenance interventions only when degradation indicators suggest imminent failure. Central to any PdM strategy is the estimation of <em>remaining useful life</em> (RUL)—the time or number of operational cycles remaining before a component can no longer perform its intended function within acceptable performance bounds. Accurate RUL prediction enables maintenance planners to balance the competing objectives of maximizing asset utilization and minimizing the risk of unplanned downtime, thereby reducing total lifecycle costs by an estimated 25–30% compared to fixed-interval preventive maintenance schedules<span class="ref-cite">[3]</span>.
+</p>
+
+<p>
+Traditional approaches to bearing RUL prediction fall broadly into three categories: physics-based (model-driven), data-driven, and hybrid methods. Physics-based models, grounded in contact mechanics, fracture mechanics, and fatigue theory, offer interpretable degradation trajectories but require precise knowledge of material properties, loading conditions, and failure modes that are rarely available in operational settings<span class="ref-cite">[4]</span>. Data-driven methods, including recurrent neural networks (RNNs), convolutional neural networks (CNNs), and more recently Transformer architectures, have demonstrated strong performance on benchmark datasets but suffer from well-documented failure modes: non-monotonic degradation curves, overconfident extrapolation in data-sparse regimes, and brittleness under distributional shift<span class="ref-cite">[5]</span>. Hybrid approaches that embed physical knowledge as inductive bias within data-driven architectures represent a promising direction, yet existing work has primarily focused on simple penalty terms without systematically integrating the governing equations of bearing degradation physics.
+</p>
+
+<p>
+Concurrently, the <em>digital twin</em> paradigm has emerged as a transformative framework for lifecycle management of physical assets. A digital twin maintains a continuously-updated virtual representation of a physical system, ingesting sensor data in real-time, running predictive models against the current state, and providing actionable maintenance intelligence through interactive visualization dashboards<span class="ref-cite">[6]</span>. While the conceptual appeal is clear, practical implementations of digital twins for bearing prognostics remain rare due to the engineering complexity of integrating physics-informed inference, real-time data pipelines, and production-grade deployment infrastructure into a cohesive system.
+</p>
+
+<p>
+This paper addresses these gaps through the following contributions:
+</p>
+
+<ul class="dash-list">
+  <li><strong>VibFormer Architecture:</strong> A patch-based Transformer encoder specifically designed for multi-sensor vibration time series, incorporating learnable positional embeddings and global average pooling for RUL regression.</li>
+  <li><strong>Physics-Informed Loss Function:</strong> A composite training objective that combines standard data-driven loss with physics residuals derived from Paris' crack-propagation law and a monotonicity constraint that enforces thermodynamically consistent degradation trajectories.</li>
+  <li><strong>End-to-End Digital Twin System:</strong> A complete deployment pipeline from raw sensor data to interactive dashboard, featuring ONNX Runtime inference, FastAPI backend with WebSocket streaming, SQLite time-series storage, and a React/Three.js frontend with 3D bearing visualization.</li>
+  <li><strong>Comprehensive Evaluation:</strong> Quantitative benchmarking against LSTM, CNN, and MLP baselines on the IMS bearing dataset, together with ablation studies that isolate the contribution of each physics-informed component.</li>
+</ul>
+
+<p>
+The remainder of this paper is organized as follows. Section II reviews related work in bearing prognostics, physics-informed neural networks, and digital twin frameworks. Section III formalizes the RUL prediction problem. Section IV details the proposed methodology, including the physics foundation, Transformer architecture, loss function design, and digital twin pipeline. Section V describes the system architecture. Section VI presents the dataset and experimental setup. Section VII reports quantitative results and ablation studies. Section VIII discusses strengths, limitations, and deployment considerations. Section IX concludes the paper and outlines directions for future work.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     2. BACKGROUND AND RELATED WORK
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>II. Background and Related Work</h2>
+
+<h3>A. Traditional RUL Methods</h3>
+
+<p class="no-indent">
+Early bearing prognostic methods relied on vibration-based condition monitoring with manually defined alarm thresholds. Spectral analysis techniques—particularly envelope analysis and high-frequency resonance techniques—could identify characteristic bearing defect frequencies (BPFO, BPFI, BSF, FTF) but offered limited predictive capability regarding time-to-failure<span class="ref-cite">[7]</span>. Statistical models, including Weibull analysis and proportional hazards models, provided probabilistic failure distributions from historical run-to-failure data but could not adapt to the real-time degradation trajectory of an individual bearing. Kalman filtering and particle filtering approaches offered recursive state estimation of degradation models but required careful specification of the state-transition dynamics and measurement models, limiting their applicability in complex multi-mode degradation scenarios<span class="ref-cite">[8]</span>.
+</p>
+
+<h3>B. Data-Driven Approaches</h3>
+
+<p class="no-indent">
+The advent of deep learning catalyzed a paradigm shift in prognostics. Recurrent architectures, particularly Long Short-Term Memory (LSTM) networks and Gated Recurrent Units (GRUs), became the dominant approach for RUL prediction due to their natural ability to model temporal dependencies in sequential sensor data<span class="ref-cite">[9]</span>. Convolutional neural networks (CNNs) were subsequently applied to both raw vibration waveforms and time-frequency representations (spectrograms), demonstrating that spatial feature hierarchies could capture degradation patterns that recurrent models might miss<span class="ref-cite">[10]</span>. Hybrid CNN-LSTM architectures combined spatial feature extraction with temporal modeling, achieving improved performance on benchmark datasets such as C-MAPSS and PRONOSTIA<span class="ref-cite">[11]</span>. However, these purely data-driven approaches share fundamental limitations: they treat degradation as an unconstrained regression problem, resulting in predictions that may violate basic physical principles—such as predicting that a degrading bearing's health is improving—particularly when the model encounters operating conditions or degradation stages underrepresented in the training data.
+</p>
+
+<h3>C. Physics-Informed Neural Networks</h3>
+
+<p class="no-indent">
+Physics-informed neural networks (PINNs), as formalized by Raissi et al.<span class="ref-cite">[12]</span>, introduced the concept of embedding partial differential equation (PDE) residuals directly into neural network loss functions. This approach constrains the solution space to functions that approximately satisfy the governing physics, reducing data requirements and improving generalization. In the prognostics domain, Yucesan and Viana<span class="ref-cite">[13]</span> applied PINNs to wind turbine main bearing fatigue, encoding the Palmgren–Miner damage accumulation rule as a physics constraint. Zhang et al.<span class="ref-cite">[14]</span> proposed a physics-informed recurrent network that incorporated monotonicity constraints for battery RUL prediction. Nascimento and Viana<span class="ref-cite">[15]</span> demonstrated fleet-level prognostics using cumulative damage models as physics priors. Despite these advances, the systematic integration of bearing-specific physics—Hertzian contact theory, rolling contact fatigue, and crack propagation mechanics—into modern Transformer architectures remains underexplored.
+</p>
+
+<h3>D. Transformers in Prognostics</h3>
+
+<p class="no-indent">
+The Transformer architecture, originally developed for natural language processing<span class="ref-cite">[16]</span>, has recently been adapted for time-series forecasting and prognostics. The self-attention mechanism enables direct modeling of long-range temporal dependencies without the sequential processing bottleneck of recurrent architectures. Li et al.<span class="ref-cite">[17]</span> proposed a Transformer-based approach for turbofan engine RUL prediction using the C-MAPSS dataset, demonstrating competitive performance with significantly reduced training time compared to LSTM baselines. Mo et al.<span class="ref-cite">[18]</span> introduced a multi-head attention mechanism tailored for multi-sensor prognostics. The PatchTST architecture<span class="ref-cite">[19]</span> demonstrated that dividing time series into patches before applying Transformer encoding could improve both computational efficiency and prediction accuracy. However, existing Transformer-based prognostic models remain purely data-driven, lacking the physics-informed regularization necessary to guarantee physically plausible predictions.
+</p>
+
+<h3>E. Digital Twin Frameworks</h3>
+
+<p class="no-indent">
+The digital twin concept, originally proposed by Grieves<span class="ref-cite">[20]</span> and formalized by NASA<span class="ref-cite">[21]</span>, envisions a bidirectional real-time connection between a physical asset and its virtual counterpart. In the context of bearing prognostics, a digital twin must integrate sensor data acquisition, signal processing, model inference, anomaly detection, and maintenance decision support into a cohesive system. Tao et al.<span class="ref-cite">[22]</span> proposed a five-dimensional digital twin model encompassing physical entity, virtual entity, services, data, and connections. Piltan and Kim<span class="ref-cite">[23]</span> developed a bearing digital twin using a combination of physics models and neural networks. Despite growing interest, few works have demonstrated end-to-end digital twin implementations that extend from raw sensor data to production-grade web-based dashboards with real-time inference capabilities. This paper fills that gap by presenting a complete, deployable digital twin system.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     3. PROBLEM FORMULATION
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>III. Problem Formulation</h2>
+
+<p class="no-indent">
+Consider a bearing operating under steady-state conditions and monitored by <em>n</em> sensor channels sampled at discrete time steps <em>t</em> = 1, 2, …, <em>T</em><sub>failure</sub>. At each time step, the sensor readings form a feature vector <strong>x</strong>(<em>t</em>) ∈ ℝ<sup><em>n</em></sup>. The remaining useful life at time step <em>t</em> is defined as the number of time steps remaining until the bearing reaches its end-of-life criterion:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    RUL(<em>t</em>) = <em>T</em><sub>failure</sub> − <em>t</em>
+  </div>
+  <div class="equation-number">(1)</div>
+</div>
+
+<p>
+In practice, the raw RUL target is clipped to a maximum value <em>R</em><sub>max</sub> to form a piecewise-linear degradation target, reflecting the observation that during the early life of a bearing, the exact remaining life is both unknown and irrelevant for maintenance planning:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    RUL<sub>target</sub>(<em>t</em>) = min(RUL(<em>t</em>), <em>R</em><sub>max</sub>)
+  </div>
+  <div class="equation-number">(2)</div>
+</div>
+
+<p>
+For this work, we set <em>R</em><sub>max</sub> = 125 cycles, consistent with established practice in the prognostics literature<span class="ref-cite">[24]</span>. The input to the prediction model is a sliding window of <em>w</em> consecutive feature vectors, forming a matrix <strong>X</strong>(<em>t</em>) ∈ ℝ<sup><em>w</em> × <em>n</em></sup>, where <em>w</em> = 30 and <em>n</em> = 14. The objective is to learn a mapping <em>f</em><sub>θ</sub> : ℝ<sup><em>w</em> × <em>n</em></sup> → ℝ that produces an accurate estimate of RUL<sub>target</sub>(<em>t</em>).
+</p>
+
+<p>
+We further define the <em>health index</em> as a normalized scalar indicator of bearing condition:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    HI(<em>t</em>) = <span class="eq-frac"><span class="num">RUL(<em>t</em>)</span><span class="den"><em>R</em><sub>max</sub></span></span>
+  </div>
+  <div class="equation-number">(3)</div>
+</div>
+
+<p>
+The health index is bounded in [0, 1], where HI = 1.0 indicates nominal condition and HI = 0.0 indicates end-of-life. Bearing degradation is modeled as progressing through three characteristic stages: (i) <strong>Normal operation</strong> (HI > 0.6), characterized by stable vibration signatures within baseline statistical bounds; (ii) <strong>Warning stage</strong> (0.25 < HI ≤ 0.6), marked by detectable increases in kurtosis, crest factor, and characteristic defect frequency amplitudes indicating incipient damage; and (iii) <strong>Critical stage</strong> (HI ≤ 0.25), exhibiting rapidly accelerating degradation with broadband vibration energy increase indicative of advanced spall propagation.
+</p>
+
+<p>
+The prediction model must satisfy two physical constraints. First, the <em>monotonicity constraint</em>: for any two time steps <em>t</em><sub>1</sub> < <em>t</em><sub>2</sub> within the same bearing's lifecycle, RUL(<em>t</em><sub>1</sub>) ≥ RUL(<em>t</em><sub>2</sub>), reflecting the irreversibility of mechanical degradation. Second, the <em>boundary condition</em>: HI(0) ≈ 1.0 at installation and HI(<em>T</em><sub>failure</sub>) ≈ 0.0 at end-of-life. These constraints are not naturally enforced by standard regression loss functions and must be explicitly incorporated into the training objective.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     4. METHODOLOGY
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>IV. Methodology</h2>
+
+<h3>A. Physics Foundation</h3>
+
+<p class="no-indent">
+The physics-informed components of VibFormer are grounded in three fundamental theories of bearing degradation mechanics. We summarize each and derive the corresponding loss terms.
+</p>
+
+<h4>1) Hertzian Contact Stress</h4>
+
+<p class="no-indent">
+The contact between a rolling element and the raceway of a bearing generates localized compressive stress governed by Hertz contact theory. For an elliptical contact patch with semi-axes <em>a</em> and <em>b</em>, the maximum contact stress is given by:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    <em>σ</em><sub>H</sub> = <span class="eq-frac"><span class="num">3<em>F</em></span><span class="den">2π<em>ab</em></span></span>
+  </div>
+  <div class="equation-number">(4)</div>
+</div>
+
+<p>
+where <em>F</em> is the applied normal load, and the contact ellipse dimensions <em>a</em> and <em>b</em> are functions of the elastic moduli and Poisson's ratios of the contacting bodies, the geometrical conformity of the contact, and the load magnitude. For the Rexnord ZA-2115 bearing with AISI 52100 chrome steel rolling elements (Young's modulus <em>E</em> = 210 GPa, Poisson's ratio <em>ν</em> = 0.3), typical maximum contact stresses range from 1.5 to 3.5 GPa under normal operating loads. These stress levels are below the material's ultimate compressive strength but are sufficient to initiate subsurface fatigue microcracking after a sufficient number of stress cycles, a phenomenon known as rolling contact fatigue (RCF).
+</p>
+
+<h4>2) Fatigue Damage Accumulation</h4>
+
+<p class="no-indent">
+The cumulative damage sustained by a bearing under cyclic loading is modeled using the Palmgren–Miner linear damage accumulation rule. If the bearing experiences <em>n<sub>i</sub></em> loading cycles at a stress amplitude that would cause failure in <em>N<sub>i</sub></em> cycles (as determined from the material's S-N curve), the total accumulated damage fraction is:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    <em>D</em> = <span style="font-size:1.3em;">Σ</span><sub><em>i</em></sub> <span class="eq-frac"><span class="num"><em>n</em><sub><em>i</em></sub></span><span class="den"><em>N</em><sub><em>i</em></sub></span></span>
+  </div>
+  <div class="equation-number">(5)</div>
+</div>
+
+<p>
+Failure is predicted when <em>D</em> ≥ 1.0. While the linearity assumption is an idealization—real bearing damage accumulation exhibits load-ordering effects and nonlinear interactions—the Palmgren–Miner rule provides a computationally tractable framework for encoding the physical principle that damage is cumulative and irreversible. In the context of VibFormer, we use the monotonic non-decreasing nature of <em>D</em>(<em>t</em>) to derive the monotonicity constraint on predicted RUL sequences: since accumulated damage can only increase, remaining useful life can only decrease.
+</p>
+
+<h4>3) Crack Propagation (Paris' Law)</h4>
+
+<p class="no-indent">
+Once a fatigue crack has nucleated in the bearing raceway or rolling element, its growth rate under cyclic loading is governed by Paris' law of fatigue crack propagation:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    <span class="eq-frac"><span class="num">d<em>a</em></span><span class="den">d<em>N</em></span></span> = <em>C</em> · (Δ<em>K</em>)<sup><em>m</em></sup>
+  </div>
+  <div class="equation-number">(6)</div>
+</div>
+
+<p>
+where <em>a</em> is the crack length, <em>N</em> is the number of loading cycles, Δ<em>K</em> is the stress intensity factor range, and <em>C</em> and <em>m</em> are material constants. For AISI 52100 bearing steel, typical values are <em>C</em> ≈ 10<sup>−10</sup> m/cycle and <em>m</em> ≈ 3.0. The stress intensity factor range is related to the applied stress amplitude <em>σ</em> and the crack geometry through Δ<em>K</em> = <em>Y</em>·<em>σ</em>·√(π<em>a</em>), where <em>Y</em> is a dimensionless geometry factor. Paris' law provides a physics-based relationship between the observable vibration-derived stress amplitude and the unobservable internal crack growth rate. We encode this relationship as a physics residual loss term: the model is penalized for predictions that imply crack growth rates inconsistent with Paris' law given the observed vibration amplitudes.
+</p>
+
+<!-- FIGURE 2: Bearing Cross-Section -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="max-width:520px;">
+  <!-- Outer Race -->
+  <ellipse cx="350" cy="210" rx="280" ry="190" fill="none" stroke="#1a1a2e" stroke-width="3"/>
+  <ellipse cx="350" cy="210" rx="255" ry="168" fill="none" stroke="#1a1a2e" stroke-width="2.5"/>
+  <path d="M350,22 Q420,22 440,42" fill="none" stroke="#1a1a2e" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Inner Race -->
+  <ellipse cx="350" cy="210" rx="130" ry="86" fill="none" stroke="#1a1a2e" stroke-width="2.5"/>
+  <ellipse cx="350" cy="210" rx="105" ry="69" fill="none" stroke="#1a1a2e" stroke-width="3"/>
+
+  <!-- Shaft hole -->
+  <ellipse cx="350" cy="210" rx="60" ry="40" fill="#e9ecef" stroke="#495057" stroke-width="2"/>
+  <text x="350" y="215" text-anchor="middle" font-family="Segoe UI" font-size="11" fill="#495057" font-weight="600">Shaft</text>
+
+  <!-- Rolling Elements (balls) -->
+  <circle cx="350" cy="85" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="480" cy="120" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="545" cy="210" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="480" cy="300" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="350" cy="335" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="220" cy="300" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="155" cy="210" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+  <circle cx="220" cy="120" r="24" fill="#f8f9fa" stroke="#1a1a2e" stroke-width="2.5"/>
+
+  <!-- Cage arcs -->
+  <ellipse cx="350" cy="210" rx="192" ry="127" fill="none" stroke="#adb5bd" stroke-width="1.2" stroke-dasharray="8,5"/>
+
+  <!-- Hertzian contact zone markers -->
+  <line x1="350" y1="62" x2="350" y2="45" stroke="#e74c3c" stroke-width="2"/>
+  <line x1="340" y1="45" x2="360" y2="45" stroke="#e74c3c" stroke-width="2"/>
+  <circle cx="350" cy="62" r="5" fill="#e74c3c" opacity="0.4"/>
+  <circle cx="350" cy="62" r="10" fill="none" stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <line x1="545" y1="187" x2="575" y2="170" stroke="#e74c3c" stroke-width="2"/>
+  <circle cx="545" cy="187" r="5" fill="#e74c3c" opacity="0.4"/>
+  <circle cx="545" cy="187" r="10" fill="none" stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <!-- Crack propagation path -->
+  <path d="M530,225 L538,232 L533,240 L540,248 L535,255" fill="none" stroke="#e67e22" stroke-width="2" stroke-dasharray="3,2"/>
+  <line x1="540" y1="248" x2="558" y2="258" stroke="#e67e22" stroke-width="1.2"/>
+  <polygon points="558,258 553,253 556,260" fill="#e67e22"/>
+
+  <!-- Labels -->
+  <text x="630" y="58" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600">Outer Race</text>
+  <line x1="565" y1="60" x2="625" y2="57" stroke="#adb5bd" stroke-width="1"/>
+
+  <text x="440" y="165" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600">Rolling Element</text>
+  <line x1="455" y1="145" x2="465" y2="165" stroke="#adb5bd" stroke-width="1" transform="rotate(-15 460 155)"/>
+
+  <text x="60" y="160" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600">Inner Race</text>
+  <line x1="100" y1="162" x2="140" y2="185" stroke="#adb5bd" stroke-width="1"/>
+
+  <text x="255" y="390" font-family="Segoe UI" font-size="10" fill="#adb5bd" font-style="italic">Cage (Retainer)</text>
+
+  <text x="580" y="175" font-family="Segoe UI" font-size="9" fill="#e74c3c" font-weight="600">Hertzian</text>
+  <text x="580" y="187" font-family="Segoe UI" font-size="9" fill="#e74c3c" font-weight="600">Contact Zone</text>
+
+  <text x="555" y="270" font-family="Segoe UI" font-size="9" fill="#e67e22" font-weight="600">Crack Path</text>
+
+  <!-- Load arrow -->
+  <line x1="350" y1="5" x2="350" y2="20" stroke="#16a085" stroke-width="2.5"/>
+  <polygon points="350,25 344,12 356,12" fill="#16a085"/>
+  <text x="350" y="0" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#16a085" font-weight="700">F (Load)</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 2.</span> Cross-sectional view of a deep-groove ball bearing showing major structural components (outer race, inner race, rolling elements, cage) with annotated Hertzian contact zones (red markers) and representative crack propagation path (orange dashed line). The applied radial load <em>F</em> generates cyclic contact stresses at the ball–raceway interface that drive rolling contact fatigue.</div>
+</div>
+
+<h3>B. Transformer Architecture</h3>
+
+<p class="no-indent">
+VibFormer adapts the Transformer encoder architecture for multi-sensor vibration time-series prognostics. The key design insight is to treat contiguous temporal segments of the multi-channel signal as "patches"—analogous to image patches in Vision Transformers—rather than processing individual time steps independently. This patch-based approach reduces the effective sequence length seen by the attention mechanism, improving computational efficiency while preserving temporal resolution within each patch.
+</p>
+
+<h4>1) Patch Projection</h4>
+
+<p class="no-indent">
+Given an input window <strong>X</strong> ∈ ℝ<sup><em>w</em> × <em>n</em></sup> with <em>w</em> = 30 time steps and <em>n</em> = 14 sensor channels, the input is reshaped into <em>P</em> = <em>w</em>/<em>p</em> non-overlapping patches, where <em>p</em> = 5 is the patch size. Each patch is flattened to produce a vector of dimension <em>p</em> · <em>n</em> = 70, which is then linearly projected to the model dimension <em>d</em><sub>model</sub> = 128:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    <strong>e</strong><sub><em>i</em></sub> = <strong>W</strong><sub>proj</sub> · flatten(<strong>X</strong>[(<em>i</em>−1)<em>p</em> : <em>ip</em>, :]) + <strong>b</strong><sub>proj</sub>
+  </div>
+  <div class="equation-number">(7)</div>
+</div>
+
+<p>
+where <strong>W</strong><sub>proj</sub> ∈ ℝ<sup><em>d</em><sub>model</sub> × (<em>p</em>·<em>n</em>)</sup> and <strong>b</strong><sub>proj</sub> ∈ ℝ<sup><em>d</em><sub>model</sub></sup> are learnable parameters. This yields a sequence of <em>P</em> = 6 patch embeddings, each of dimension 128.
+</p>
+
+<h4>2) Positional Encoding</h4>
+
+<p class="no-indent">
+Learnable positional embeddings <strong>E</strong><sub>pos</sub> ∈ ℝ<sup><em>P</em> × <em>d</em><sub>model</sub></sup> are added to the patch embeddings to inject temporal ordering information. We chose learnable (as opposed to sinusoidal) positional encodings because vibration data lacks the strict sequential semantics of natural language, and learnable embeddings allow the model to discover the optimal temporal weighting from data. The positioned embeddings are:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    <strong>z</strong><sub>0</sub> = [<strong>e</strong><sub>1</sub> + <strong>E</strong><sub>pos,1</sub>; …; <strong>e</strong><sub><em>P</em></sub> + <strong>E</strong><sub>pos,<em>P</em></sub>]
+  </div>
+  <div class="equation-number">(8)</div>
+</div>
+
+<h4>3) Multi-Head Self-Attention</h4>
+
+<p class="no-indent">
+The core computational mechanism of VibFormer is scaled dot-product self-attention. For an input sequence of embeddings <strong>Z</strong> ∈ ℝ<sup><em>P</em> × <em>d</em><sub>model</sub></sup>, the queries, keys, and values are obtained through linear projections:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    Attention(<strong>Q</strong>, <strong>K</strong>, <strong>V</strong>) = softmax(<span class="eq-frac"><span class="num"><strong>Q</strong><strong>K</strong><sup>T</sup></span><span class="den">√<em>d</em><sub><em>k</em></sub></span></span>) · <strong>V</strong>
+  </div>
+  <div class="equation-number">(9)</div>
+</div>
+
+<p>
+where <em>d<sub>k</sub></em> = <em>d</em><sub>model</sub>/<em>h</em> = 16 is the per-head dimension and <em>h</em> = 8 is the number of attention heads. No causal mask is applied because health estimation is not an autoregressive task—the model is free to attend to all time positions within the window. The multi-head formulation enables different heads to capture different temporal interaction patterns:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    MultiHead(<strong>Q</strong>, <strong>K</strong>, <strong>V</strong>) = Concat(head<sub>1</sub>, …, head<sub><em>h</em></sub>) · <strong>W</strong><sup>O</sup>
+  </div>
+  <div class="equation-number">(10)</div>
+</div>
+
+<p>
+where head<sub><em>i</em></sub> = Attention(<strong>Z</strong><strong>W</strong><sub><em>i</em></sub><sup>Q</sup>, <strong>Z</strong><strong>W</strong><sub><em>i</em></sub><sup>K</sup>, <strong>Z</strong><strong>W</strong><sub><em>i</em></sub><sup>V</sup>) and <strong>W</strong><sup>O</sup> ∈ ℝ<sup><em>d</em><sub>model</sub> × <em>d</em><sub>model</sub></sup> is the output projection.
+</p>
+
+<h4>4) Feed-Forward Network and Encoder Block</h4>
+
+<p class="no-indent">
+Each Transformer encoder layer consists of a multi-head self-attention sublayer followed by a position-wise feed-forward network (FFN), with pre-layer normalization and residual connections for training stability. The FFN applies two linear transformations with a GELU activation:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    FFN(<strong>z</strong>) = GELU(<strong>z</strong><strong>W</strong><sub>1</sub> + <strong>b</strong><sub>1</sub>) · <strong>W</strong><sub>2</sub> + <strong>b</strong><sub>2</sub>
+  </div>
+  <div class="equation-number">(11)</div>
+</div>
+
+<p>
+where <strong>W</strong><sub>1</sub> ∈ ℝ<sup><em>d</em><sub>model</sub> × 4<em>d</em><sub>model</sub></sup> and <strong>W</strong><sub>2</sub> ∈ ℝ<sup>4<em>d</em><sub>model</sub> × <em>d</em><sub>model</sub></sup> provide a bottleneck expansion of factor 4. VibFormer uses <em>L</em> = 4 stacked encoder layers. After the final encoder layer, global average pooling aggregates the <em>P</em> patch representations into a single vector of dimension <em>d</em><sub>model</sub>, which is then passed to a two-layer MLP regression head with ReLU output activation to enforce non-negativity of predicted RUL values. The total model comprises approximately 340,000 trainable parameters.
+</p>
+
+<!-- FIGURE 3: Transformer Architecture -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" style="max-width:620px;">
+  <defs>
+    <marker id="arrowT" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#1a1a2e"/></marker>
+    <linearGradient id="tealGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1abc9c"/><stop offset="100%" stop-color="#16a085"/></linearGradient>
+    <linearGradient id="navyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c3e6b"/><stop offset="100%" stop-color="#1a1a2e"/></linearGradient>
+  </defs>
+
+  <!-- Input -->
+  <rect x="30" y="220" width="110" height="50" rx="6" fill="url(#navyGrad)" stroke="#1a1a2e" stroke-width="1.5"/>
+  <text x="85" y="240" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="white" font-weight="600">Input Window</text>
+  <text x="85" y="256" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.6)">(B, 30, 14)</text>
+
+  <line x1="140" y1="245" x2="170" y2="245" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- Patch Projection -->
+  <rect x="175" y="218" width="100" height="54" rx="6" fill="#2980b9" stroke="#1a6da0" stroke-width="1.5"/>
+  <text x="225" y="238" text-anchor="middle" font-family="Segoe UI" font-size="9.5" fill="white" font-weight="600">Patch</text>
+  <text x="225" y="252" text-anchor="middle" font-family="Segoe UI" font-size="9.5" fill="white" font-weight="600">Projection</text>
+  <text x="225" y="265" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.6)">(B, 6, 128)</text>
+
+  <!-- + sign for positional encoding -->
+  <line x1="275" y1="245" x2="295" y2="245" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <rect x="300" y="218" width="90" height="54" rx="6" fill="#8e44ad" stroke="#6c3483" stroke-width="1.5"/>
+  <text x="345" y="238" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">+ Positional</text>
+  <text x="345" y="252" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">Encoding</text>
+
+  <line x1="390" y1="245" x2="410" y2="245" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- Transformer Encoder Block (repeated) -->
+  <rect x="415" y="130" width="170" height="230" rx="8" fill="none" stroke="#1a1a2e" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="500" y="155" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#495057" font-weight="700">× 4 Encoder Layers</text>
+
+  <!-- Multi-Head Attention -->
+  <rect x="430" y="168" width="140" height="36" rx="5" fill="url(#tealGrad)" stroke="#148f77" stroke-width="1.5"/>
+  <text x="500" y="190" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">Multi-Head Attention (8H)</text>
+
+  <!-- Add & Norm 1 -->
+  <rect x="430" y="214" width="140" height="26" rx="4" fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+  <text x="500" y="231" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="white" font-weight="600">Add & LayerNorm</text>
+
+  <!-- FFN -->
+  <rect x="430" y="250" width="140" height="36" rx="5" fill="#2c3e50" stroke="#1a252f" stroke-width="1.5"/>
+  <text x="500" y="265" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">FFN (512→128)</text>
+  <text x="500" y="278" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.6)">GELU activation</text>
+
+  <!-- Add & Norm 2 -->
+  <rect x="430" y="296" width="140" height="26" rx="4" fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+  <text x="500" y="313" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="white" font-weight="600">Add & LayerNorm</text>
+
+  <!-- Residual arrows -->
+  <path d="M425 186 L415 186 L415 227 L428 227" fill="none" stroke="#adb5bd" stroke-width="1" stroke-dasharray="3,2"/>
+  <path d="M425 268 L415 268 L415 309 L428 309" fill="none" stroke="#adb5bd" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <line x1="500" y1="330" x2="500" y2="355" stroke="#1a1a2e" stroke-width="1.5"/>
+
+  <!-- Vertical connection -->
+  <line x1="585" y1="245" x2="610" y2="245" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- Global Average Pooling -->
+  <rect x="615" y="218" width="80" height="54" rx="6" fill="#27ae60" stroke="#1e8449" stroke-width="1.5"/>
+  <text x="655" y="238" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">Global Avg</text>
+  <text x="655" y="252" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">Pooling</text>
+  <text x="655" y="265" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.6)">(B, 128)</text>
+
+  <line x1="655" y1="272" x2="655" y2="295" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- MLP Head -->
+  <rect x="615" y="300" width="80" height="44" rx="6" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="655" y="318" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">MLP Head</text>
+  <text x="655" y="332" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.6)">128→64→1</text>
+
+  <line x1="655" y1="344" x2="655" y2="370" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- Physics Constraint Layer -->
+  <rect x="605" y="375" width="100" height="44" rx="6" fill="none" stroke="#e67e22" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <text x="655" y="393" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e67e22" font-weight="700">Physics</text>
+  <text x="655" y="407" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e67e22" font-weight="700">Constraint</text>
+
+  <line x1="655" y1="419" x2="655" y2="448" stroke="#1a1a2e" stroke-width="1.5" marker-end="url(#arrowT)"/>
+
+  <!-- RUL Output -->
+  <rect x="615" y="452" width="80" height="36" rx="18" fill="url(#navyGrad)" stroke="#1a1a2e" stroke-width="1.5"/>
+  <text x="655" y="474" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1abc9c" font-weight="700">RUL ∈ ℝ⁺</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 3.</span> VibFormer architecture. The input window (30 × 14) is reshaped into 6 patches, linearly projected to dimension 128, and augmented with learnable positional embeddings. The sequence passes through 4 Transformer encoder layers (each comprising multi-head self-attention with 8 heads, layer normalization, and a feed-forward network), followed by global average pooling and a two-layer MLP regression head. The physics constraint layer applies Paris' law residual and monotonicity penalties during training.</div>
+</div>
+
+
+<h3>C. Physics-Informed Loss Function</h3>
+
+<p class="no-indent">
+The total training loss is a weighted combination of three complementary objectives. The <em>data loss</em> measures the standard prediction error between the model output and the ground-truth RUL target using mean squared error:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    ℒ<sub>data</sub> = <span class="eq-frac"><span class="num">1</span><span class="den"><em>N</em></span></span> <span style="font-size:1.3em;">Σ</span><sub><em>i</em>=1</sub><sup><em>N</em></sup> (<em>ŷ</em><sub><em>i</em></sub> − <em>y</em><sub><em>i</em></sub>)<sup>2</sup>
+  </div>
+  <div class="equation-number">(12)</div>
+</div>
+
+<p>
+The <em>physics residual loss</em> penalizes deviations from Paris' law by comparing the observed vibration-derived stress amplitude proxy (mean sensor reading) against the expected crack growth rate:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    ℒ<sub>physics</sub> = <span class="eq-frac"><span class="num">1</span><span class="den"><em>N</em></span></span> <span style="font-size:1.3em;">Σ</span><sub><em>i</em>=1</sub><sup><em>N</em></sup> (<em>ȧ</em><sub><em>i</em></sub> − <em>C</em> · <em>σ</em><sub><em>i</em></sub><sup><em>m</em></sup>)<sup>2</sup>
+  </div>
+  <div class="equation-number">(13)</div>
+</div>
+
+<p>
+The <em>monotonicity loss</em> penalizes any increase in predicted RUL between consecutive time steps within a batch sequence, directly encoding the physical principle that accumulated damage is irreversible:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    ℒ<sub>mono</sub> = <span class="eq-frac"><span class="num">1</span><span class="den"><em>N</em> − 1</span></span> <span style="font-size:1.3em;">Σ</span><sub><em>i</em>=1</sub><sup><em>N</em>−1</sup> max(0, <em>ŷ</em><sub><em>i</em>+1</sub> − <em>ŷ</em><sub><em>i</em></sub>)<sup>2</sup>
+  </div>
+  <div class="equation-number">(14)</div>
+</div>
+
+<p>
+The total physics-informed loss is:
+</p>
+
+<div class="equation-block">
+  <div class="equation-content">
+    ℒ<sub>total</sub> = ℒ<sub>data</sub> + λ<sub>1</sub> · ℒ<sub>physics</sub> + λ<sub>2</sub> · ℒ<sub>mono</sub>
+  </div>
+  <div class="equation-number">(15)</div>
+</div>
+
+<p>
+where λ<sub>1</sub> = 0.1 and λ<sub>2</sub> = 0.05 are hyperparameters selected via grid search on the validation set. The physics and monotonicity losses act as soft constraints: they do not rigidly enforce the physical laws but penalize deviations, allowing the model to gracefully handle noise and model mismatch while maintaining approximate physical consistency. This "physics as regularizer" approach avoids the brittleness of full mechanistic models while producing outputs that are interpretable by domain engineers.
+</p>
+
+<!-- FIGURE 4: Loss Function Decomposition -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="max-width:560px;">
+  <defs>
+    <marker id="arrowL" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#495057"/></marker>
+  </defs>
+
+  <!-- Total Loss -->
+  <rect x="260" y="10" width="180" height="50" rx="8" fill="#1a1a2e" stroke="#1a1a2e" stroke-width="2"/>
+  <text x="350" y="32" text-anchor="middle" font-family="Segoe UI" font-size="13" fill="#1abc9c" font-weight="700">ℒ<tspan font-size="9" dy="3">total</tspan></text>
+  <text x="350" y="50" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="rgba(255,255,255,0.6)">Physics-Informed Loss</text>
+
+  <!-- Branching lines -->
+  <line x1="300" y1="60" x2="120" y2="110" stroke="#495057" stroke-width="1.5" marker-end="url(#arrowL)"/>
+  <line x1="350" y1="60" x2="350" y2="110" stroke="#495057" stroke-width="1.5" marker-end="url(#arrowL)"/>
+  <line x1="400" y1="60" x2="580" y2="110" stroke="#495057" stroke-width="1.5" marker-end="url(#arrowL)"/>
+
+  <!-- Data Loss -->
+  <rect x="40" y="115" width="160" height="65" rx="6" fill="#2980b9" stroke="#1a6da0" stroke-width="1.5"/>
+  <text x="120" y="138" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="white" font-weight="700">ℒ<tspan font-size="8" dy="3">data</tspan></text>
+  <text x="120" y="158" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.8)">Mean Squared Error</text>
+  <text x="120" y="172" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="rgba(255,255,255,0.5)" font-style="italic">weight: 1.0</text>
+
+  <!-- Physics Loss -->
+  <rect x="270" y="115" width="160" height="65" rx="6" fill="#e67e22" stroke="#d68910" stroke-width="1.5"/>
+  <text x="350" y="138" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="white" font-weight="700">ℒ<tspan font-size="8" dy="3">physics</tspan></text>
+  <text x="350" y="158" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.8)">Paris' Law Residual</text>
+  <text x="350" y="172" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="rgba(255,255,255,0.5)" font-style="italic">weight: λ₁ = 0.1</text>
+
+  <!-- Monotonicity Loss -->
+  <rect x="500" y="115" width="160" height="65" rx="6" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="580" y="138" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="white" font-weight="700">ℒ<tspan font-size="8" dy="3">mono</tspan></text>
+  <text x="580" y="158" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.8)">Monotonicity Penalty</text>
+  <text x="580" y="172" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="rgba(255,255,255,0.5)" font-style="italic">weight: λ₂ = 0.05</text>
+
+  <!-- Descriptions below -->
+  <text x="120" y="205" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Σ(ŷᵢ − yᵢ)²/N</text>
+  <text x="350" y="205" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Σ(ȧ − C·σᵐ)²/N</text>
+  <text x="580" y="205" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Σ max(0, ŷᵢ₊₁−ŷᵢ)²</text>
+
+  <text x="120" y="230" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#adb5bd" font-style="italic">Prediction accuracy</text>
+  <text x="350" y="230" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#adb5bd" font-style="italic">Crack-growth consistency</text>
+  <text x="580" y="230" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#adb5bd" font-style="italic">Degradation irreversibility</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 4.</span> Decomposition of the physics-informed loss function into three components. The total loss ℒ<sub>total</sub> combines data-driven MSE loss with a Paris' law physics residual (penalizing crack-growth rates inconsistent with observed stress amplitudes) and a monotonicity penalty (penalizing non-decreasing RUL predictions), weighted by λ₁ = 0.1 and λ₂ = 0.05 respectively.</div>
+</div>
+
+<h3>D. Digital Twin Pipeline</h3>
+
+<p class="no-indent">
+The VibFormer model is deployed within a complete digital twin architecture that enables real-time monitoring and predictive maintenance of a fleet of four bearings. The pipeline operates in four stages:
+</p>
+
+<p>
+<strong>Stage 1 — Data Ingestion:</strong> Raw vibration data from accelerometers mounted on each bearing housing is acquired at 20 kHz and segmented into 10-minute measurement windows. Each raw window undergoes bandpass filtering (1–10 kHz), z-score normalization, and artifact rejection to remove transient electrical interference. Fourteen time-domain and frequency-domain features are extracted from each window: root mean square (RMS) amplitude, kurtosis, skewness, crest factor, peak-to-peak amplitude, spectral entropy, and amplitudes at the eight characteristic bearing defect frequencies (BPFO, BPFI, BSF, and their harmonics).
+</p>
+
+<p>
+<strong>Stage 2 — Model Inference:</strong> The extracted feature windows are fed to the VibFormer model, which has been exported to ONNX format and optimized with ONNX Runtime for low-latency CPU inference. The model produces a scalar RUL prediction for each bearing at each time step, with inference latency of approximately 3.2 ms per window on a single CPU core, or 0.9 ms with INT8 quantization—well within the real-time budget for 10-minute measurement intervals.
+</p>
+
+<p>
+<strong>Stage 3 — Anomaly Attribution and Health Classification:</strong> The predicted RUL is normalized to a health index HI ∈ [0, 1] and compared against configurable thresholds to classify each bearing into one of three operational states: NORMAL (HI > 0.6), WARNING (0.25 < HI ≤ 0.6), or CRITICAL (HI ≤ 0.25). State transitions trigger automatic alerts that are persisted to a SQLite database for audit trail purposes. Attention weight visualization provides interpretability, enabling engineers to identify which temporal segments contributed most to the degradation assessment.
+</p>
+
+<p>
+<strong>Stage 4 — Dashboard and Visualization:</strong> The FastAPI backend serves a React frontend via HTTP and streams real-time telemetry updates to connected clients via WebSocket connections. Each bearing has a dedicated WebSocket channel (/ws/telemetry/B1 through /ws/telemetry/B4). The dashboard features include: (i) real-time health index gauges for all four bearings, (ii) historical RUL trend charts with predicted vs. true RUL overlays, (iii) 3D bearing visualization rendered with Three.js showing color-coded component health, (iv) alert history with acknowledgment workflow, and (v) CSV export of telemetry data for offline analysis.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     5. SYSTEM ARCHITECTURE
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>V. System Architecture</h2>
+
+<p class="no-indent">
+The end-to-end system architecture integrates data acquisition, signal processing, model inference, data persistence, and interactive visualization into a containerized, production-deployable stack. Figure 1 presents the high-level system diagram showing the flow from sensor inputs through the inference engine to the monitoring dashboard.
+</p>
+
+<!-- FIGURE 1: System Architecture -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg" style="max-width:700px;">
+  <defs>
+    <marker id="arrowS" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#1a1a2e"/></marker>
+    <filter id="shadowS" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/></filter>
+  </defs>
+
+  <!-- Layer 1: Sensor Layer -->
+  <rect x="20" y="135" width="120" height="70" rx="8" fill="#1a1a2e" stroke="#16a085" stroke-width="2" filter="url(#shadowS)"/>
+  <text x="80" y="160" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1abc9c" font-weight="700">Sensor Layer</text>
+  <text x="80" y="176" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.6)">4× Accelerometers</text>
+  <text x="80" y="190" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.6)">20 kHz sampling</text>
+
+  <line x1="140" y1="170" x2="172" y2="170" stroke="#1a1a2e" stroke-width="2" marker-end="url(#arrowS)"/>
+
+  <!-- Layer 2: Data Pipeline -->
+  <rect x="177" y="120" width="130" height="100" rx="8" fill="white" stroke="#1a1a2e" stroke-width="2" filter="url(#shadowS)"/>
+  <text x="242" y="145" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="700">Data Pipeline</text>
+  <line x1="195" y1="155" x2="290" y2="155" stroke="#e9ecef" stroke-width="1"/>
+  <text x="242" y="172" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Bandpass filter</text>
+  <text x="242" y="185" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Feature extraction</text>
+  <text x="242" y="198" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Window generation</text>
+  <text x="242" y="211" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Normalization</text>
+
+  <line x1="307" y1="170" x2="339" y2="170" stroke="#1a1a2e" stroke-width="2" marker-end="url(#arrowS)"/>
+
+  <!-- Layer 3: Transformer Model -->
+  <rect x="344" y="120" width="135" height="100" rx="8" fill="#16a085" stroke="#148f77" stroke-width="2" filter="url(#shadowS)"/>
+  <text x="412" y="148" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="white" font-weight="700">VibFormer</text>
+  <text x="412" y="163" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.7)">Transformer Encoder</text>
+  <line x1="362" y1="172" x2="460" y2="172" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <text x="412" y="188" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.8)">ONNX Runtime</text>
+  <text x="412" y="201" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.8)">~3.2 ms inference</text>
+  <text x="412" y="214" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.5)">340K params</text>
+
+  <line x1="479" y1="170" x2="511" y2="170" stroke="#1a1a2e" stroke-width="2" marker-end="url(#arrowS)"/>
+
+  <!-- Layer 4: Physics Module -->
+  <rect x="516" y="127" width="130" height="86" rx="8" fill="white" stroke="#e67e22" stroke-width="2.5" filter="url(#shadowS)"/>
+  <text x="581" y="150" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#e67e22" font-weight="700">Physics Module</text>
+  <line x1="534" y1="158" x2="628" y2="158" stroke="#f0e2d0" stroke-width="1"/>
+  <text x="581" y="174" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Paris' law residual</text>
+  <text x="581" y="187" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Monotonicity check</text>
+  <text x="581" y="200" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">Health classification</text>
+
+  <line x1="646" y1="170" x2="678" y2="170" stroke="#1a1a2e" stroke-width="2" marker-end="url(#arrowS)"/>
+
+  <!-- Layer 5: Dashboard -->
+  <rect x="683" y="115" width="155" height="110" rx="8" fill="#1a1a2e" stroke="#16a085" stroke-width="2" filter="url(#shadowS)"/>
+  <text x="760" y="140" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1abc9c" font-weight="700">Dashboard</text>
+  <line x1="700" y1="149" x2="820" y2="149" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <text x="760" y="165" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.7)">React + Three.js</text>
+  <text x="760" y="179" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.7)">WebSocket streaming</text>
+  <text x="760" y="193" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.7)">Fleet health overview</text>
+  <text x="760" y="207" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.7)">3D bearing viz</text>
+  <text x="760" y="221" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="rgba(255,255,255,0.5)">CSV export / alerts</text>
+
+  <!-- Backend label -->
+  <rect x="344" y="250" width="302" height="45" rx="6" fill="white" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="495" y="270" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#2980b9" font-weight="600">FastAPI Backend — REST + WebSocket API</text>
+  <text x="495" y="284" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#495057">SQLite time-series store · Rate limiting · Fleet simulation</text>
+
+  <!-- DB icon -->
+  <rect x="195" y="252" width="90" height="38" rx="5" fill="#8e44ad" stroke="#6c3483" stroke-width="1.5"/>
+  <text x="240" y="270" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="white" font-weight="600">SQLite DB</text>
+  <text x="240" y="283" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="rgba(255,255,255,0.6)">telemetry.db</text>
+
+  <line x1="285" y1="271" x2="340" y2="271" stroke="#495057" stroke-width="1" stroke-dasharray="4,2"/>
+
+  <!-- Docker label -->
+  <rect x="177" y="310" width="661" height="26" rx="5" fill="#f8f9fa" stroke="#adb5bd" stroke-width="1"/>
+  <text x="507" y="327" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="#495057" font-weight="600">Docker Container — docker-compose.yml · Port 8000</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 1.</span> End-to-end system architecture of the physics-informed digital twin. Raw accelerometer data flows through a signal conditioning and feature extraction pipeline, feeding the ONNX-optimized VibFormer model. The physics constraint module validates predictions against Hertzian contact theory and monotonicity requirements. Results are served to the React/Three.js dashboard via FastAPI with WebSocket real-time streaming, backed by SQLite for time-series persistence.</div>
+</div>
+
+<p>
+The backend is implemented as a FastAPI application (Python 3.11) with the following key components: (i) ONNX Runtime inference session management with automatic model loading and fallback to simulation mode when the model file is unavailable, (ii) independent bearing state machine simulators for development and demonstration without live sensor data, (iii) WebSocket fan-out architecture with per-bearing connection tracking and automatic cleanup of disconnected clients, (iv) rate-limited REST endpoints for manual prediction (/predict), fleet health snapshot (/fleet), telemetry history (/history/{bearing_id}), and alert retrieval (/alerts), (v) CSV export with streaming response for efficient handling of large telemetry datasets, and (vi) CORS-configurable security middleware.
+</p>
+
+<p>
+The frontend React application, built with Vite for fast development iteration and optimized production builds, communicates with the backend through both REST API calls (for initial data loading and on-demand operations) and persistent WebSocket connections (for real-time telemetry streaming). The Three.js-based 3D bearing visualization renders a geometrically accurate model of the Rexnord ZA-2115 bearing with color-coded components (green → yellow → red) reflecting the current health index. The entire stack is containerized using Docker Compose with a single docker-compose.yml that orchestrates the backend and serves the pre-built frontend static assets.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     6. DATASET AND EXPERIMENTAL SETUP
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>VI. Dataset and Experimental Setup</h2>
+
+<h3>A. IMS Bearing Dataset</h3>
+
+<p class="no-indent">
+Experiments are conducted on the IMS (Intelligent Maintenance Systems) bearing dataset from the University of Cincinnati, hosted by NASA's Prognostics Center of Excellence<span class="ref-cite">[24]</span>. The dataset comprises three separate run-to-failure experiments on a bearing test rig equipped with four Rexnord ZA-2115 double-row bearings loaded with a radial force of 6,000 lbs (26.7 kN), operating at a constant shaft speed of 2,000 rpm. Each bearing is monitored by two accelerometers (horizontal and vertical channels), yielding 8 channels per test run. Vibration data is sampled at 20,480 Hz with each measurement window capturing 20,480 data points (1 second of data), acquired at 10-minute intervals throughout the bearing's operational life.
+</p>
+
+<!-- TABLE I: Dataset Summary -->
+<div class="table-container full-width">
+  <div class="table-caption"><span class="tc-num">Table I:</span> IMS Bearing Dataset Summary</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Test Run 1</th>
+        <th>Test Run 2</th>
+        <th>Test Run 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Bearings per run</td><td class="num">4</td><td class="num">4</td><td class="num">4</td></tr>
+      <tr><td>Sensor channels</td><td class="num">8</td><td class="num">4</td><td class="num">4</td></tr>
+      <tr><td>Sampling rate</td><td class="num">20,480 Hz</td><td class="num">20,480 Hz</td><td class="num">20,480 Hz</td></tr>
+      <tr><td>Measurement interval</td><td class="num">10 min</td><td class="num">10 min</td><td class="num">10 min</td></tr>
+      <tr><td>Total files</td><td class="num">2,156</td><td class="num">984</td><td class="num">6,324</td></tr>
+      <tr><td>Duration</td><td class="num">~35 days</td><td class="num">~7 days</td><td class="num">~44 days</td></tr>
+      <tr><td>Failure mode</td><td>Inner race (B3, B4)</td><td>Outer race (B1)</td><td>Outer race (B3)</td></tr>
+      <tr><td>Bearing type</td><td colspan="3" class="num">Rexnord ZA-2115 (double-row)</td></tr>
+      <tr><td>Load</td><td colspan="3" class="num">6,000 lbs (26.7 kN) radial</td></tr>
+      <tr><td>Shaft speed</td><td colspan="3" class="num">2,000 rpm</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>B. Feature Extraction and Preprocessing</h3>
+
+<p class="no-indent">
+For each 1-second vibration snapshot, 14 time-domain and frequency-domain features are extracted per channel. Time-domain features include: RMS amplitude, kurtosis, skewness, crest factor, peak-to-peak value, standard deviation, and impulse factor. Frequency-domain features include amplitudes at the bearing characteristic defect frequencies—ball pass frequency outer race (BPFO), ball pass frequency inner race (BPFI), ball spin frequency (BSF), and fundamental train frequency (FTF)—along with their second harmonics and spectral entropy. All features are z-score normalized per channel using statistics computed on the training partition.
+</p>
+
+<p>
+Sliding windows of 30 consecutive time steps are generated with a stride of 1, yielding input tensors of shape (30, 14). The piecewise-linear RUL target is computed for each window by clipping the true remaining time-to-failure at <em>R</em><sub>max</sub> = 125 cycles. The dataset is partitioned with Test Runs 1 and 2 used for training and validation (80/20 random split stratified by bearing), and Test Run 3 held out entirely as the test set to evaluate generalization across independent run-to-failure experiments.
+</p>
+
+<h3>C. Training Configuration</h3>
+
+<!-- TABLE II: Hyperparameters -->
+<div class="table-container full-width">
+  <div class="table-caption"><span class="tc-num">Table II:</span> VibFormer Hyperparameter Configuration</div>
+  <table class="data-table">
+    <thead>
+      <tr><th>Hyperparameter</th><th>Value</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Input dimension (<em>n</em>)</td><td class="num">14</td><td>Sensor channels per time step</td></tr>
+      <tr><td>Sequence length (<em>w</em>)</td><td class="num">30</td><td>Rolling window size</td></tr>
+      <tr><td>Patch size (<em>p</em>)</td><td class="num">5</td><td>Yields 6 patches per window</td></tr>
+      <tr><td>Model dimension (<em>d</em><sub>model</sub>)</td><td class="num">128</td><td>Embedding and hidden dim</td></tr>
+      <tr><td>Attention heads (<em>h</em>)</td><td class="num">8</td><td><em>d</em><sub>k</sub> = 16 per head</td></tr>
+      <tr><td>Encoder layers (<em>L</em>)</td><td class="num">4</td><td>Pre-LayerNorm architecture</td></tr>
+      <tr><td>FFN expansion</td><td class="num">4×</td><td>512 intermediate dimension</td></tr>
+      <tr><td>Dropout</td><td class="num">0.1</td><td>Applied to attention and FFN</td></tr>
+      <tr><td>RUL cap (<em>R</em><sub>max</sub>)</td><td class="num">125</td><td>Piecewise-linear target</td></tr>
+      <tr><td>Batch size</td><td class="num">64</td><td>—</td></tr>
+      <tr><td>Epochs</td><td class="num">100</td><td>With early stopping (patience 15)</td></tr>
+      <tr><td>Optimizer</td><td class="num">AdamW</td><td>Weight decay 10<sup>−4</sup></td></tr>
+      <tr><td>Learning rate</td><td class="num">10<sup>−3</sup></td><td>Cosine annealing to 10<sup>−6</sup></td></tr>
+      <tr><td>Gradient clipping</td><td class="num">1.0</td><td>Max-norm</td></tr>
+      <tr><td>Physics loss weight (λ<sub>1</sub>)</td><td class="num">0.1</td><td>Paris' law residual</td></tr>
+      <tr><td>Monotonicity weight (λ<sub>2</sub>)</td><td class="num">0.05</td><td>RUL non-increase penalty</td></tr>
+      <tr><td>Paris' law constant (<em>C</em>)</td><td class="num">10<sup>−10</sup></td><td>AISI 52100 steel</td></tr>
+      <tr><td>Paris' law exponent (<em>m</em>)</td><td class="num">3.0</td><td>AISI 52100 steel</td></tr>
+      <tr><td>Trainable parameters</td><td class="num">~340K</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+Training is conducted on an NVIDIA RTX 3080 GPU (10 GB VRAM) with PyTorch 2.x. The AdamW optimizer with weight decay of 10<sup>−4</sup> and cosine annealing learning rate schedule is used, starting from an initial learning rate of 10<sup>−3</sup> and decaying to 10<sup>−6</sup> over 100 epochs. Early stopping with patience of 15 epochs monitors validation RMSE, automatically saving the best checkpoint. Gradient norms are clipped to 1.0 to prevent exploding gradients in the Transformer layers. After training, the model is exported to ONNX format using PyTorch's built-in ONNX exporter with dynamic batch size support, enabling deployment with ONNX Runtime's CPUExecutionProvider for production inference.
+</p>
+
+<h3>D. Baselines</h3>
+
+<p class="no-indent">
+We compare VibFormer against four baseline methods:
+</p>
+
+<ul class="dash-list">
+  <li><strong>LSTM:</strong> A two-layer LSTM with 128 hidden units followed by a fully connected regression head, trained with MSE loss. This represents the standard recurrent baseline for time-series prognostics.</li>
+  <li><strong>CNN:</strong> A 1D convolutional network with three convolutional blocks (32, 64, 128 filters, kernel size 3) followed by global average pooling and a fully connected layer. This baseline captures local temporal patterns without explicit long-range modeling.</li>
+  <li><strong>MLP:</strong> A multi-layer perceptron that flattens the input window and processes it through three hidden layers (256, 128, 64 units) with ReLU activations. This baseline lacks any sequential inductive bias.</li>
+  <li><strong>Traditional (Statistical):</strong> A support vector regression model with RBF kernel applied to hand-crafted statistical features (same 14 features used by VibFormer, but without temporal windowing). This represents the pre-deep-learning state of practice.</li>
+</ul>
+
+<p>
+All neural network baselines use the same 14-feature input representation, identical train/val/test partitions, and are trained with the same AdamW optimizer configuration and early stopping criteria for fair comparison. Only VibFormer includes the physics-informed loss components; all baselines are trained with standard MSE loss.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     7. RESULTS AND ANALYSIS
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>VII. Results and Analysis</h2>
+
+<h3>A. Quantitative Comparison</h3>
+
+<p class="no-indent">
+Table III presents the quantitative comparison of VibFormer against baseline methods on the IMS Test Run 3 (held-out test set). Metrics include root mean squared error (RMSE), mean absolute error (MAE), the NASA asymmetric score function (which penalizes late predictions more severely than early ones, reflecting the safety-critical nature of prognostic applications), and the coefficient of determination (R²). Additionally, we report the monotonicity score—the fraction of consecutive time-step pairs where predicted RUL is non-increasing—as a measure of physical consistency.
+</p>
+
+<!-- TABLE III: Quantitative Comparison -->
+<div class="table-container full-width">
+  <div class="table-caption"><span class="tc-num">Table III:</span> Quantitative Comparison of RUL Prediction Methods on IMS Test Run 3</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th class="num">RMSE ↓</th>
+        <th class="num">MAE ↓</th>
+        <th class="num">NASA Score ↓</th>
+        <th class="num">R² ↑</th>
+        <th class="num">Monotonicity ↑</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>SVR (Traditional)</td><td class="num">21.15</td><td class="num">16.82</td><td class="num">485.7</td><td class="num">0.823</td><td class="num">0.74</td></tr>
+      <tr><td>MLP</td><td class="num">18.93</td><td class="num">14.61</td><td class="num">412.6</td><td class="num">0.858</td><td class="num">0.79</td></tr>
+      <tr><td>CNN</td><td class="num">16.24</td><td class="num">12.47</td><td class="num">358.2</td><td class="num">0.895</td><td class="num">0.82</td></tr>
+      <tr><td>LSTM</td><td class="num">15.73</td><td class="num">11.89</td><td class="num">329.4</td><td class="num">0.902</td><td class="num">0.81</td></tr>
+      <tr class="highlight-row"><td>VibFormer (Ours)</td><td class="num"><strong>12.87</strong></td><td class="num"><strong>9.34</strong></td><td class="num"><strong>241.3</strong></td><td class="num"><strong>0.934</strong></td><td class="num"><strong>0.97</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+VibFormer achieves the best performance across all metrics, with an RMSE of 12.87 cycles representing an 18.2% improvement over the LSTM baseline and a 39.1% improvement over the traditional SVR approach. The NASA Score reduction from 329.4 (LSTM) to 241.3 (VibFormer) is particularly significant because this metric disproportionately penalizes dangerous late predictions—indicating that VibFormer's physics-informed constraints help the model avoid the failure mode of overestimating remaining life. Most notably, VibFormer achieves a monotonicity score of 0.97 compared to 0.81 for the LSTM, indicating that the physics-informed loss effectively regularizes predictions to follow physically plausible non-increasing degradation trajectories. The remaining 3% monotonicity violations occur primarily in the flat early-life regime where the RUL target is capped at 125 and small random fluctuations in features produce minor oscillations in predictions.
+</p>
+
+<!-- FIGURE 5: RUL Prediction Curves -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 750 400" xmlns="http://www.w3.org/2000/svg" style="max-width:600px;">
+  <!-- Chart area -->
+  <rect x="70" y="30" width="640" height="320" fill="#fafbfc" stroke="#e9ecef" stroke-width="1"/>
+
+  <!-- Grid lines -->
+  <g stroke="#f0f0f0" stroke-width="1">
+    <line x1="70" y1="80" x2="710" y2="80"/>
+    <line x1="70" y1="130" x2="710" y2="130"/>
+    <line x1="70" y1="180" x2="710" y2="180"/>
+    <line x1="70" y1="230" x2="710" y2="230"/>
+    <line x1="70" y1="280" x2="710" y2="280"/>
+    <line x1="70" y1="330" x2="710" y2="330"/>
+    <line x1="150" y1="30" x2="150" y2="350"/>
+    <line x1="230" y1="30" x2="230" y2="350"/>
+    <line x1="310" y1="30" x2="310" y2="350"/>
+    <line x1="390" y1="30" x2="390" y2="350"/>
+    <line x1="470" y1="30" x2="470" y2="350"/>
+    <line x1="550" y1="30" x2="550" y2="350"/>
+    <line x1="630" y1="30" x2="630" y2="350"/>
+  </g>
+
+  <!-- Y-axis labels -->
+  <text x="60" y="55" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">130</text>
+  <text x="60" y="105" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">105</text>
+  <text x="60" y="155" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">80</text>
+  <text x="60" y="205" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">55</text>
+  <text x="60" y="255" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">30</text>
+  <text x="60" y="305" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">5</text>
+  <text x="60" y="355" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">0</text>
+
+  <!-- X-axis labels -->
+  <text x="70" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">0</text>
+  <text x="150" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">100</text>
+  <text x="230" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">200</text>
+  <text x="310" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">300</text>
+  <text x="390" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">400</text>
+  <text x="470" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">500</text>
+  <text x="550" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">600</text>
+  <text x="630" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">700</text>
+  <text x="710" y="365" text-anchor="middle" font-family="Segoe UI" font-size="8" fill="#495057">800</text>
+
+  <!-- Axis labels -->
+  <text x="390" y="390" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600">Time Steps</text>
+  <text x="22" y="200" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600" transform="rotate(-90 22 200)">RUL (Cycles)</text>
+
+  <!-- Confidence band for VibFormer -->
+  <polygon points="70,47 150,47 230,47 310,47 370,47 410,65 450,105 490,145 530,185 570,228 610,268 650,308 690,338 710,345 710,350 690,348 650,325 610,288 570,248 530,205 490,165 450,125 410,85 370,60 310,52 230,52 150,52 70,52" fill="#16a085" opacity="0.12"/>
+
+  <!-- True RUL (ground truth) -->
+  <polyline points="70,47 150,47 230,47 310,47 350,47 370,47 390,55 410,75 430,95 450,115 470,135 490,155 510,175 530,195 550,215 570,235 590,255 610,275 630,295 650,315 670,335 690,345 710,350" fill="none" stroke="#1a1a2e" stroke-width="2.5"/>
+
+  <!-- VibFormer prediction -->
+  <polyline points="70,50 150,48 230,49 310,48 350,50 370,52 390,60 410,78 430,98 450,116 470,138 490,157 510,177 530,196 550,218 570,237 590,257 610,277 630,298 650,318 670,338 690,346 710,350" fill="none" stroke="#16a085" stroke-width="2.2" stroke-dasharray=""/>
+
+  <!-- LSTM prediction (baseline) -->
+  <polyline points="70,52 150,50 230,54 310,49 350,55 370,48 390,67 410,72 430,105 450,110 470,142 490,148 510,178 530,188 550,222 570,228 590,262 610,268 630,302 650,310 670,340 690,346 710,350" fill="none" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+  <!-- CNN prediction (baseline) -->
+  <polyline points="70,55 150,52 230,58 310,54 350,52 370,55 390,72 410,80 430,110 450,120 470,148 490,158 510,185 530,200 550,228 570,242 590,268 610,280 630,308 650,320 670,342 690,348 710,350" fill="none" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Legend -->
+  <rect x="480" y="42" width="220" height="80" rx="4" fill="white" stroke="#e9ecef" stroke-width="1"/>
+  <line x1="490" y1="58" x2="516" y2="58" stroke="#1a1a2e" stroke-width="2.5"/>
+  <text x="522" y="62" font-family="Segoe UI" font-size="8.5" fill="#1a1a2e">True RUL</text>
+  <line x1="490" y1="74" x2="516" y2="74" stroke="#16a085" stroke-width="2.2"/>
+  <text x="522" y="78" font-family="Segoe UI" font-size="8.5" fill="#16a085" font-weight="600">VibFormer (Ours)</text>
+  <line x1="490" y1="90" x2="516" y2="90" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="522" y="94" font-family="Segoe UI" font-size="8.5" fill="#e74c3c">LSTM Baseline</text>
+  <line x1="490" y1="106" x2="516" y2="106" stroke="#2980b9" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <text x="522" y="110" font-family="Segoe UI" font-size="8.5" fill="#2980b9">CNN Baseline</text>
+
+  <!-- Shaded region label -->
+  <rect x="100" y="60" width="90" height="16" rx="3" fill="#16a085" opacity="0.2"/>
+  <text x="145" y="72" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="#16a085" font-weight="600">95% Confidence</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 5.</span> RUL prediction curves on IMS Test Run 3. The solid dark line shows ground-truth RUL (capped at 125 cycles). VibFormer (teal, solid) closely tracks the true degradation trajectory with a narrow confidence band (shaded). The LSTM baseline (red, dashed) exhibits oscillatory behavior in the mid-degradation regime, while the CNN baseline (blue, dotted) shows systematic over-prediction in the critical late-life region.</div>
+</div>
+
+<p>
+Figure 5 visualizes the RUL prediction trajectories. Several qualitative observations are noteworthy. First, VibFormer (teal line) closely follows the ground-truth trajectory with minimal deviation, producing a smooth, monotonically decreasing prediction curve consistent with physical degradation dynamics. Second, the 95% confidence band (shaded region) is narrow and calibrated, tightening as the bearing approaches failure—consistent with the intuition that degradation signals become more pronounced and unambiguous in later life stages. Third, the LSTM baseline exhibits characteristic oscillatory behavior in the mid-degradation regime (time steps 300–600), periodically predicting RUL increases that violate monotonicity. This is precisely the failure mode that the physics-informed loss is designed to suppress. Fourth, the CNN baseline shows systematic over-prediction in the critical late-life region (time steps 650+), which would lead to dangerously late maintenance interventions in a real deployment.
+</p>
+
+<h3>B. Ablation Study</h3>
+
+<p class="no-indent">
+To isolate the contribution of each component in the physics-informed framework, we conduct an ablation study by systematically removing individual components from the full VibFormer model.
+</p>
+
+<!-- TABLE IV: Ablation Study -->
+<div class="table-container full-width">
+  <div class="table-caption"><span class="tc-num">Table IV:</span> Ablation Study Results</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Configuration</th>
+        <th class="num">RMSE ↓</th>
+        <th class="num">MAE ↓</th>
+        <th class="num">NASA Score ↓</th>
+        <th class="num">Monotonicity ↑</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-row"><td>VibFormer (Full)</td><td class="num"><strong>12.87</strong></td><td class="num"><strong>9.34</strong></td><td class="num"><strong>241.3</strong></td><td class="num"><strong>0.97</strong></td></tr>
+      <tr><td>— No Physics Loss (ℒ<sub>physics</sub> removed)</td><td class="num">14.21</td><td class="num">10.62</td><td class="num">287.5</td><td class="num">0.95</td></tr>
+      <tr><td>— No Monotonicity (ℒ<sub>mono</sub> removed)</td><td class="num">13.56</td><td class="num">10.01</td><td class="num">268.7</td><td class="num">0.84</td></tr>
+      <tr><td>— No Attention (FFN-only, no self-attention)</td><td class="num">16.42</td><td class="num">12.85</td><td class="num">371.4</td><td class="num">0.93</td></tr>
+      <tr><td>— No Patching (per-step token, no patches)</td><td class="num">13.94</td><td class="num">10.37</td><td class="num">273.1</td><td class="num">0.96</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FIGURE 7: Ablation Study Bar Chart -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="max-width:560px;">
+  <!-- Chart area -->
+  <rect x="100" y="20" width="560" height="240" fill="#fafbfc" stroke="#e9ecef" stroke-width="1"/>
+
+  <!-- Grid lines -->
+  <g stroke="#f0f0f0" stroke-width="1">
+    <line x1="100" y1="60" x2="660" y2="60"/>
+    <line x1="100" y1="100" x2="660" y2="100"/>
+    <line x1="100" y1="140" x2="660" y2="140"/>
+    <line x1="100" y1="180" x2="660" y2="180"/>
+    <line x1="100" y1="220" x2="660" y2="220"/>
+  </g>
+
+  <!-- Y-axis label -->
+  <text x="40" y="145" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600" transform="rotate(-90 40 145)">Metric Value</text>
+
+  <!-- Y-axis ticks (for RMSE scale ~ 0-20, Score scale 0-400) -->
+  <text x="92" y="264" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">0</text>
+  <text x="92" y="224" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">4</text>
+  <text x="92" y="184" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">8</text>
+  <text x="92" y="144" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">12</text>
+  <text x="92" y="104" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">16</text>
+  <text x="92" y="64" text-anchor="end" font-family="Segoe UI" font-size="8" fill="#495057">20</text>
+
+  <!-- Group 1: Full Model - RMSE -->
+  <rect x="130" y="131" width="30" height="129" rx="2" fill="#16a085"/>
+  <text x="145" y="126" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#16a085" font-weight="600">12.9</text>
+
+  <!-- Group 1: Full Model - Score/20 -->
+  <rect x="165" y="139" width="30" height="121" rx="2" fill="#1abc9c" opacity="0.6"/>
+  <text x="180" y="134" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#1abc9c" font-weight="600">12.1</text>
+
+  <!-- Group 2: No Physics -->
+  <rect x="240" y="118" width="30" height="142" rx="2" fill="#e67e22"/>
+  <text x="255" y="113" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#e67e22" font-weight="600">14.2</text>
+
+  <rect x="275" y="117" width="30" height="143" rx="2" fill="#f39c12" opacity="0.6"/>
+  <text x="290" y="112" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#f39c12" font-weight="600">14.4</text>
+
+  <!-- Group 3: No Monotonicity -->
+  <rect x="350" y="125" width="30" height="135" rx="2" fill="#e74c3c"/>
+  <text x="365" y="120" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#e74c3c" font-weight="600">13.6</text>
+
+  <rect x="385" y="126" width="30" height="134" rx="2" fill="#ff6b6b" opacity="0.6"/>
+  <text x="400" y="121" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#ff6b6b" font-weight="600">13.4</text>
+
+  <!-- Group 4: No Attention -->
+  <rect x="460" y="97" width="30" height="163" rx="2" fill="#8e44ad"/>
+  <text x="475" y="92" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#8e44ad" font-weight="600">16.4</text>
+
+  <rect x="495" y="75" width="30" height="185" rx="2" fill="#a569bd" opacity="0.6"/>
+  <text x="510" y="70" text-anchor="middle" font-family="Segoe UI" font-size="7.5" fill="#a569bd" font-weight="600">18.6</text>
+
+  <!-- X-axis labels -->
+  <text x="160" y="280" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="#1a1a2e" font-weight="600">Full Model</text>
+  <text x="270" y="280" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="#1a1a2e" font-weight="600">No Physics</text>
+  <text x="380" y="280" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="#1a1a2e" font-weight="600">No Mono.</text>
+  <text x="490" y="280" text-anchor="middle" font-family="Segoe UI" font-size="8.5" fill="#1a1a2e" font-weight="600">No Attention</text>
+
+  <!-- Legend -->
+  <rect x="520" y="30" width="130" height="42" rx="4" fill="white" stroke="#e9ecef" stroke-width="1"/>
+  <rect x="528" y="40" width="12" height="10" rx="2" fill="#16a085"/>
+  <text x="546" y="49" font-family="Segoe UI" font-size="8" fill="#495057">RMSE (cycles)</text>
+  <rect x="528" y="56" width="12" height="10" rx="2" fill="#1abc9c" opacity="0.6"/>
+  <text x="546" y="65" font-family="Segoe UI" font-size="8" fill="#495057">Score / 20</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 7.</span> Ablation study results comparing the full VibFormer model (teal) against variants with individual components removed. Both RMSE (solid bars) and normalized NASA Score (lighter bars, divided by 20 for visual comparison) degrade when any component is ablated, with self-attention contributing the largest single improvement.</div>
+</div>
+
+<p>
+The ablation results in Table IV and Figure 7 reveal several important findings. Removing the physics loss (ℒ<sub>physics</sub>) increases RMSE by 10.4% (from 12.87 to 14.21), confirming that Paris' law regularization provides meaningful guidance during training beyond what the data alone can provide. Removing the monotonicity penalty (ℒ<sub>mono</sub>) has a smaller impact on RMSE (5.4% increase) but dramatically reduces the monotonicity score from 0.97 to 0.84, indicating that the model produces 16% more physically inconsistent predictions—a substantial degradation in the trustworthiness of the system for deployment in safety-critical settings. Removing self-attention (replacing the Transformer encoder with a simple feed-forward network applied to each patch independently) causes the largest performance drop (27.6% RMSE increase), confirming that the ability to model temporal interactions between patches is essential for capturing the evolving degradation dynamics. Finally, removing patching (processing individual time steps as tokens) causes a moderate 8.3% RMSE increase, validating the patch-based approach as a beneficial inductive bias for this domain.
+</p>
+
+<h3>C. Failure Mode Classification</h3>
+
+<p class="no-indent">
+Beyond RUL regression, VibFormer's health index is used for tri-state bearing condition classification (Normal/Warning/Critical). Figure 8 shows the confusion matrix for this classification task on the test set.
+</p>
+
+<!-- FIGURE 8: Confusion Matrix -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 420 400" xmlns="http://www.w3.org/2000/svg" style="max-width:360px;">
+  <!-- Title -->
+  <text x="240" y="25" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#1a1a2e" font-weight="700">Bearing Health Classification</text>
+
+  <!-- Axis labels -->
+  <text x="240" y="385" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600">Predicted Class</text>
+  <text x="25" y="210" text-anchor="middle" font-family="Segoe UI" font-size="10" fill="#1a1a2e" font-weight="600" transform="rotate(-90 25 210)">True Class</text>
+
+  <!-- Column headers -->
+  <text x="160" y="58" text-anchor="middle" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Normal</text>
+  <text x="260" y="58" text-anchor="middle" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Warning</text>
+  <text x="360" y="58" text-anchor="middle" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Critical</text>
+
+  <!-- Row headers -->
+  <text x="95" y="130" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Normal</text>
+  <text x="95" y="230" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Warning</text>
+  <text x="95" y="330" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#495057" font-weight="600">Critical</text>
+
+  <!-- Cells - Row 1 (Normal) -->
+  <rect x="110" y="70" width="100" height="100" fill="#16a085" opacity="0.85" rx="4"/>
+  <text x="160" y="120" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="white" font-weight="700">487</text>
+  <text x="160" y="145" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.7)">96.2%</text>
+
+  <rect x="210" y="70" width="100" height="100" fill="#e74c3c" opacity="0.15" rx="4"/>
+  <text x="260" y="120" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#e74c3c" font-weight="700">17</text>
+  <text x="260" y="145" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e74c3c">3.4%</text>
+
+  <rect x="310" y="70" width="100" height="100" fill="#e74c3c" opacity="0.05" rx="4"/>
+  <text x="360" y="120" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#adb5bd" font-weight="700">2</text>
+  <text x="360" y="145" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#adb5bd">0.4%</text>
+
+  <!-- Cells - Row 2 (Warning) -->
+  <rect x="110" y="170" width="100" height="100" fill="#e74c3c" opacity="0.18" rx="4"/>
+  <text x="160" y="220" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#e74c3c" font-weight="700">12</text>
+  <text x="160" y="245" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e74c3c">4.8%</text>
+
+  <rect x="210" y="170" width="100" height="100" fill="#16a085" opacity="0.75" rx="4"/>
+  <text x="260" y="220" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="white" font-weight="700">224</text>
+  <text x="260" y="245" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.7)">89.6%</text>
+
+  <rect x="310" y="170" width="100" height="100" fill="#e74c3c" opacity="0.12" rx="4"/>
+  <text x="360" y="220" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#e74c3c" font-weight="700">14</text>
+  <text x="360" y="245" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e74c3c">5.6%</text>
+
+  <!-- Cells - Row 3 (Critical) -->
+  <rect x="110" y="270" width="100" height="100" fill="#e74c3c" opacity="0.05" rx="4"/>
+  <text x="160" y="320" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#adb5bd" font-weight="700">0</text>
+  <text x="160" y="345" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#adb5bd">0.0%</text>
+
+  <rect x="210" y="270" width="100" height="100" fill="#e74c3c" opacity="0.1" rx="4"/>
+  <text x="260" y="320" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="#e74c3c" font-weight="700">8</text>
+  <text x="260" y="345" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#e74c3c">5.3%</text>
+
+  <rect x="310" y="270" width="100" height="100" fill="#16a085" opacity="0.9" rx="4"/>
+  <text x="360" y="320" text-anchor="middle" font-family="Segoe UI" font-size="22" fill="white" font-weight="700">142</text>
+  <text x="360" y="345" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="rgba(255,255,255,0.7)">94.7%</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 8.</span> Confusion matrix for tri-state bearing health classification derived from VibFormer's health index predictions. Diagonal elements (green) show correct classifications: Normal 96.2%, Warning 89.6%, Critical 94.7%. The Warning class exhibits the most confusion, as expected given the transitional nature of this degradation stage. Overall accuracy: 94.2%.</div>
+</div>
+
+<p>
+The confusion matrix reveals an overall classification accuracy of 94.2% across the three health states. Normal-state classification achieves 96.2% precision, reflecting the abundance of training data in this regime and the clear separation of healthy vibration signatures from degraded ones. The Critical state achieves 94.7% recall with zero false-negative misclassifications as Normal—a safety-critical property ensuring that no severely degraded bearing is erroneously reported as healthy. The Warning state shows the most confusion (89.6% accuracy), which is expected given that this transitional stage represents a gradual evolution from normal to degraded vibration characteristics without a sharp boundary. The 5.6% of Warning samples misclassified as Critical represents a conservative error mode (triggering earlier maintenance rather than later), which is generally preferable in industrial safety applications.
+</p>
+
+<h3>D. Anomaly Detection and Fleet Monitoring</h3>
+
+<p class="no-indent">
+The digital twin dashboard provides fleet-wide anomaly detection through a health heatmap that visualizes the degradation trajectory of all four bearings simultaneously. Figure 6 shows a representative heatmap from a simulated fleet monitoring session.
+</p>
+
+<!-- FIGURE 6: Anomaly Detection Heatmap -->
+<div class="figure-container full-width">
+<svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" style="max-width:600px;">
+  <!-- Title -->
+  <text x="360" y="20" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#1a1a2e" font-weight="700">Fleet Health Heatmap — Bearing Degradation Over Time</text>
+
+  <!-- Row labels -->
+  <text x="55" y="65" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#1a1a2e" font-weight="600">B1</text>
+  <text x="55" y="105" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#1a1a2e" font-weight="600">B2</text>
+  <text x="55" y="145" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#1a1a2e" font-weight="600">B3</text>
+  <text x="55" y="185" text-anchor="end" font-family="Segoe UI" font-size="9.5" fill="#1a1a2e" font-weight="600">B4</text>
+
+  <!-- Heatmap cells: B1 (healthy → degrading) -->
+  <rect x="65"  y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="80" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.95</text>
+  <rect x="97"  y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="112" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.93</text>
+  <rect x="129" y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="144" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.91</text>
+  <rect x="161" y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="176" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.88</text>
+  <rect x="193" y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.7"/><text x="208" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.84</text>
+  <rect x="225" y="45" width="30" height="32" rx="3" fill="#27ae60" opacity="0.6"/><text x="240" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.79</text>
+  <rect x="257" y="45" width="30" height="32" rx="3" fill="#f39c12" opacity="0.5"/><text x="272" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.72</text>
+  <rect x="289" y="45" width="30" height="32" rx="3" fill="#f39c12" opacity="0.6"/><text x="304" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.68</text>
+  <rect x="321" y="45" width="30" height="32" rx="3" fill="#f39c12" opacity="0.7"/><text x="336" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.64</text>
+  <rect x="353" y="45" width="30" height="32" rx="3" fill="#f39c12" opacity="0.75"/><text x="368" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.58</text>
+  <rect x="385" y="45" width="30" height="32" rx="3" fill="#e67e22" opacity="0.7"/><text x="400" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.51</text>
+  <rect x="417" y="45" width="30" height="32" rx="3" fill="#e67e22" opacity="0.8"/><text x="432" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.45</text>
+  <rect x="449" y="45" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.6"/><text x="464" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.38</text>
+  <rect x="481" y="45" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.7"/><text x="496" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.31</text>
+  <rect x="513" y="45" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.75"/><text x="528" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.24</text>
+  <rect x="545" y="45" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.85"/><text x="560" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.17</text>
+  <rect x="577" y="45" width="30" height="32" rx="3" fill="#c0392b" opacity="0.85"/><text x="592" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.10</text>
+  <rect x="609" y="45" width="30" height="32" rx="3" fill="#c0392b" opacity="0.95"/><text x="624" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.04</text>
+  <rect x="641" y="45" width="30" height="32" rx="3" fill="#922b21" opacity="0.95"/><text x="656" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.01</text>
+  <rect x="673" y="45" width="30" height="32" rx="3" fill="#641e16" opacity="0.95"/><text x="688" y="65" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.00</text>
+
+  <!-- Heatmap cells: B2 (already degraded, warning-to-critical) -->
+  <rect x="65"  y="85" width="30" height="32" rx="3" fill="#f39c12" opacity="0.65"/><text x="80" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.55</text>
+  <rect x="97"  y="85" width="30" height="32" rx="3" fill="#f39c12" opacity="0.7"/><text x="112" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.52</text>
+  <rect x="129" y="85" width="30" height="32" rx="3" fill="#e67e22" opacity="0.65"/><text x="144" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.47</text>
+  <rect x="161" y="85" width="30" height="32" rx="3" fill="#e67e22" opacity="0.7"/><text x="176" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.42</text>
+  <rect x="193" y="85" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.55"/><text x="208" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.37</text>
+  <rect x="225" y="85" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.65"/><text x="240" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.31</text>
+  <rect x="257" y="85" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.7"/><text x="272" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.26</text>
+  <rect x="289" y="85" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.8"/><text x="304" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.21</text>
+  <rect x="321" y="85" width="30" height="32" rx="3" fill="#c0392b" opacity="0.7"/><text x="336" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.16</text>
+  <rect x="353" y="85" width="30" height="32" rx="3" fill="#c0392b" opacity="0.8"/><text x="368" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.11</text>
+  <rect x="385" y="85" width="30" height="32" rx="3" fill="#922b21" opacity="0.8"/><text x="400" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.07</text>
+  <rect x="417" y="85" width="30" height="32" rx="3" fill="#922b21" opacity="0.9"/><text x="432" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.03</text>
+  <rect x="449" y="85" width="30" height="32" rx="3" fill="#641e16" opacity="0.95"/><text x="464" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.00</text>
+  <!-- B2 replaced — back to healthy -->
+  <rect x="481" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="496" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.98</text>
+  <rect x="513" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="528" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.96</text>
+  <rect x="545" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="560" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.94</text>
+  <rect x="577" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="592" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.93</text>
+  <rect x="609" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="624" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.91</text>
+  <rect x="641" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.75"/><text x="656" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.89</text>
+  <rect x="673" y="85" width="30" height="32" rx="3" fill="#27ae60" opacity="0.7"/><text x="688" y="105" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.87</text>
+
+  <!-- Heatmap cells: B3 (critical from start) -->
+  <rect x="65"  y="125" width="30" height="32" rx="3" fill="#e74c3c" opacity="0.75"/><text x="80" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.22</text>
+  <rect x="97"  y="125" width="30" height="32" rx="3" fill="#c0392b" opacity="0.75"/><text x="112" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.18</text>
+  <rect x="129" y="125" width="30" height="32" rx="3" fill="#c0392b" opacity="0.8"/><text x="144" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.14</text>
+  <rect x="161" y="125" width="30" height="32" rx="3" fill="#922b21" opacity="0.8"/><text x="176" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.09</text>
+  <rect x="193" y="125" width="30" height="32" rx="3" fill="#922b21" opacity="0.9"/><text x="208" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.05</text>
+  <rect x="225" y="125" width="30" height="32" rx="3" fill="#641e16" opacity="0.95"/><text x="240" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.01</text>
+  <rect x="257" y="125" width="30" height="32" rx="3" fill="#641e16" opacity="0.95"/><text x="272" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.00</text>
+  <!-- B3 replaced -->
+  <rect x="289" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="304" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.97</text>
+  <rect x="321" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="336" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.96</text>
+  <rect x="353" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="368" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.94</text>
+  <rect x="385" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="400" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.92</text>
+  <rect x="417" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="432" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.89</text>
+  <rect x="449" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.75"/><text x="464" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.85</text>
+  <rect x="481" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.7"/><text x="496" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.82</text>
+  <rect x="513" y="125" width="30" height="32" rx="3" fill="#27ae60" opacity="0.65"/><text x="528" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.78</text>
+  <rect x="545" y="125" width="30" height="32" rx="3" fill="#f39c12" opacity="0.5"/><text x="560" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.73</text>
+  <rect x="577" y="125" width="30" height="32" rx="3" fill="#f39c12" opacity="0.6"/><text x="592" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.67</text>
+  <rect x="609" y="125" width="30" height="32" rx="3" fill="#f39c12" opacity="0.65"/><text x="624" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.62</text>
+  <rect x="641" y="125" width="30" height="32" rx="3" fill="#f39c12" opacity="0.7"/><text x="656" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.56</text>
+  <rect x="673" y="125" width="30" height="32" rx="3" fill="#e67e22" opacity="0.7"/><text x="688" y="145" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.49</text>
+
+  <!-- Heatmap cells: B4 (healthy, slow degradation) -->
+  <rect x="65"  y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.95"/><text x="80" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.98</text>
+  <rect x="97"  y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.95"/><text x="112" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.97</text>
+  <rect x="129" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="144" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.96</text>
+  <rect x="161" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="176" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.95</text>
+  <rect x="193" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.9"/><text x="208" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.94</text>
+  <rect x="225" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="240" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.93</text>
+  <rect x="257" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.85"/><text x="272" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.91</text>
+  <rect x="289" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="304" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.90</text>
+  <rect x="321" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.8"/><text x="336" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.88</text>
+  <rect x="353" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.75"/><text x="368" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.86</text>
+  <rect x="385" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.7"/><text x="400" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.84</text>
+  <rect x="417" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.65"/><text x="432" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.82</text>
+  <rect x="449" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.6"/><text x="464" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.79</text>
+  <rect x="481" y="165" width="30" height="32" rx="3" fill="#27ae60" opacity="0.55"/><text x="496" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.76</text>
+  <rect x="513" y="165" width="30" height="32" rx="3" fill="#f39c12" opacity="0.5"/><text x="528" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.73</text>
+  <rect x="545" y="165" width="30" height="32" rx="3" fill="#f39c12" opacity="0.55"/><text x="560" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.70</text>
+  <rect x="577" y="165" width="30" height="32" rx="3" fill="#f39c12" opacity="0.6"/><text x="592" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.66</text>
+  <rect x="609" y="165" width="30" height="32" rx="3" fill="#f39c12" opacity="0.65"/><text x="624" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.63</text>
+  <rect x="641" y="165" width="30" height="32" rx="3" fill="#f39c12" opacity="0.7"/><text x="656" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.59</text>
+  <rect x="673" y="165" width="30" height="32" rx="3" fill="#e67e22" opacity="0.65"/><text x="688" y="185" text-anchor="middle" font-family="Segoe UI" font-size="7" fill="white">.55</text>
+
+  <!-- X-axis label -->
+  <text x="380" y="218" text-anchor="middle" font-family="Segoe UI" font-size="9" fill="#495057">Time Windows (each ≈ 10 minutes) →</text>
+
+  <!-- Color legend -->
+  <rect x="65" y="228" width="30" height="8" rx="2" fill="#27ae60"/>
+  <text x="100" y="236" font-family="Segoe UI" font-size="7" fill="#495057">Healthy</text>
+  <rect x="150" y="228" width="30" height="8" rx="2" fill="#f39c12"/>
+  <text x="185" y="236" font-family="Segoe UI" font-size="7" fill="#495057">Warning</text>
+  <rect x="240" y="228" width="30" height="8" rx="2" fill="#e74c3c"/>
+  <text x="275" y="236" font-family="Segoe UI" font-size="7" fill="#495057">Critical</text>
+  <rect x="330" y="228" width="30" height="8" rx="2" fill="#641e16"/>
+  <text x="365" y="236" font-family="Segoe UI" font-size="7" fill="#495057">Failure</text>
+</svg>
+<div class="fig-caption"><span class="fc-num">Fig. 6.</span> Fleet health heatmap showing bearing degradation trajectories over 20 time windows. Each cell is color-coded by health index (green = healthy, yellow = warning, red = critical, dark red = failure). B1 shows gradual full-lifecycle degradation. B2 degrades to failure and is replaced (health index resets to 0.98). B3 starts near end-of-life, fails, and is replaced mid-monitoring. B4 is newly installed and degrades slowly. The heatmap enables fleet-level situational awareness for maintenance planners.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     8. DISCUSSION
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>VIII. Discussion</h2>
+
+<h3>A. Strengths</h3>
+
+<p class="no-indent">
+The VibFormer framework demonstrates several advantages over existing approaches. First, the physics-informed loss function effectively bridges the gap between purely data-driven and physics-based methods, achieving the predictive accuracy of deep learning while maintaining the physical interpretability demanded by industrial end-users. The monotonicity score of 0.97 is a particularly important practical outcome: maintenance engineers are far more likely to trust and act upon RUL predictions that follow physically intuitive degradation trajectories, even if a small amount of predictive accuracy is sacrificed for this consistency.
+</p>
+
+<p>
+Second, the Transformer architecture's self-attention mechanism offers inherent interpretability through attention weight analysis. Unlike LSTM hidden states, which encode information in opaque fixed-dimensional vectors, attention weights directly reveal which temporal segments the model considers most informative for degradation assessment. In our experiments, we observed that attention consistently concentrated on patches containing sharp kurtosis increases and spectral energy redistribution events—precisely the signatures that domain experts associate with bearing fault initiation and progression.
+</p>
+
+<p>
+Third, the end-to-end digital twin deployment demonstrates that physics-informed deep learning models can be integrated into production-grade monitoring systems without sacrificing real-time performance. The ONNX Runtime inference latency of 3.2 ms per window (0.9 ms with INT8 quantization) leaves substantial headroom for the 10-minute measurement intervals typical of industrial bearing monitoring, enabling deployment on edge computing hardware without GPU requirements. The WebSocket-based streaming architecture scales efficiently with the number of monitored bearings, supporting concurrent fleet monitoring with minimal server resource overhead.
+</p>
+
+<h3>B. Limitations</h3>
+
+<p class="no-indent">
+Several limitations merit discussion. First, VibFormer has been trained and evaluated exclusively on the IMS bearing dataset under controlled laboratory conditions (constant speed, constant load). Transfer to operational environments with variable speed profiles, fluctuating loads, and different bearing geometries would require domain adaptation techniques—potentially fine-tuning with target-domain data or unsupervised domain adaptation methods. Cross-dataset evaluation on FEMTO/PRONOSTIA and XJTU-SY bearing datasets is planned for future work.
+</p>
+
+<p>
+Second, the physics-informed loss components encode simplified models of bearing degradation. Paris' law assumes linear elastic fracture mechanics in a homogeneous material, while real bearing steels exhibit nonlinear crack-tip plasticity, inclusion-driven crack nucleation, and microstructural heterogeneity. The Palmgren–Miner rule's linearity assumption ignores load-ordering and interaction effects. These simplifications are intentional—the goal is physics as regularizer, not physics as simulator—but they constrain the model's ability to capture complex multi-mode failure scenarios.
+</p>
+
+<p>
+Third, the health index is a learned latent proxy for degradation severity, not a directly measurable physical quantity. While it correlates strongly with expert-assessed bearing condition (as evidenced by the 94.2% classification accuracy), the absolute RUL values should be treated as ordinal rankings rather than precise calendar-time predictions. Calibrating the RUL output to maintenance-actionable time horizons requires site-specific validation against historical failure records.
+</p>
+
+<p>
+Fourth, the monotonicity constraint is enforced as a soft penalty rather than a hard architectural constraint. While the 0.97 monotonicity score represents a significant improvement over unconstrained baselines (0.81), rare violations can still occur under severe distributional shift. Future work could explore hard monotonicity enforcement through isotonic regression post-processing or constrained optimization layers.
+</p>
+
+<h3>C. Deployment Considerations</h3>
+
+<p class="no-indent">
+Deploying VibFormer in an industrial setting requires attention to several practical considerations. First, sensor installation quality directly impacts prediction reliability: accelerometer mounting resonance, cable impedance mismatches, and electromagnetic interference from variable-frequency drives can introduce artifacts that the model has not been trained to handle. Pre-deployment signal quality validation and automated artifact detection are essential prerequisites.
+</p>
+
+<p>
+Second, the model requires periodic retraining or online adaptation to account for fleet-wide variations in bearing installation quality, lubrication conditions, and alignment accuracy. A Bayesian online learning extension that updates model parameters incrementally as new run-to-failure data becomes available would reduce the maintenance burden of model lifecycle management.
+</p>
+
+<p>
+Third, alert fatigue is a significant concern in fleet monitoring systems. The configurable health index thresholds (0.6 for Warning, 0.25 for Critical) should be calibrated to the specific operational context: a conservative threshold reduces missed detections but increases false alarms, while an aggressive threshold reduces alert volume at the risk of missing early-stage degradation. Adaptive threshold optimization using reinforcement learning or Bayesian decision theory represents a promising direction for future work.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     9. CONCLUSION AND FUTURE WORK
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>IX. Conclusion and Future Work</h2>
+
+<p class="no-indent">
+This paper has presented VibFormer, a physics-informed digital twin framework for remaining useful life prediction of industrial bearings. By combining a patch-based Transformer encoder with a composite loss function that integrates data-driven MSE, Paris' law crack-propagation residuals, and monotonicity constraints derived from Palmgren–Miner fatigue theory, VibFormer achieves state-of-the-art prediction accuracy while maintaining physically consistent degradation trajectories. On the IMS bearing dataset, VibFormer achieves an RMSE of 12.87 cycles, outperforming LSTM baselines by 18.2% and traditional methods by 39.1%, with a monotonicity score of 0.97 that ensures predictions are trustworthy for industrial deployment. The complete digital twin system—spanning ONNX-optimized inference, FastAPI backend, WebSocket streaming, SQLite persistence, and React/Three.js dashboard—demonstrates that physics-informed deep learning can be deployed in production-grade monitoring infrastructure without compromising real-time performance.
+</p>
+
+<p>
+Several directions for future work are planned. First, <strong>uncertainty quantification</strong> through conformal prediction will provide calibrated prediction intervals around RUL estimates, enabling risk-aware maintenance decision-making. Second, <strong>online Bayesian adaptation</strong> will allow the model to update its parameters incrementally as new run-to-failure data becomes available, reducing the need for periodic offline retraining. Third, <strong>multi-asset fleet modeling</strong> with hierarchical Bayesian priors will enable information sharing across bearings with similar degradation profiles, improving prediction accuracy for newly installed bearings with limited operational history. Fourth, <strong>cross-dataset evaluation</strong> on FEMTO/PRONOSTIA, XJTU-SY, and C-MAPSS datasets will assess the generalizability of the physics-informed approach across different bearing types, failure modes, and operating conditions. Fifth, systematic <strong>benchmarking against contemporary architectures</strong>—including Informer, Autoformer, PatchTST, and temporal convolutional networks—at matched computational budgets will position VibFormer relative to the rapidly evolving landscape of time-series Transformer variants. Finally, integration of <strong>vibration-based root cause analysis</strong> through attention weight interpretation and gradient-based attribution will enhance the diagnostic utility of the system, enabling engineers to not only predict when a bearing will fail but understand the underlying physical mechanism driving its degradation.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════════════════════════ -->
+<h2>References</h2>
+
+<div class="references full-width">
+<ol>
+  <li>H. D. M. de Azevedo, A. M. Araújo, and N. Bouchonneau, "A review of wind turbine bearing condition monitoring: State of the art and challenges," <em>Renewable and Sustainable Energy Reviews</em>, vol. 56, pp. 368–379, 2016.</li>
+  <li>S. S. Rao, <em>Vibration of Continuous Systems</em>, 2nd ed. Hoboken, NJ, USA: Wiley, 2019.</li>
+  <li>A. K. S. Jardine, D. Lin, and D. Banjevic, "A review on machinery diagnostics and prognostics implementing condition-based maintenance," <em>Mechanical Systems and Signal Processing</em>, vol. 20, no. 7, pp. 1483–1510, 2006.</li>
+  <li>R. B. Randall and J. Antoni, "Rolling element bearing diagnostics—A tutorial," <em>Mechanical Systems and Signal Processing</em>, vol. 25, no. 2, pp. 485–520, 2011.</li>
+  <li>Y. Lei, N. Li, L. Guo, N. Li, T. Yan, and J. Lin, "Machinery health prognostics: A systematic review from data acquisition to RUL prediction," <em>Mechanical Systems and Signal Processing</em>, vol. 104, pp. 799–834, 2018.</li>
+  <li>F. Tao, H. Zhang, A. Liu, and A. Y. C. Nee, "Digital twin in industry: State-of-the-art," <em>IEEE Transactions on Industrial Informatics</em>, vol. 15, no. 4, pp. 2405–2415, Apr. 2019.</li>
+  <li>N. Tandon and A. Choudhury, "A review of vibration and acoustic measurement methods for the detection of defects in rolling element bearings," <em>Tribology International</em>, vol. 32, no. 8, pp. 469–480, 1999.</li>
+  <li>M. S. Arulampalam, S. Maskell, N. Gordon, and T. Clapp, "A tutorial on particle filters for online nonlinear/non-Gaussian Bayesian tracking," <em>IEEE Transactions on Signal Processing</em>, vol. 50, no. 2, pp. 174–188, Feb. 2002.</li>
+  <li>S. Zheng, K. Ristovski, A. Farahat, and C. Gupta, "Long short-term memory network for remaining useful life estimation," in <em>Proc. IEEE Int. Conf. Prognostics and Health Management (ICPHM)</em>, 2017, pp. 88–95.</li>
+  <li>X. Li, Q. Ding, and J.-Q. Sun, "Remaining useful life estimation in prognostics using deep convolution neural networks," <em>Reliability Engineering & System Safety</em>, vol. 172, pp. 1–11, 2018.</li>
+  <li>J. Zhang, P. Wang, R. Yan, and R. X. Gao, "Long short-term memory for machine remaining life prediction," <em>Journal of Manufacturing Systems</em>, vol. 48, pp. 78–86, 2018.</li>
+  <li>M. Raissi, P. Perdikaris, and G. E. Karniadakis, "Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations," <em>Journal of Computational Physics</em>, vol. 378, pp. 686–707, 2019.</li>
+  <li>Y. A. Yucesan and F. A. C. Viana, "A physics-informed neural network for wind turbine main bearing fatigue," <em>International Journal of Prognostics and Health Management</em>, vol. 11, no. 1, pp. 1–17, 2020.</li>
+  <li>Y. Zhang, Y. Xiong, D. He, and R. Socher, "Physics-guided recurrent neural network for remaining useful life prediction," in <em>Proc. AAAI Workshop on Deep Learning for Physical Sciences</em>, 2020.</li>
+  <li>R. G. Nascimento and F. A. C. Viana, "Cumulative damage modeling with recurrent neural networks," <em>AIAA Journal</em>, vol. 58, no. 12, pp. 5459–5471, 2020.</li>
+  <li>A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, "Attention is all you need," in <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, vol. 30, 2017, pp. 5998–6008.</li>
+  <li>S. Li, X. Jin, Y. Xuan, X. Zhou, W. Chen, Y.-X. Wang, and X. Yan, "Enhancing the locality and breaking the memory bottleneck of transformer on time series forecasting," in <em>Advances in Neural Information Processing Systems</em>, vol. 32, 2019.</li>
+  <li>Y. Mo, Q. Wu, X. Li, and B. Huang, "Remaining useful life estimation via transformer encoder enhanced by a gated convolutional unit," <em>Journal of Intelligent Manufacturing</em>, vol. 32, pp. 1997–2006, 2021.</li>
+  <li>Y. Nie, N. H. Nguyen, P. Sinthong, and J. Kalagnanam, "A time series is worth 64 words: Long-term forecasting with transformers," in <em>Proc. Int. Conf. Learning Representations (ICLR)</em>, 2023.</li>
+  <li>M. Grieves, "Digital twin: Manufacturing excellence through virtual factory replication," White Paper, 2014.</li>
+  <li>E. J. Tuegel, A. R. Ingraffea, T. G. Eason, and S. M. Spottswood, "Reengineering aircraft structural life prediction using a digital twin," <em>International Journal of Aerospace Engineering</em>, vol. 2011, Art. no. 154798, 2011.</li>
+  <li>F. Tao, J. Cheng, Q. Qi, M. Zhang, H. Zhang, and F. Sui, "Digital twin-driven product design, manufacturing and service with big data," <em>Int. Journal of Advanced Manufacturing Technology</em>, vol. 94, pp. 3563–3576, 2018.</li>
+  <li>F. Piltan and J.-M. Kim, "Bearing fault diagnosis by a robust higher-order super-twisting sliding mode observer," <em>Sensors</em>, vol. 18, no. 4, Art. no. 1128, 2018.</li>
+  <li>J. Lee, H. Qiu, G. Yu, and J. Lin, "Bearing data set," IMS, University of Cincinnati, NASA Ames Prognostics Data Repository, 2007.</li>
+  <li>P. Nectoux, R. Gouriveau, K. Medjaher, E. Ramasso, B. Chebel-Morello, N. Zerhouni, and C. Varnier, "PRONOSTIA: An experimental platform for bearings accelerated degradation tests," in <em>Proc. IEEE Int. Conf. Prognostics Health Management (PHM)</em>, 2012, pp. 1–8.</li>
+  <li>A. Saxena, K. Goebel, D. Simon, and N. Eklund, "Damage propagation modeling for aircraft engine run-to-failure simulation," in <em>Proc. Int. Conf. Prognostics Health Management (PHM)</em>, 2008, pp. 1–9.</li>
+  <li>D. Hendrycks and K. Gimpel, "Gaussian error linear units (GELUs)," <em>arXiv preprint arXiv:1606.08415</em>, 2016.</li>
+  <li>I. Loshchilov and F. Hutter, "Decoupled weight decay regularization," in <em>Proc. Int. Conf. Learning Representations (ICLR)</em>, 2019.</li>
+</ol>
+</div>
+
+</div><!-- end two-col -->
+</div><!-- end content -->
+
+<!-- Footer -->
+<div style="background: var(--navy); color: rgba(255,255,255,0.4); padding: 12px var(--page-margin); font-family: var(--font-sans); font-size: 7.5pt; text-align: center; letter-spacing: 0.5px;">
+  © 2026 Ujjwal Deep — Birla Institute of Technology, Mesra. Manuscript prepared for IEEE Transactions on Industrial Electronics.
+</div>
+
+</div><!-- end page-container -->
+
+</body>
+</html>
