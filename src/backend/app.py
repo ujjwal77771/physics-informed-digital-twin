@@ -53,6 +53,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://huggingface.co",
+    "https://*.hf.space",
 ]
 if extra := os.environ.get("ALLOWED_ORIGINS_EXTRA"):
     ALLOWED_ORIGINS.extend(extra.split(","))
@@ -282,11 +283,7 @@ async def startup_event():
     for bid in ["B1", "B2", "B3", "B4"]:
         _simulators[bid] = BearingSimulator(bid)
 
-    # Mount built React frontend
-    static_dir = Path(__file__).parent.parent.parent / "static"
-    if static_dir.exists() and (static_dir / "assets").exists():
-        app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
-        logger.info("React frontend assets mounted.")
+    # Static files are mounted at module level below
 
     # Start background simulation tickers
     for bid in ["B1", "B2", "B3", "B4"]:
@@ -312,16 +309,30 @@ async def bearing_ticker(bearing_id: str):
             logger.exception("Ticker error for %s", bearing_id)
 
 
-# ── SPA fallback ───────────────────────────────────────────────────
+# ── Static files & SPA fallback ────────────────────────────────────
+_STATIC_DIR = Path(__file__).parent.parent.parent / "static"
+
+# Mount /assets BEFORE defining the SPA catch-all so JS/CSS/fonts load correctly
+if _STATIC_DIR.exists() and (_STATIC_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(_STATIC_DIR / "assets")), name="assets")
+    logger.info("React frontend assets mounted from %s", _STATIC_DIR / "assets")
+
 _API_PREFIXES = ("health", "predict", "ws", "docs", "openapi", "assets",
                  "redoc", "fleet", "history", "alerts", "export")
 
 @app.get("/", include_in_schema=False)
+async def serve_root():
+    index = _STATIC_DIR / "index.html"
+    if index.exists():
+        return FileResponse(str(index))
+    return JSONResponse({"status": "running", "frontend": "not built"})
+
 @app.get("/{full_path:path}", include_in_schema=False)
 async def serve_spa(full_path: str = ""):
-    static_dir = Path(__file__).parent.parent.parent / "static"
-    index = static_dir / "index.html"
-    if index.exists() and not full_path.startswith(_API_PREFIXES):
+    index = _STATIC_DIR / "index.html"
+    if full_path.startswith(_API_PREFIXES):
+        raise HTTPException(status_code=404, detail="Not found")
+    if index.exists():
         return FileResponse(str(index))
     raise HTTPException(status_code=404, detail="Not found")
 
