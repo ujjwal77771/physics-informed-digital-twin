@@ -3,7 +3,7 @@ title: Physics Informed Digital Twin
 emoji: 🚀
 colorFrom: blue
 colorTo: green
-sdk: docker
+sdk: static
 pinned: false
 ---
 <div align="center">

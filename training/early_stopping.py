@@ -72,8 +72,8 @@ class EarlyStopping:
         if self.verbose:
             print(
                 f"  Val RMSE improved "
-                f"({self.best_rmse:.4f} → {val_rmse:.4f}). "
-                f"Saving checkpoint → {self.path}"
+                f"({self.best_rmse:.4f} -> {val_rmse:.4f}). "
+                f"Saving checkpoint -> {self.path}"
             )
         torch.save(model.state_dict(), self.path)
         self.best_rmse = val_rmse
