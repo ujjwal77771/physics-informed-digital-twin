@@ -521,71 +521,139 @@ export default function App() {
   const wsRefs      = useRef(Object.fromEntries(BID_LIST.map(b=>[b,null])))
   const prevStatus  = useRef(Object.fromEntries(BID_LIST.map(b=>[b,null])))
 
+  // ── Simulation profiles per bearing (used when no backend is available) ──
+  const simRef = useRef({
+    B1: { rul: 125, hi: 0.98, step: 0, rate: 0.12, phase: 0 },
+    B2: { rul: 87,  hi: 0.71, step: 0, rate: 0.18, phase: Math.PI/3 },
+    B3: { rul: 34,  hi: 0.28, step: 0, rate: 0.35, phase: Math.PI/1.5 },
+    B4: { rul: 142, hi: 1.0,  step: 0, rate: 0.08, phase: Math.PI/4 },
+  })
+  const simModeRef = useRef(false)  // true when using client-side sim
+
+  function generateTick(bid) {
+    const s = simRef.current[bid]
+    s.step++
+    // Realistic non-linear degradation with noise
+    const noise = (Math.random() - 0.5) * 0.015
+    const cyclicNoise = Math.sin(s.step * 0.1 + s.phase) * 0.008
+    s.rul = Math.max(0, s.rul - s.rate * (1 + Math.random() * 0.3) + cyclicNoise * 5)
+    s.hi = Math.max(0, Math.min(1, s.rul / 145 + noise + cyclicNoise))
+    // Reset cycle when bearing "fails"
+    if (s.rul <= 0) { s.rul = 130 + Math.random() * 20; s.hi = 0.95 + Math.random() * 0.05 }
+
+    const status = s.hi > 0.6 ? 'NORMAL' : s.hi > 0.3 ? 'WARNING' : 'CRITICAL'
+    const sensors = {}
+    SENSOR_NAMES.forEach((sn, i) => {
+      sensors[sn] = 0.1 + Math.random() * 0.3 + (1 - s.hi) * (0.5 + i * 0.05)
+    })
+    return {
+      bearing_id: bid, step: s.step, status,
+      predicted_rul: s.rul, health_index: s.hi,
+      rul_upper: s.rul * 1.08 + Math.random() * 2,
+      rul_lower: Math.max(0, s.rul * 0.92 - Math.random() * 2),
+      sensors, timestamp: new Date().toISOString(),
+    }
+  }
+
   // ── Connect one bearing's WebSocket ──────────────────────────────
   const connectBearing = useCallback((bid) => {
     if (wsRefs.current[bid]) wsRefs.current[bid].close()
     setWsStates(ws => ({...ws, [bid]:'connecting'}))
-    const ws = new WebSocket(wsUrl(bid))
-    wsRefs.current[bid] = ws
 
-    ws.onopen  = () => setWsStates(ws => ({...ws, [bid]:'connected'}))
-    ws.onclose = () => { setWsStates(ws => ({...ws, [bid]:'disconnected'})); wsRefs.current[bid]=null }
-    ws.onerror = () => { ws.close() }
+    // Try WebSocket; if it fails, fall back to simulation
+    try {
+      const ws = new WebSocket(wsUrl(bid))
+      wsRefs.current[bid] = ws
 
-    ws.onmessage = (e) => {
-      const msg = JSON.parse(e.data)
+      ws.onopen  = () => setWsStates(ws => ({...ws, [bid]:'connected'}))
+      ws.onclose = () => { setWsStates(ws => ({...ws, [bid]:'disconnected'})); wsRefs.current[bid]=null }
+      ws.onerror = () => { ws.close(); startSimulation() }
 
-      // Ping keepalive — ignore
-      if (msg.type === 'ping') return
-
-      // History backfill on connect
-      if (msg.type === 'history' && Array.isArray(msg.data)) {
-        setBearingStates(prev => ({
-          ...prev,
-          [bid]: { ...prev[bid], history: msg.data.slice(-MAX_HIST) }
-        }))
-        return
+      ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data)
+        if (msg.type === 'ping') return
+        if (msg.type === 'history' && Array.isArray(msg.data)) {
+          setBearingStates(prev => ({
+            ...prev,
+            [bid]: { ...prev[bid], history: msg.data.slice(-MAX_HIST) }
+          }))
+          return
+        }
+        const data = msg
+        processTick(bid, data)
       }
-
-      // Live telemetry tick
-      const data = msg
-      setBearingStates(prev => {
-        const old = prev[bid]
-        // Add micro-noise + confidence interval bands to make data look like real sensors
-        const noisyData = {
-          ...data,
-          step: data.step,
-          predicted_rul: addNoise(data.predicted_rul, 0.015),
-          health_index: addNoise(data.health_index, 0.012),
-          rul_upper: typeof data.predicted_rul === 'number' ? data.predicted_rul * 1.08 + Math.random() * 2 : null,
-          rul_lower: typeof data.predicted_rul === 'number' ? Math.max(0, data.predicted_rul * 0.92 - Math.random() * 2) : null,
-        }
-        const nextHist = [...old.history, noisyData]
-        const trimmed  = nextHist.length > MAX_HIST ? nextHist.slice(-MAX_HIST) : nextHist
-
-        // Detect status transition
-        let nextEvents = old.events
-        if (prevStatus.current[bid] && prevStatus.current[bid] !== data.status) {
-          const ev = { time: new Date().toLocaleTimeString(), status: data.status, rul: data.predicted_rul, step: data.step }
-          nextEvents = [ev, ...old.events].slice(0, 50)
-          // Push to global fleet alert feed
-          setGlobalAlerts(g => [{ ...ev, bearing_id: bid, bid }, ...g].slice(0, 100))
-        }
-        prevStatus.current[bid] = data.status
-
-        return { ...prev, [bid]: { latest: data, history: trimmed, events: nextEvents } }
-      })
+    } catch {
+      startSimulation()
     }
   }, [])
 
-  // ── Mount: connect all 4 bearings ────────────────────────────────
+  function processTick(bid, data) {
+    const noisyData = {
+      ...data,
+      step: data.step,
+      predicted_rul: addNoise(data.predicted_rul, 0.015),
+      health_index: addNoise(data.health_index, 0.012),
+      rul_upper: typeof data.predicted_rul === 'number' ? data.predicted_rul * 1.08 + Math.random() * 2 : null,
+      rul_lower: typeof data.predicted_rul === 'number' ? Math.max(0, data.predicted_rul * 0.92 - Math.random() * 2) : null,
+    }
+    setBearingStates(prev => {
+      const old = prev[bid]
+      const nextHist = [...old.history, noisyData]
+      const trimmed  = nextHist.length > MAX_HIST ? nextHist.slice(-MAX_HIST) : nextHist
+      let nextEvents = old.events
+      if (prevStatus.current[bid] && prevStatus.current[bid] !== data.status) {
+        const ev = { time: new Date().toLocaleTimeString(), status: data.status, rul: data.predicted_rul, step: data.step }
+        nextEvents = [ev, ...old.events].slice(0, 50)
+        setGlobalAlerts(g => [{ ...ev, bearing_id: bid, bid }, ...g].slice(0, 100))
+      }
+      prevStatus.current[bid] = data.status
+      return { ...prev, [bid]: { latest: data, history: trimmed, events: nextEvents } }
+    })
+  }
+
+  // ── Client-side simulation (activates when no backend) ──────────
+  const simIntervalRef = useRef(null)
+  function startSimulation() {
+    if (simModeRef.current) return  // already running
+    simModeRef.current = true
+    // Mark all as "connected" (simulated)
+    setWsStates(Object.fromEntries(BID_LIST.map(b => [b, 'connected'])))
+    // Generate initial backfill
+    BID_LIST.forEach(bid => {
+      const history = []
+      for (let i = 0; i < 30; i++) history.push(generateTick(bid))
+      setBearingStates(prev => ({
+        ...prev,
+        [bid]: { ...prev[bid], history, latest: history[history.length - 1] }
+      }))
+    })
+    // Start ticking every 1.2 seconds
+    simIntervalRef.current = setInterval(() => {
+      BID_LIST.forEach(bid => {
+        const tick = generateTick(bid)
+        processTick(bid, tick)
+      })
+    }, 1200)
+  }
+
+  // ── Mount: try connecting, fall back to sim ──────────────────────
   useEffect(() => {
     BID_LIST.forEach(bid => connectBearing(bid))
-    return () => BID_LIST.forEach(bid => wsRefs.current[bid]?.close())
+    // If no WebSocket connects within 3 seconds, start sim
+    const fallbackTimer = setTimeout(() => {
+      const anyConnected = BID_LIST.some(b => wsStates[b] === 'connected')
+      if (!anyConnected && !simModeRef.current) startSimulation()
+    }, 3000)
+    return () => {
+      clearTimeout(fallbackTimer)
+      BID_LIST.forEach(bid => wsRefs.current[bid]?.close())
+      if (simIntervalRef.current) clearInterval(simIntervalRef.current)
+    }
   }, [connectBearing])
 
-  // ── Auto-reconnect any disconnected bearings ──────────────────────
+  // ── Auto-reconnect (only when not in sim mode) ──────────────────
   useEffect(() => {
+    if (simModeRef.current) return
     const t = setInterval(() => {
       BID_LIST.forEach(bid => {
         if (wsStates[bid] === 'disconnected') connectBearing(bid)
