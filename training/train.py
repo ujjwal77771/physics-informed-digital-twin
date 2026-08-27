@@ -164,8 +164,8 @@ def train_one_epoch(model, loader, criterion, optimizer, device):
         loss = criterion(
             pred_rul=pred_rul,
             true_rul=y_batch,
-            stress_amp=stress_amp,
-            crack_rate=crack_rate
+            sensor_health_index=stress_amp,
+            observed_wear_rate=crack_rate
         )
 
         loss.backward()

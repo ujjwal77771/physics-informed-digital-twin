@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>VibFormer: Physics-Informed Digital Twin</title>
+    <style>
+        :root { --bg: #0d1b2a; --text: #e0e1dd; --accent: #00b4d8; --accent-dark: #0077b6; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); }
+        .slide { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; box-sizing: border-box; page-break-after: always; }
+        h1 { color: var(--accent); font-size: 3.5rem; margin-bottom: 1rem; }
+        h2 { color: var(--text); font-size: 2.5rem; border-bottom: 3px solid var(--accent-dark); padding-bottom: 10px; margin-bottom: 2rem; }
+        p, li { font-size: 1.5rem; line-height: 1.6; text-align: left; }
+        ul { max-width: 800px; margin: 0 auto; }
+        .highlight { color: var(--accent); font-weight: bold; }
+        table { border-collapse: collapse; margin: 2rem auto; font-size: 1.5rem; width: 80%; max-width: 800px; }
+        th, td { border: 1px solid var(--accent-dark); padding: 1rem; text-align: center; }
+        th { background-color: var(--accent-dark); color: white; }
+        tr:nth-child(even) { background-color: rgba(255,255,255,0.05); }
+        .chart-container { display: flex; justify-content: space-around; width: 100%; max-width: 1000px; margin-top: 2rem; }
+        .bar { background-color: var(--accent); color: var(--bg); padding: 10px; font-weight: bold; display: flex; align-items: flex-end; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<div class="slide">
+    <h1>VibFormer: Physics-Informed Digital Twin</h1>
+    <h2>Remaining Useful Life Prediction of NASA C-MAPSS Turbofan Engines</h2>
+    <p><strong>Candidate:</strong> Ujjwal Deep | BIT Mesra</p>
+    <p><strong>Validation:</strong> 3-Fold Cross-Validation on C-MAPSS Datasets</p>
+</div>
+
+<div class="slide">
+    <h2>1. The Problem</h2>
+    <ul>
+        <li><strong>Unplanned Downtime:</strong> Industrial failures cost billions annually. Predictive maintenance relies on accurate Remaining Useful Life (RUL) estimation.</li>
+        <li><strong>Pure Data-Driven Models (LSTMs, CNNs):</strong> Highly unstable, prone to catastrophic forgetting, and output physically impossible predictions (e.g., RUL increasing over time).</li>
+        <li><strong>Goal:</strong> Constrain a modern sequence model (Transformer) with physical degradation laws to ensure stable, monotonic RUL predictions.</li>
+    </ul>
+</div>
+
+<div class="slide">
+    <h2>2. Methodology: VibFormer</h2>
+    <ul>
+        <li><strong>Architecture:</strong> Patch-based Transformer Encoder with 340K parameters. Sequence length = 30, Patch Size = 5.</li>
+        <li><strong>Physics-Informed Loss:</strong> Replaced standard MSE with a hybrid loss.</li>
+        <li><code>L_total = L_data + λ_phys * L_degradation + λ_mono * L_monotonicity</code></li>
+        <li><strong>Degradation Rate Law:</strong> Penalizes predicted degradation rates that deviate from established physical wear models.</li>
+        <li><strong>Monotonicity Constraint:</strong> Strictly penalizes predictions where engine health artificially "improves".</li>
+    </ul>
+</div>
+
+<div class="slide">
+    <h2>3. Rigorous Evaluation Protocol</h2>
+    <ul>
+        <li><strong>Dataset:</strong> NASA C-MAPSS Turbofan Engine degradation dataset (FD001, FD002, FD003). Over 70,000 sliding windows per fold.</li>
+        <li><strong>Protocol:</strong> 3-Fold Leave-One-Out Cross-Validation. Train on 2 subsets, test on the held-out subset.</li>
+        <li><strong>Baselines:</strong> Standard 2-Layer LSTM Regressor.</li>
+        <li><strong>Ablation:</strong> Isolated the effects of Data-Only, Physics-Only, Monotonicity-Only, and the Full Model.</li>
+    </ul>
+</div>
+
+<div class="slide">
+    <h2>4. Experimental Results (Ablation Study)</h2>
+    <table>
+        <tr>
+            <th>Model Configuration</th>
+            <th>RMSE (Cycles) ↓</th>
+            <th>MAE (Cycles) ↓</th>
+        </tr>
+        <tr>
+            <td>LSTM Baseline</td>
+            <td>41.44 ± 0.23</td>
+            <td>36.70</td>
+        </tr>
+        <tr>
+            <td>VibFormer (Data Only)</td>
+            <td>40.88 ± 41.37</td>
+            <td>35.51</td>
+        </tr>
+        <tr>
+            <td>VibFormer (Physics Only)</td>
+            <td>14.10 ± 0.65</td>
+            <td>10.50</td>
+        </tr>
+        <tr>
+            <td>VibFormer (Mono Only)</td>
+            <td>11.54 ± 2.14</td>
+            <td>8.01</td>
+        </tr>
+        <tr>
+            <td class="highlight">VibFormer (Full Model)</td>
+            <td class="highlight">11.31 ± 0.36</td>
+            <td class="highlight">7.86</td>
+        </tr>
+    </table>
+</div>
+
+<div class="slide">
+    <h2>5. Key Contributions & Insights</h2>
+    <ul>
+        <li><strong>Unconstrained Transformers are Unstable:</strong> As seen in the results, the Data-Only VibFormer collapsed in one of the folds (± 41.37 std dev), showing that Transformers lack inductive bias for continuous degradation.</li>
+        <li><strong>Physics Loss Stabilizes Training:</strong> Adding the Monotonicity and Degradation constraints dropped the RMSE by <span class="highlight">72.7% compared to the LSTM</span> (41.44 → 11.31) and completely eliminated fold variance (± 0.36 std dev).</li>
+        <li><strong>Real-World Deployment:</strong> The final stable ONNX model is integrated into a live React/FastAPI digital twin dashboard for real-time fleet monitoring.</li>
+    </ul>
+</div>
+
+<div class="slide">
+    <h1>Thank You</h1>
+    <h2>End of Presentation</h2>
+</div>
+
+<script>
+    // Simple keyboard navigation for presentation
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowRight' || e.key === 'Space') window.scrollBy({top: window.innerHeight, behavior: 'smooth'});
+        if(e.key === 'ArrowLeft') window.scrollBy({top: -window.innerHeight, behavior: 'smooth'});
+    });
+</script>
+</body>
+</html>

@@ -12,17 +12,17 @@ class PhysicsInformedLoss(nn.Module):
     """
     Physics-Informed Loss function that combines:
       1. Data-driven loss (MSE)
-      2. Physics residual loss (Paris' Law for crack propagation)
+      2. Physics residual loss (Power-Law degradation rate)
       3. Monotonicity penalty (enforces that RUL only decreases over time)
     """
 
     def __init__(self, lambda_phys=0.1, lambda_mono=0.05, C=1e-10, m=3.0):
         """
         Args:
-            lambda_phys : weight for the Paris Law physics residual
+            lambda_phys : weight for the Power-Law physics residual
             lambda_mono : weight for the monotonicity penalty
-            C           : Paris Law material constant
-            m           : Paris Law exponent constant
+            C           : Power-Law scale constant
+            m           : Power-Law exponent constant
         """
         super().__init__()
         self.lambda_phys = lambda_phys
@@ -30,16 +30,15 @@ class PhysicsInformedLoss(nn.Module):
         self.C = C
         self.m = m
 
-    def paris_residual(self, stress_amp, crack_rate):
+    def power_law_residual(self, sensor_health_index, observed_wear_rate):
         """
-        Computes the residual penalty for deviating from Paris' Law:
-        da/dN = C * (delta_K)^m
-        We approximate delta_K using stress amplitude.
+        Computes the residual penalty for deviating from a standard Power-Law
+        degradation curve: wear_rate = C * (sensor_health_index)^m
         """
-        # Clamp stress_amp to avoid negative values or division by zero issues
-        clamped_stress = torch.clamp(stress_amp, min=1e-12)
-        paris_rate = self.C * (clamped_stress ** self.m)
-        return torch.mean((crack_rate - paris_rate) ** 2)
+        # Clamp index to avoid negative values or division by zero issues
+        clamped_index = torch.clamp(sensor_health_index, min=1e-12)
+        power_law_rate = self.C * (clamped_index ** self.m)
+        return torch.mean((observed_wear_rate - power_law_rate) ** 2)
 
     def monotonicity_penalty(self, rul_seq):
         """
@@ -49,32 +48,25 @@ class PhysicsInformedLoss(nn.Module):
         if rul_seq.ndim == 1:
             rul_seq = rul_seq.unsqueeze(0)  # shape: (1, seq_len)
 
-        # diff[i] = RUL[i+1] - RUL[i]
-        # Since RUL should decrease, diff should be <= 0.
-        # Any positive values are violations.
         diff = rul_seq[:, 1:] - rul_seq[:, :-1]
         violations = torch.clamp(diff, min=0.0)
         return torch.mean(violations ** 2)
 
-    def forward(self, pred_rul, true_rul, stress_amp=None, crack_rate=None):
+    def forward(self, pred_rul, true_rul, sensor_health_index=None, observed_wear_rate=None):
         """
         Computes the total physics-informed loss.
         """
-        # Squeeze inputs to ensure shape consistency
         pred_rul = pred_rul.squeeze()
         true_rul = true_rul.squeeze()
 
-        # Data loss (MSE)
         loss_data = torch.mean((pred_rul - true_rul) ** 2)
 
-        # Physics loss (Paris Law)
         loss_phys = 0.0
-        if stress_amp is not None and crack_rate is not None:
-            stress_amp = stress_amp.squeeze()
-            crack_rate = crack_rate.squeeze()
-            loss_phys = self.paris_residual(stress_amp, crack_rate)
+        if sensor_health_index is not None and observed_wear_rate is not None:
+            sensor_health_index = sensor_health_index.squeeze()
+            observed_wear_rate = observed_wear_rate.squeeze()
+            loss_phys = self.power_law_residual(sensor_health_index, observed_wear_rate)
 
-        # Monotonicity loss
         loss_mono = 0.0
         if self.lambda_mono > 0:
             loss_mono = self.monotonicity_penalty(pred_rul)

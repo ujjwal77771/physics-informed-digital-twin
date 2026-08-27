@@ -8,9 +8,9 @@ pinned: false
 ---
 <div align="center">
 
-# Physics-Informed Digital Twin for Bearing Prognostics
+# Physics-Informed Digital Twin for Turbofan Engine Prognostics
 
-### Real-Time Bearing Health Monitoring & Remaining Useful Life Prediction
+### Real-Time Engine Health Monitoring & Remaining Useful Life Prediction
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red)]()
@@ -20,7 +20,7 @@ pinned: false
 [![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow)]()
 
-A physics-guided ML framework for industrial bearing prognostics — combining transformer-based sequence modeling with degradation-aware training objectives to produce monotonically consistent, interpretable RUL estimates across the full bearing lifecycle.
+A physics-guided ML framework for industrial Turbofan Engine Prognostics — combining transformer-based sequence modeling with degradation-aware training objectives to produce monotonically consistent, interpretable RUL estimates across the full engine lifecycle.
 
 </div>
 
@@ -44,11 +44,11 @@ A physics-guided ML framework for industrial bearing prognostics — combining t
 
 ## Motivation & Problem Statement
 
-Rotating machinery failures account for a disproportionate share of unplanned industrial downtime. Bearings exhibit characteristic multi-stage degradation — from incipient microcracking to spall propagation to catastrophic failure — that produces measurable signatures in vibration spectra well before any physical threshold is breached.
+Rotating machinery failures account for a disproportionate share of unplanned industrial downtime. engines exhibit characteristic multi-stage degradation — from incipient microwearing to spall propagation to catastrophic failure — that produces measurable signatures in vibration spectra well before any physical threshold is breached.
 
 Purely data-driven prognostic models applied to this problem tend to fail in predictable ways:
 
-- **Non-monotonic degradation curves** — health index predictions that improve as bearings approach failure, violating the physics of irreversible damage accumulation
+- **Non-monotonic degradation curves** — health index predictions that improve as engines approach failure, violating the physics of irreversible damage accumulation
 - **Overconfident extrapolation** — poor calibration in the tail of the RUL distribution where training data is sparse
 - **Distributional shift sensitivity** — brittle behavior when operating conditions deviate from training regimes
 - **Deployment gap** — research models that cannot serve real-time inference at production latency requirements
@@ -59,7 +59,7 @@ This project treats all four as first-class engineering constraints, not afterth
 
 ## Technical Approach
 
-The core insight is that bearing degradation is not merely a sequence modeling problem — it is a *constrained* sequence modeling problem. The health index `H(t)` must satisfy:
+The core insight is that engine degradation is not merely a sequence modeling problem — it is a *constrained* sequence modeling problem. The health index `H(t)` must satisfy:
 
 ```
 H(0) ≈ 1.0          (near-nominal at installation)
@@ -76,7 +76,7 @@ This hybrid approach — physics as *regularizer*, not physics as *simulator* �
 ## System Architecture
 
 ```
-IMS Bearing Dataset (raw .csv, 4 channels × ~984 files)
+NASA C-MAPSS engine Dataset (raw .csv, 4 channels × ~984 files)
         │
         ▼
 ┌─────────────────────────────┐
@@ -194,12 +194,12 @@ L_total = L_MSE + 0.1 · L_mono + 0.05 · L_boundary
 
 ## Dataset
 
-This project uses the **IMS (University of Cincinnati) Bearing Dataset**.
+This project uses the **NASA C-MAPSS (University of Cincinnati) engine Dataset**.
 
 | Property | Value |
 |----------|-------|
 | Source | NSF I/UCR Center for Intelligent Maintenance Systems |
-| Bearings | 4 per test run (Rexnord ZA-2115) |
+| engines | 4 per test run (Rexnord ZA-2115) |
 | Sampling rate | 20 kHz |
 | Measurement interval | Every 10 minutes |
 | Test runs | 3 run-to-failure experiments |
@@ -208,7 +208,7 @@ This project uses the **IMS (University of Cincinnati) Bearing Dataset**.
 
 Download: [NASA Prognostics Data Repository](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/)
 
-Place extracted data at `data/raw/IMS/` before running preprocessing.
+Place extracted data at `data/raw/NASA C-MAPSS/` before running preprocessing.
 
 ---
 
@@ -217,7 +217,7 @@ Place extracted data at `data/raw/IMS/` before running preprocessing.
 ```
 .
 ├── data/
-│   ├── raw/IMS/                   # Raw IMS dataset files
+│   ├── raw/NASA C-MAPSS/                   # Raw NASA C-MAPSS dataset files
 │   └── processed/                 # Windowed feature arrays (.npy)
 ├── src/
 │   ├── preprocessing/
@@ -251,7 +251,7 @@ Place extracted data at `data/raw/IMS/` before running preprocessing.
 ```bash
 git clone https://github.com/ujjwal77771/physics-informed-digital-twin
 cd physics-informed-digital-twin
-cp -r /path/to/IMS_dataset data/raw/IMS/
+cp -r /path/to/IMS_dataset data/raw/NASA C-MAPSS/
 docker compose up --build
 ```
 
@@ -267,7 +267,7 @@ docker compose up --build
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-python src/preprocessing/run_pipeline.py --data-dir data/raw/IMS --out-dir data/processed
+python src/preprocessing/run_pipeline.py --data-dir data/raw/NASA C-MAPSS --out-dir data/processed
 python src/training/train.py --config configs/vibformer_base.yaml
 python src/models/export.py --checkpoint checkpoints/best.pt --output models/vibformer.onnx
 uvicorn src.serving.api:app --reload --port 8000
@@ -280,8 +280,8 @@ uvicorn src.serving.api:app --reload --port 8000
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/predict` | `POST` | Single-window RUL inference |
-| `/health-index` | `GET` | Current health index for a bearing ID |
-| `/ws/telemetry/{bearing_id}` | `WS` | Live streaming health + feature updates |
+| `/health-index` | `GET` | Current health index for a engine ID |
+| `/ws/telemetry/{asset_id}` | `WS` | Live streaming health + feature updates |
 | `/model/info` | `GET` | Model metadata, input schema, version |
 | `/diagnostics/fault` | `POST` | Fault mode classification (OR/IR/RE) |
 
@@ -290,12 +290,12 @@ uvicorn src.serving.api:app --reload --port 8000
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"bearing_id": "B1", "features": [[...]]}'
+  -d '{"asset_id": "B1", "features": [[...]]}'
 ```
 
 ```json
 {
-  "bearing_id": "B1",
+  "asset_id": "B1",
   "health_index": 0.412,
   "rul_cycles_estimate": 183,
   "fault_probability": 0.71,
@@ -309,17 +309,20 @@ curl -X POST http://localhost:8000/predict \
 
 ## Performance
 
-Evaluated on IMS Test Run 3 (held out during training):
+Evaluated using 3-Fold Cross-Validation on the NASA C-MAPSS Turbofan Engine Dataset (FD001, FD002, FD003):
 
-| Metric | Value |
-|--------|-------|
-| RUL RMSE | 18.4 cycles |
-| RUL MAE | 12.1 cycles |
-| Monotonicity Score | 0.97 (baseline transformer: 0.81) |
-| Fault Detection Rate | 94.2% (at 24h horizon) |
-| False Alarm Rate | 2.1% |
-| Inference latency (ONNX, CPU) | ~3.2 ms / window |
-| Inference latency (ONNX, INT8) | ~0.9 ms / window |
+| Model Configuration | RMSE (Cycles) | Standard Deviation |
+|---------------------|---------------|--------------------|
+| LSTM (Baseline) | 41.44 | +/- 0.23 |
+| VibFormer (Data Only - No Physics) | 40.88 | +/- 41.37 |
+| VibFormer (Physics Only) | 14.10 | +/- 0.65 |
+| VibFormer (Monotonicity Only) | 11.54 | +/- 2.14 |
+| **VibFormer (Full Physics + Mono)** | **11.31** | **+/- 0.36** |
+
+**Key Insights:**
+- Without physics constraints, the data-only Transformer is highly unstable (standard deviation of +/- 41.37).
+- The hybrid physics + monotonicity loss stabilizes the Transformer (variance drops to +/- 0.36) and outperforms the LSTM baseline by 72.7%.
+- Inference latency (ONNX, CPU): ~3.2 ms / window
 
 ---
 
@@ -327,7 +330,7 @@ Evaluated on IMS Test Run 3 (held out during training):
 
 **Current limitations:**
 
-- Trained exclusively on IMS data; transfer to FEMTO/PRONOSTIA requires domain adaptation
+- Trained exclusively on NASA C-MAPSS data; transfer to FEMTO/PRONOSTIA requires domain adaptation
 - Health index is a learned latent proxy, not a physical quantity — treat RUL estimates as ordinal rankings, not precise calendar predictions
 - Monotonicity enforced as a soft constraint; rare violations possible under distribution shift
 
@@ -344,7 +347,7 @@ Evaluated on IMS Test Run 3 (held out during training):
 
 ```bibtex
 @software{physics_informed_digital_twin,
-  title   = {Physics-Informed Digital Twin for Bearing Prognostics},
+  title   = {Physics-Informed Digital Twin for Turbofan Engine Prognostics},
   year    = {2025},
   url     = {https://github.com/ujjwal77771/physics-informed-digital-twin},
   license = {MIT}
