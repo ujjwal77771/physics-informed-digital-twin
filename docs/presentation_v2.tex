@@ -156,9 +156,11 @@
         \item<1-> \textbf{Industrial scale.} Unplanned downtime in aviation,
               power generation, and manufacturing costs billions annually.
               Accurate RUL is the key bottleneck.
-        \item<2-> \textbf{Standard benchmark.} NASA C-MAPSS is the established
-              PHM community testbed for turbofan degradation --- results
-              are directly comparable with published literature.
+        \item<2-> \textbf{Harder-than-standard benchmark.} NASA C-MAPSS is the established
+              PHM testbed. Standard literature trains and tests \emph{within} each sub-dataset.
+              I use a cross-sub-dataset leave-one-out protocol --- training on two sub-datasets,
+              testing on an unseen third. This is a domain-generalisation task, not in-domain
+              accuracy, and is a strictly harder evaluation than the published benchmarks.
         \item<3-> \textbf{Deployability gap.} A maintenance engineer cannot act
               on a prediction that says the engine health improved overnight.
               Physical consistency is \emph{mandatory}, not optional, for
@@ -662,9 +664,14 @@
         \end{itemize}
       \end{alertblock}
       \vspace{8pt}
-      {\small\textbf{Future:} tune baseline; grid-search $\lambda$;
-      conformal prediction intervals; extend to bearing datasets;
-      pursue publication with your guidance.}
+      {\small\textbf{Key open direction --- Uncertainty Quantification:}
+      All results here are point estimates (RMSE). For risk-aware
+      maintenance decisions, a calibrated predictive distribution over RUL
+      is essential --- a maintenance engineer needs to know not just
+      \emph{when} the engine will fail, but \emph{how confident} that
+      estimate is. Extending this physics-informed framework with Bayesian
+      inference or conformal prediction intervals is the natural next step,
+      and is the direction I most want to pursue in collaboration.}
   \end{columns}
 \end{frame}
 
