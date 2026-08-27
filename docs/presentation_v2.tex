@@ -279,7 +279,8 @@
       \begin{itemize}
         \setlength\itemsep{6pt}
         \item<1-> A \textbf{patch-embedding Transformer encoder} processes 30-cycle windows
-              of 14 C-MAPSS sensor channels.
+              of 14 C-MAPSS sensor channels --- exhaust temperatures (T24, T30, T50),
+              pressures (P30, Ps30), fan/core speeds (Nf, Nc), bypass ratio, and bleed parameters.
         \item<2-> The training loss is augmented with \textbf{two physics-informed penalties}:
               a degradation-rate term and a monotonicity term.
         \item<3-> Each term is independently toggleable, enabling a clean ablation study.
