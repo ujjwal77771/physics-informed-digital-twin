@@ -251,7 +251,7 @@ Place extracted data at `data/raw/NASA C-MAPSS/` before running preprocessing.
 ```bash
 git clone https://github.com/ujjwal77771/physics-informed-digital-twin
 cd physics-informed-digital-twin
-cp -r /path/to/IMS_dataset data/raw/NASA C-MAPSS/
+cp -r /path/to/NASA_CMAPSS data/raw/NASA C-MAPSS/
 docker compose up --build
 ```
 
