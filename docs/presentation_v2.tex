@@ -435,26 +435,24 @@
 % ============================================================
 
 \begin{frame}{The Original Contributions}
+  \small
   \begin{enumerate}
-    \setlength\itemsep{10pt}
+    \setlength\itemsep{8pt}
     \item<1-> \textbf{Open-source physics-informed Transformer pipeline for NASA C-MAPSS.}\\
-          {\small Preprocessing $\to$ training $\to$ ONNX export $\to$ FastAPI inference server
-          $\to$ live React dashboard.  Fully reproducible.}
+          {\footnotesize Preprocessing $\to$ training $\to$ ONNX export $\to$ FastAPI inference server
+          $\to$ live React dashboard. Fully reproducible.}
 
     \item<2-> \textbf{Ablation study isolating each physics term individually and jointly.}\\
-          {\small All 5 variants (LSTM, Data-Only, Degradation-Only, Mono-Only, Full)
+          {\footnotesize All 5 variants (LSTM, Data-Only, Degradation-Only, Mono-Only, Full)
           trained identically across all 3 folds --- 15 independent training runs total.}
 
     \item<3-> \textbf{Transparent reporting of fold-collapse instability.}\\
-          {\small The unconstrained Transformer collapsed on FD003 (RMSE\,99.39).
-          This failure is reported and explained rather than discarded.}
+          {\footnotesize The unconstrained Transformer collapsed on FD003 (RMSE\,99.39).
+          Reported and explained, not discarded.}
 
     \item<4-> \textbf{Stability as the primary quantitative finding.}\\
-          {\small Full model: fold-to-fold sample std $= 0.44$ cycles.
-          Data-only: sample std $= 50.67$ cycles.
-          On easy folds the physics constraints do not change accuracy ---
-          they specifically prevent catastrophic failure on the hard fold (FD003),
-          making the model reliably deployable across unseen sub-datasets.}
+          {\footnotesize Full model std $= 0.44$ cycles vs Data-Only std $= 50.67$ cycles.
+          Physics constraints prevent catastrophic failure on unseen sub-datasets.}
   \end{enumerate}
 \end{frame}
 
@@ -464,27 +462,26 @@
 
 \begin{frame}{Applications}
   \begin{center}
-  % resizebox ensures the whole grid fits the frame width automatically
   \resizebox{0.97\textwidth}{!}{%
   \begin{tikzpicture}[every node/.style={inner sep=0pt}]
-    % Row 1  (centres at y=0)
-    \node (c1) at (0,   0) {\appcard{TealDk}{$\mathbf{\Uparrow}$}%
+    % Row 1 — appears on overlay 1
+    \node<1-> (c1) at (0,   0) {\appcard{TealDk}{$\mathbf{\Uparrow}$}%
       {Aerospace \& Aviation MRO}%
       {Engine health monitoring. Physics constraints make RUL predictions defensible for certified maintenance decisions.}};
-    \node (c2) at (4.1, 0) {\appcard{Orange}{$\mathbf{\sim}$}%
+    \node<1-> (c2) at (4.1, 0) {\appcard{Orange}{$\mathbf{\sim}$}%
       {Power Generation}%
       {Gas and steam turbines share the run-to-failure degradation pattern. VibFormer transfers via fine-tuning on plant logs.}};
-    \node (c3) at (8.2, 0) {\appcard{Purple}{$\mathbf{\circlearrowleft}$}%
+    \node<1-> (c3) at (8.2, 0) {\appcard{Purple}{$\mathbf{\circlearrowleft}$}%
       {Industrial Rotating Machinery}%
       {Compressors, pumps, motors. Window-based processing generalises across sensor types and sampling rates.}};
-    % Row 2  (centres at y=-3.4, giving ~0.3cm gap between rows)
-    \node (c4) at (0,   -3.4) {\appcard{Green}{$\mathbf{\equiv}$}%
+    % Row 2 — appears on overlay 2
+    \node<2-> (c4) at (0,   -3.4) {\appcard{Green}{$\mathbf{\equiv}$}%
       {Fleet-Level Monitoring}%
       {Monitor multiple assets in parallel. The live dashboard shows 4-engine simultaneous real-time streaming.}};
-    \node (c5) at (4.1, -3.4) {\appcard{Red}{$\mathbf{\infty}$}%
+    \node<2-> (c5) at (4.1, -3.4) {\appcard{Red}{$\mathbf{\infty}$}%
       {Digital Twin Integration}%
       {VibFormer drives a deployed Digital Twin: sensor data $\to$ ONNX inference $\to$ RUL gauge $\to$ maintenance alert.}};
-    \node (c6) at (8.2, -3.4) {\appcard{Navy}{$\mathbf{\star}$}%
+    \node<2-> (c6) at (8.2, -3.4) {\appcard{Navy}{$\mathbf{\star}$}%
       {Next Domain: Bearings}%
       {Architecture extensible to bearing prognostics. The monotonicity prior holds for any asset with irreversible degradation.}};
   \end{tikzpicture}%
