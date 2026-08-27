@@ -151,8 +151,9 @@
 \begin{frame}{What is the relevance of the problem?}
   \begin{columns}[T]
     \column{0.56\textwidth}
+      \small
       \begin{itemize}
-        \setlength\itemsep{9pt}
+        \setlength\itemsep{5pt}
         \item<1-> \textbf{Industrial scale.} Unplanned downtime in aviation,
               power generation, and manufacturing costs billions annually.
               Accurate RUL is the key bottleneck.
@@ -161,11 +162,9 @@
               on a held-out third --- a harder, out-of-domain evaluation.
         \item<3-> \textbf{Deployability gap.} A maintenance engineer cannot act
               on a prediction that says the engine health improved overnight.
-              Physical consistency is \emph{mandatory}, not optional, for
-              deployment trust.
-        \item<4-> \textbf{Reproducibility.} The full pipeline is open-source
-              with a live inference dashboard, making findings verifiable
-              and extensible.
+              Physical consistency is \emph{mandatory} for deployment trust.
+        \item<4-> \textbf{Reproducibility.} Full open-source pipeline with live
+              inference dashboard --- findings are verifiable and extensible.
       \end{itemize}
     \column{0.41\textwidth}
       \begin{block}{NASA C-MAPSS at a glance}
@@ -276,15 +275,16 @@
   \begin{columns}[T]
     \column{0.52\textwidth}
       \textbf{VibFormer with hybrid physics-informed loss}\\[8pt]
+      \small
       \begin{itemize}
-        \setlength\itemsep{6pt}
+        \setlength\itemsep{4pt}
         \item<1-> A \textbf{patch-embedding Transformer encoder} processes 30-cycle windows
-              of 14 C-MAPSS sensor channels --- exhaust temperatures (T24, T30, T50),
-              pressures (P30, Ps30), fan/core speeds (Nf, Nc), bypass ratio, and bleed parameters.
-        \item<2-> The training loss is augmented with \textbf{two physics-informed penalties}:
+              of 14 C-MAPSS channels --- temperatures (T24, T30, T50),
+              pressures (P30, Ps30), speeds (Nf, Nc), bypass ratio, bleed.
+        \item<2-> Training loss augmented with \textbf{two physics penalties}:
               a degradation-rate term and a monotonicity term.
-        \item<3-> Each term is independently toggleable, enabling a clean ablation study.
-        \item<4-> Inference is a standard forward pass --- no overhead at deployment time.
+        \item<3-> Each term is independently toggleable --- clean ablation.
+        \item<4-> Inference is a standard forward pass --- no overhead.
       \end{itemize}
       \vspace{6pt}
       \onslide<4->{%
@@ -661,21 +661,16 @@
           \item Soft constraint: violations under\\distribution shift remain possible.
         \end{itemize}
       \end{alertblock}
-      \vspace{4pt}
-      {\scriptsize\textbf{Key open direction --- UQ:}
-      All results are point estimates (RMSE). Risk-aware maintenance
-      requires a calibrated predictive distribution over RUL ---
-      a maintenance engineer needs to know \emph{how confident} the estimate is,
-      not just the point value. Bayesian inference or conformal prediction
-      over this physics-informed baseline is the direction I most want to
-      pursue in collaboration.}
   \end{columns}
 \end{frame}
 
 % ============================================================
 \begin{frame}[standout]
-  Thank you, Prof.\ Zio.\\[10pt]
-  {\normalsize Looking forward to your feedback.}\\[12pt]
+  Thank you, Prof.\ Zio.\\[8pt]
+  {\normalsize Looking forward to your feedback.}\\[10pt]
+  {\small\textit{Key open direction I want to pursue in collaboration:}\\[4pt]
+  Bayesian or conformal UQ over this physics-informed baseline ---\\
+  point estimates are not enough for risk-aware maintenance decisions.}\\[10pt]
   {\small
     \texttt{mail2ujjwaldeephzb@gmail.com}\\[5pt]
     \texttt{github.com/ujjwal77771/physics-informed-digital-twin}
