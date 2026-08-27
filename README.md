@@ -311,17 +311,19 @@ curl -X POST http://localhost:8000/predict \
 
 Evaluated using 3-Fold Cross-Validation on the NASA C-MAPSS Turbofan Engine Dataset (FD001, FD002, FD003):
 
-| Model Configuration | RMSE (Cycles) | Standard Deviation |
-|---------------------|---------------|--------------------|
-| LSTM (Baseline) | 41.44 | +/- 0.23 |
-| VibFormer (Data Only - No Physics) | 40.88 | +/- 41.37 |
-| VibFormer (Physics Only) | 14.10 | +/- 0.65 |
-| VibFormer (Monotonicity Only) | 11.54 | +/- 2.14 |
-| **VibFormer (Full Physics + Mono)** | **11.31** | **+/- 0.36** |
+| Model Configuration | Run 1 RMSE | Run 2 RMSE | Observed Range (Cycles) |
+|---------------------|------------|------------|-------------------------|
+| LSTM (Baseline) | 41.44 | 41.44 | 41.25 - 41.76 |
+| VibFormer (Data Only - No Physics) | 40.88* | 12.73 | 10.71 - 99.39 |
+| VibFormer (Degradation Only) | 14.10 | 11.85 | 10.21 - 15.02 |
+| VibFormer (Monotonicity Only) | 11.54 | 11.44 | 9.81 - 14.56 |
+| **VibFormer (Full)** | **11.31** | **11.94** | **10.61 - 14.06** |
+
+*Note: The Data-Only model is highly sensitive to initialization. In Run 1, Fold 3 catastrophically collapsed to RMSE 99.39. In Run 2, it achieved 11.73.*
 
 **Key Insights:**
-- Without physics constraints, the data-only Transformer is highly unstable (standard deviation of +/- 41.37).
-- The hybrid physics + monotonicity loss stabilizes the Transformer (variance drops to +/- 0.36) and outperforms the LSTM baseline by 72.7%.
+- Without physics constraints, the data-only Transformer is highly unstable across random seeds and folds (ranging from 10.71 to 99.39).
+- The hybrid physics + monotonicity loss acts as a powerful regularizer, completely curing the fold-collapse instability (narrowing the range to 10.61 - 14.06) and vastly outperforming the LSTM baseline.
 - Inference latency (ONNX, CPU): ~3.2 ms / window
 
 ---
