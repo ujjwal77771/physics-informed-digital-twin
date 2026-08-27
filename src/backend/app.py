@@ -147,12 +147,12 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_telemetry_bearing ON telemetry(bearing_id, ts);
         CREATE INDEX IF NOT EXISTS idx_alerts_bearing    ON alerts(bearing_id, ts);
     """)
-    # Seed bearing metadata
+    # Seed engine metadata (NASA C-MAPSS turbofan fleet)
     bearings = [
-        ("B1", "Bearing 1 — Drive End",  "Line A · Station 3",  "Primary drive-end bearing, Rexnord ZA-2115"),
-        ("B2", "Bearing 2 — Fan End",    "Line A · Station 3",  "Fan-end bearing, showing degradation trend"),
-        ("B3", "Bearing 3 — Drive End",  "Line B · Station 1",  "Secondary drive-end bearing, near end-of-life"),
-        ("B4", "Bearing 4 — Fan End",    "Line B · Station 1",  "New fan-end bearing, recently replaced"),
+        ("E1", "Engine 1 — FD001",  "Fleet A · Bay 1",  "Turbofan unit FD001, nominal single operating condition"),
+        ("E2", "Engine 2 — FD002",  "Fleet A · Bay 2",  "Turbofan unit FD002, multi-condition degradation profile"),
+        ("E3", "Engine 3 — FD003",  "Fleet B · Bay 1",  "Turbofan unit FD003, near end-of-life"),
+        ("E4", "Engine 4 — FD004",  "Fleet B · Bay 2",  "Turbofan unit FD004, recently overhauled"),
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO bearings (id, name, location, description) VALUES (?,?,?,?)",
