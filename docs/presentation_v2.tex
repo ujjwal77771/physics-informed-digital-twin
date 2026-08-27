@@ -464,24 +464,24 @@
   \begin{center}
   \resizebox{0.97\textwidth}{!}{%
   \begin{tikzpicture}[every node/.style={inner sep=0pt}]
-    % Row 1 — appears on overlay 1
+    % Row 1 — appears sequentially
     \node<1-> (c1) at (0,   0) {\appcard{TealDk}{$\mathbf{\Uparrow}$}%
       {Aerospace \& Aviation MRO}%
       {Engine health monitoring. Physics constraints make RUL predictions defensible for certified maintenance decisions.}};
-    \node<1-> (c2) at (4.1, 0) {\appcard{Orange}{$\mathbf{\sim}$}%
+    \node<2-> (c2) at (4.1, 0) {\appcard{Orange}{$\mathbf{\sim}$}%
       {Power Generation}%
       {Gas and steam turbines share the run-to-failure degradation pattern. VibFormer transfers via fine-tuning on plant logs.}};
-    \node<1-> (c3) at (8.2, 0) {\appcard{Purple}{$\mathbf{\circlearrowleft}$}%
+    \node<3-> (c3) at (8.2, 0) {\appcard{Purple}{$\mathbf{\circlearrowleft}$}%
       {Industrial Rotating Machinery}%
       {Compressors, pumps, motors. Window-based processing generalises across sensor types and sampling rates.}};
-    % Row 2 — appears on overlay 2
-    \node<2-> (c4) at (0,   -3.4) {\appcard{Green}{$\mathbf{\equiv}$}%
+    % Row 2 — appears sequentially
+    \node<4-> (c4) at (0,   -3.4) {\appcard{Green}{$\mathbf{\equiv}$}%
       {Fleet-Level Monitoring}%
       {Monitor multiple assets in parallel. The live dashboard shows 4-engine simultaneous real-time streaming.}};
-    \node<2-> (c5) at (4.1, -3.4) {\appcard{Red}{$\mathbf{\infty}$}%
+    \node<5-> (c5) at (4.1, -3.4) {\appcard{Red}{$\mathbf{\infty}$}%
       {Digital Twin Integration}%
       {VibFormer drives a deployed Digital Twin: sensor data $\to$ ONNX inference $\to$ RUL gauge $\to$ maintenance alert.}};
-    \node<2-> (c6) at (8.2, -3.4) {\appcard{Navy}{$\mathbf{\star}$}%
+    \node<6-> (c6) at (8.2, -3.4) {\appcard{Navy}{$\mathbf{\star}$}%
       {Next Domain: Bearings}%
       {Architecture extensible to bearing prognostics. The monotonicity prior holds for any asset with irreversible degradation.}};
   \end{tikzpicture}%
