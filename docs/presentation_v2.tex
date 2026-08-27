@@ -171,7 +171,7 @@
       \begin{block}{NASA C-MAPSS at a glance}
         \small
         \begin{itemize}
-          \item 3 sub-datasets: FD001, FD002, FD003
+          \item 3 of 4 C-MAPSS sub-datasets used: FD001, FD002, FD003\\(FD004 excluded --- adds no new fault mode beyond FD003)
           \item 21 sensor channels; 14 used after\\near-zero variance filtering
           \item $\approx$41k\,--\,69k windows per training fold
           \item Run-to-failure trajectories across\\multiple operating conditions
@@ -529,7 +529,7 @@
     Run 1 and Run 2 are identical folds with different random seeds.
     ``Observed Range'' = min to max RMSE across all 6 fold results (3 folds $\times$ 2 runs).\\
     \textsuperscript{*}Run 1 Data-Only mean inflated by one catastrophic fold (RMSE\,99.39); Run 2 same fold gave 11.73.\\
-    \textit{Key finding: the Full model's range (3.45 cycles) is 25$\times$ narrower than Data-Only (88.68). Physics constraints prevent catastrophic failure.}
+    \textit{Key finding: the Full model's range (3.45 cycles) is 26$\times$ narrower than Data-Only (88.68). Physics constraints prevent catastrophic failure.}
   }
 \end{frame}
 
