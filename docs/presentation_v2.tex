@@ -156,11 +156,9 @@
         \item<1-> \textbf{Industrial scale.} Unplanned downtime in aviation,
               power generation, and manufacturing costs billions annually.
               Accurate RUL is the key bottleneck.
-        \item<2-> \textbf{Harder-than-standard benchmark.} NASA C-MAPSS is the established
-              PHM testbed. Standard literature trains and tests \emph{within} each sub-dataset.
-              I use a cross-sub-dataset leave-one-out protocol --- training on two sub-datasets,
-              testing on an unseen third. This is a domain-generalisation task, not in-domain
-              accuracy, and is a strictly harder evaluation than the published benchmarks.
+        \item<2-> \textbf{Domain-generalisation benchmark.} Standard C-MAPSS literature
+              tests \emph{within} each sub-dataset. I train on two sub-datasets and test
+              on a held-out third --- a harder, out-of-domain evaluation.
         \item<3-> \textbf{Deployability gap.} A maintenance engineer cannot act
               on a prediction that says the engine health improved overnight.
               Physical consistency is \emph{mandatory}, not optional, for
@@ -663,15 +661,14 @@
           \item Soft constraint: violations under\\distribution shift remain possible.
         \end{itemize}
       \end{alertblock}
-      \vspace{8pt}
-      {\small\textbf{Key open direction --- Uncertainty Quantification:}
-      All results here are point estimates (RMSE). For risk-aware
-      maintenance decisions, a calibrated predictive distribution over RUL
-      is essential --- a maintenance engineer needs to know not just
-      \emph{when} the engine will fail, but \emph{how confident} that
-      estimate is. Extending this physics-informed framework with Bayesian
-      inference or conformal prediction intervals is the natural next step,
-      and is the direction I most want to pursue in collaboration.}
+      \vspace{4pt}
+      {\scriptsize\textbf{Key open direction --- UQ:}
+      All results are point estimates (RMSE). Risk-aware maintenance
+      requires a calibrated predictive distribution over RUL ---
+      a maintenance engineer needs to know \emph{how confident} the estimate is,
+      not just the point value. Bayesian inference or conformal prediction
+      over this physics-informed baseline is the direction I most want to
+      pursue in collaboration.}
   \end{columns}
 \end{frame}
 
